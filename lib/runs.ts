@@ -55,6 +55,42 @@ export function listRuns(limit = 100): RunRecord[] {
   return rows.map(toRecord);
 }
 
+// Searches saved runs by name or company, optionally filtered by outcome.
+export function searchRuns(options: { q?: string; outcome?: RunOutcome | "all" | "open"; limit?: number }): RunRecord[] {
+  const clauses: string[] = [];
+  const params: (string | number)[] = [];
+  if (options.q) {
+    clauses.push("prospect_json LIKE ? ESCAPE '\\'");
+    params.push(`%${options.q.replace(/[\\%_]/g, (char) => `\\${char}`)}%`);
+  }
+  if (options.outcome === "open") {
+    clauses.push("status <> 'finished'");
+  } else if (options.outcome && options.outcome !== "all") {
+    clauses.push("outcome = ?");
+    params.push(options.outcome);
+  }
+  const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+  params.push(options.limit ?? 200);
+  const rows = getDb()
+    .prepare(`SELECT * FROM runs ${where} ORDER BY created_at DESC LIMIT ?`)
+    .all(...params) as RunRow[];
+  return rows.map(toRecord);
+}
+
+export function countRuns(): { total: number; byOutcome: Record<string, number> } {
+  const rows = getDb()
+    .prepare("SELECT status, outcome, COUNT(*) AS n FROM runs GROUP BY status, outcome")
+    .all() as { status: string; outcome: string | null; n: number }[];
+  const byOutcome: Record<string, number> = {};
+  let total = 0;
+  for (const row of rows) {
+    total += row.n;
+    const key = row.status === "finished" && row.outcome ? row.outcome : row.status;
+    byOutcome[key] = (byOutcome[key] ?? 0) + row.n;
+  }
+  return { total, byOutcome };
+}
+
 export function setRunStatus(id: string, status: RunStatus, outcome: RunOutcome | null = null) {
   const finishedAt = status === "finished" ? new Date().toISOString() : null;
   getDb()
