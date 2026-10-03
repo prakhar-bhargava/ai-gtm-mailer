@@ -101,7 +101,8 @@ export function RunView({ streamUrl, initialEvents }: { streamUrl: string | null
     <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
       <ol className="grid content-start gap-1">
         {STEPS.map((step) => {
-          const state = steps[step.id] ?? { status: "pending" as const };
+          // Steps that didn't exist when an old search ran show as waiting, with no notes.
+          const state: StepState = steps[step.id] ?? { status: "pending", trail: [] };
           return (
             <li key={step.id} className="rounded-lg border bg-white p-3">
               <div className="flex items-center gap-3">

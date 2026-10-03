@@ -62,13 +62,14 @@ export const Hook = z.object({
 export type Hook = z.infer<typeof Hook>;
 
 // One factual sentence in the draft, tied to the signal it came from.
+// Defaults let drafts saved by earlier versions of the app still open.
 export const Claim = z.object({
   text: z.string(),
-  signalId: z.string(),
+  signalId: z.string().default(""),
   sourceName: z.string(),
   sourceUrl: z.string(),
-  publishedAt: z.string().nullable(),
-  supported: z.boolean(), // set by the verify step
+  publishedAt: z.string().nullable().default(null),
+  supported: z.boolean().default(false), // set by the verify step
 });
 export type Claim = z.infer<typeof Claim>;
 
@@ -76,7 +77,7 @@ export const Draft = z.object({
   subject: z.string(),
   body: z.string(),
   claims: z.array(Claim),
-  lintIssues: z.array(z.string()),
+  lintIssues: z.array(z.string()).default([]),
 });
 export type Draft = z.infer<typeof Draft>;
 

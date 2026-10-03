@@ -31,7 +31,8 @@ export function SendPanel({
       const response = await fetch(`/api/runs/${runId}/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, body }),
+        // The signature is part of the saved mail, so the Outbox shows exactly what was sent.
+        body: JSON.stringify({ subject, body: `${body.trimEnd()}\n\n${signature.join("\n")}` }),
       });
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "Could not save to the Outbox");

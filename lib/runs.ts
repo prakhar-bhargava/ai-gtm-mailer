@@ -127,14 +127,18 @@ export function getEvents(runId: string): StageEvent[] {
   const rows = getDb()
     .prepare("SELECT stage, status, message, duration_ms, payload_json, at FROM run_events WHERE run_id = ? ORDER BY id")
     .all(runId) as EventRow[];
-  return rows.map((row) =>
-    StageEvent.parse({
+  // An old event that no longer matches the current format keeps its message, without its extra data,
+  // so the search still opens instead of failing as a whole.
+  return rows.flatMap((row) => {
+    const payload = row.payload_json ? StagePayload.safeParse(JSON.parse(row.payload_json)) : null;
+    const event = StageEvent.safeParse({
       stage: row.stage,
       status: row.status,
       message: row.message,
       durationMs: row.duration_ms ?? undefined,
-      payload: row.payload_json ? StagePayload.parse(JSON.parse(row.payload_json)) : undefined,
+      payload: payload?.success ? payload.data : undefined,
       at: row.at,
-    }),
-  );
+    });
+    return event.success ? [event.data] : [];
+  });
 }
