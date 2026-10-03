@@ -1,0 +1,14 @@
+{
+  "_note": "Blocked as hooks (docs/06). Matched as whole words or word stems against signal text and hook text. The model also flags these, and either check blocks the hook.",
+  "topics": [
+    "layoff", "laid off", "redundan", "restructur",
+    "lawsuit", "sued", "sues", "legal action",
+    "investigat", "fraud", "regulator", "enforcement",
+    "resign", "stepping down", "steps down", "stepped down", "fired", "departure", "ousted",
+    "missed earnings", "down round", "profit warning",
+    "death", "died", "passed away", "bereave", "illness", "medical", "health",
+    "divorce", "pregnan", "wedding", "family",
+    "religio", "politic", "election",
+    "rumor", "rumour", "unconfirmed", "reportedly"
+  ]
+}

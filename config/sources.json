@@ -1,0 +1,14 @@
+{
+  "newsDays": 180,
+  "newsMustMention": [
+    "announc", "launch", "rais", "fund", "hire", "hiring", "expan", "acqui", "partner", "revenue",
+    "ceo", "cfo", "finance", "payment", "platform", "product", "office", "customer", "growth",
+    "report", "ipo", "invest", "open", "new", "deal"
+  ],
+  "roleKeywords": [
+    "finance", "financial", "accountant", "accounting", "accounts payable", "accounts receivable",
+    "bookkeep", "payables", "receivables", "controller", "billing", "procurement", "treasury",
+    "tax", "compliance", "fp&a", "revenue operations", "finance operations"
+  ],
+  "maxSignalsPerSource": 5
+}

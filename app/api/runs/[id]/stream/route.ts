@@ -1,6 +1,6 @@
 import { runPipeline } from "@/lib/pipeline";
 import { appendEvent, getEvents, getRun, setRunStatus } from "@/lib/runs";
-import type { StageEvent } from "@/lib/types";
+import type { Outcome, StageEvent } from "@/lib/types";
 
 export const maxDuration = 60;
 
@@ -50,12 +50,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       appendEvent(id, event);
       send(event);
     };
+    let outcome: Outcome = "stopped";
     try {
-      await runPipeline(run.prospect, emit);
+      outcome = await runPipeline(run.prospect, emit);
     } finally {
-      // Runs that crash still end as "stopped", so the dashboard never shows them as running forever.
-      const end = getEvents(id).find((event) => event.stage === "run");
-      setRunStatus(id, "finished", end?.status === "done" ? "draft" : "stopped");
+      // A run that crashes still ends as "stopped", so the dashboard never shows it as running forever.
+      setRunStatus(id, "finished", outcome);
     }
   });
 }

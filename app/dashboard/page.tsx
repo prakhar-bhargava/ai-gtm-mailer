@@ -13,18 +13,24 @@ function duration(run: RunRecord): string {
   return `${seconds.toFixed(1)} s`;
 }
 
+const OUTCOME_LABEL: Record<NonNullable<RunRecord["outcome"]>, { text: string; variant: "default" | "secondary" | "destructive" }> = {
+  draft: { text: "Ready for review", variant: "default" },
+  flagged: { text: "Check flagged points", variant: "secondary" },
+  abstained: { text: "Abstained", variant: "secondary" },
+  stopped: { text: "Stopped", variant: "destructive" },
+};
+
 function statusLabel(run: RunRecord): { text: string; variant: "default" | "secondary" | "destructive" | "outline" } {
   if (run.status === "new") return { text: "Not started", variant: "outline" };
   if (run.status === "running") return { text: "Running", variant: "secondary" };
-  if (run.outcome === "draft") return { text: "Ready for review", variant: "default" };
-  return { text: "Stopped", variant: "destructive" };
+  return run.outcome ? OUTCOME_LABEL[run.outcome] : { text: "Stopped", variant: "destructive" };
 }
 
 export default function DashboardPage() {
   const runs = listRuns();
   const finished = runs.filter((run) => run.status === "finished");
-  const drafts = finished.filter((run) => run.outcome === "draft").length;
-  const stopped = finished.length - drafts;
+  const drafts = finished.filter((run) => run.outcome === "draft" || run.outcome === "flagged").length;
+  const abstained = finished.filter((run) => run.outcome === "abstained").length;
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12">
@@ -51,8 +57,8 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardDescription>Stopped</CardDescription>
-            <CardTitle className="text-3xl">{stopped}</CardTitle>
+            <CardDescription>Abstained (no good hook)</CardDescription>
+            <CardTitle className="text-3xl">{abstained}</CardTitle>
           </CardHeader>
         </Card>
       </section>

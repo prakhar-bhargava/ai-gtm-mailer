@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { RunView } from "@/components/run-view";
 import { getEvents, getRun } from "@/lib/runs";
 
@@ -22,7 +21,6 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">{prospect.name}</h1>
           <span className="text-lg text-zinc-600">{prospect.company}</span>
-          <Badge variant="secondary">Sample data</Badge>
         </div>
         <p className="text-xs text-zinc-400">Run {id}</p>
       </header>

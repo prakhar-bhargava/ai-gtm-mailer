@@ -17,9 +17,9 @@ function getClient(): GoogleGenAI {
   return client;
 }
 
-async function send(system: string, contents: string, schema: z.ZodType, signal: AbortSignal): Promise<string> {
+async function send(model: string, system: string, contents: string, schema: z.ZodType, signal: AbortSignal): Promise<string> {
   const response = await getClient().models.generateContent({
-    model: llm.model,
+    model,
     contents,
     config: {
       systemInstruction: system,
@@ -35,11 +35,13 @@ async function send(system: string, contents: string, schema: z.ZodType, signal:
 const TRANSIENT = /\b(429|503)\b|RESOURCE_EXHAUSTED|UNAVAILABLE/;
 
 // Retries 429 (rate limit) and 503 (high demand) with the delays in config/llm.json.
+// Each retry moves to the next model in the list, so one busy model doesn't stop the run.
 // The whole call still stops at llm.timeoutMs, so a long retry chain can't outlive the stage.
 async function sendWithRetry(system: string, contents: string, schema: z.ZodType, signal: AbortSignal) {
   for (let attempt = 0; ; attempt++) {
+    const model = llm.models[attempt % llm.models.length];
     try {
-      return await send(system, contents, schema, signal);
+      return await send(model, system, contents, schema, signal);
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       const delay = llm.retryDelaysMs[attempt];
@@ -48,6 +50,7 @@ async function sendWithRetry(system: string, contents: string, schema: z.ZodType
     }
   }
 }
+
 
 // Asks the model for JSON that matches the schema. If the answer doesn't parse or validate,
 // it asks once more and includes the problem. A second failure fails the stage.
@@ -78,7 +81,7 @@ export async function generateJson<T extends z.ZodType>(options: {
       if (result.success) return result.data as z.output<T>;
       problem = result.error.issues.map((issue) => `${issue.path.join(".") || "answer"} ${issue.message}`).join("; ");
     }
-    throw new LlmError("the model's answer did not match the format after one retry");
+    throw new LlmError(`the model's answer did not match the format after one retry (${problem})`);
   } catch (error) {
     if (error instanceof LlmError) throw error;
     if (controller.signal.aborted) {

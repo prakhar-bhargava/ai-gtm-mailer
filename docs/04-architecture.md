@@ -9,12 +9,13 @@ Status: proposed. Change anything here, but record the change and the reason in 
 | App | Next.js (App Router) + TypeScript | One codebase for UI and API routes; deploys to a public link in minutes. |
 | UI | Tailwind + shadcn/ui | Good-looking run view and dashboard without design time. |
 | Hosting | Vercel | The submission needs a live link. Set `maxDuration` on the run route (pipeline should finish in under 60 s). |
-| Database | Supabase Postgres (free) | Runs, events, signals, drafts persist across deploys. SQLite files do not persist on Vercel. |
+| Database | Local SQLite file (`data/app.db`, `node:sqlite`) | Decided 2026-10-03: the app runs locally for now. Supabase was the plan for a hosted deploy; switch back if the app is deployed. |
 | Live updates | Server-Sent Events from the run route, plus events written to the DB | The run view streams stages; the dashboard and reloads read from the DB. |
 | LLM | One wrapper (`lib/llm.ts`) over whichever provider you have a key for (Claude, Gemini or OpenAI). Structured output validated with zod. | Lets you swap models; Gemini's free tier helps if budget is tight. |
 | Search and news | Tavily (1,000 free credits a month), fallback Serper or Exa | Returns snippets, URLs and often dates. |
 | Page reading | Jina Reader (`https://r.jina.ai/<url>`), fallback Firecrawl | Clean markdown of company pages without a scraper. |
-| Hiring | Greenhouse, Lever, Ashby public job board APIs (no key), fallback JSearch | Finance and ops hiring is a strong Zamp-relevant signal. |
+| Hiring | Greenhouse and Ashby public job board APIs (no key). Lever is not used yet. | Finance and ops hiring is a strong Zamp-relevant signal. |
+| News | Google News RSS (no key), with a model check that each headline is about this company | Keyless. It matches words, so same-name companies need the check. |
 | Firmographics | Apollo free API, fallback People Data Labs (100 lookups a month) | Size, industry, title confirmation. |
 | Funding | News search plus LLM extraction | No useful free funding API (Crunchbase API is about $500 a month). |
 
@@ -114,8 +115,8 @@ SERPER_API_KEY=        # fallback
 APOLLO_API_KEY=
 PDL_API_KEY=           # fallback
 FIRECRAWL_API_KEY=     # fallback
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
 ```
+
+Not needed while the app runs locally: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
 
 Never commit `.env*`. Add them to Vercel project settings for the deployed link.

@@ -21,11 +21,24 @@ CREATE TABLE IF NOT EXISTS run_events (
   status TEXT NOT NULL,
   message TEXT NOT NULL,
   duration_ms INTEGER,
-  draft_json TEXT,
+  payload_json TEXT,
   at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS run_events_by_run ON run_events(run_id, id);
+CREATE TABLE IF NOT EXISTS cache (
+  key TEXT PRIMARY KEY,
+  body TEXT NOT NULL,
+  stored_at TEXT NOT NULL
+);
 `;
+
+// Older local databases had draft_json instead of payload_json. Add the new column if it's missing.
+function migrate(db: DatabaseSync) {
+  const columns = db.prepare("PRAGMA table_info(run_events)").all() as { name: string }[];
+  if (!columns.some((column) => column.name === "payload_json")) {
+    db.exec("ALTER TABLE run_events ADD COLUMN payload_json TEXT");
+  }
+}
 
 // Kept on globalThis so Next's hot reload in development doesn't open a second connection.
 const globalForDb = globalThis as typeof globalThis & { appDb?: DatabaseSync };
@@ -36,6 +49,7 @@ export function getDb(): DatabaseSync {
     const db = new DatabaseSync(DB_PATH);
     db.exec("PRAGMA journal_mode = WAL;");
     db.exec(SCHEMA);
+    migrate(db);
     globalForDb.appDb = db;
   }
   return globalForDb.appDb;

@@ -1,32 +1,36 @@
 import { generateJson } from "@/lib/llm";
-import { draftSystemPrompt, draftUserPrompt } from "@/lib/pipeline/draft-prompt";
-import { SAMPLE_SIGNALS } from "@/lib/pipeline/sample-signals";
+import { draftSystemPrompt, draftUserPrompt } from "@/lib/pipeline/prompts";
 import type { StageSpec } from "@/lib/pipeline/stage";
-import { draftAnswerSchema, type Draft } from "@/lib/types";
+import { draftAnswerSchema, type Claim, type Draft } from "@/lib/types";
 
-// Calls the LLM with the seller brief and the signals. The signals are still sample data,
-// so the draft is real model output built on fake inputs.
+// Writes the email from the best hook and only the signals that hook cites.
 export const draft: StageSpec = {
   id: "draft",
   required: true,
   startMessage: "Writing the draft email",
   timeoutMs: 40000, // above llm.timeoutMs so the model call times out first and gives a readable message
-  run: async (prospect) => {
-    const signalIds = SAMPLE_SIGNALS.map((signal) => signal.id) as [string, ...string[]];
+  run: async (ctx) => {
+    const hook = ctx.hooks.find((item) => !item.blockedReason);
+    if (!hook) throw new Error("no hook is usable for a draft");
+
+    const cited = ctx.signals.filter((signal) => hook.signalIds.includes(signal.id));
+    const ids = cited.map((signal) => signal.id) as [string, ...string[]];
     const answer = await generateJson({
       system: draftSystemPrompt(),
-      prompt: draftUserPrompt(prospect, SAMPLE_SIGNALS),
-      schema: draftAnswerSchema(signalIds),
+      prompt: draftUserPrompt(ctx.prospect, hook, cited),
+      schema: draftAnswerSchema(ids),
     });
 
-    const claims = answer.claims.map((claim) => {
-      const signal = SAMPLE_SIGNALS.find((item) => item.id === claim.signalId);
+    const claims: Claim[] = answer.claims.map((claim) => {
+      const signal = cited.find((item) => item.id === claim.signalId);
       if (!signal) throw new Error("the draft cited a signal that does not exist");
       return {
         text: claim.text,
+        signalId: signal.id,
         sourceName: signal.sourceName,
         sourceUrl: signal.sourceUrl,
         publishedAt: signal.publishedAt,
+        supported: false, // set by the verify step
       };
     });
 
@@ -34,10 +38,8 @@ export const draft: StageSpec = {
       subject: answer.subject,
       body: answer.body.replace(/\[s:[^\]]+\]/g, "").trim(),
       claims,
+      lintIssues: [],
     };
-    return {
-      summary: `Wrote a draft citing ${claims.length} signal${claims.length === 1 ? "" : "s"} (signals are sample data)`,
-      draft: finished,
-    };
+    return { summary: `Wrote a draft with ${claims.length} cited claim${claims.length === 1 ? "" : "s"}`, draft: finished };
   },
 };

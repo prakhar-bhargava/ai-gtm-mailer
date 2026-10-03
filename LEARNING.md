@@ -119,6 +119,23 @@ Source: docs/research/notes/competitor_tools.md
 
 ## Test results
 
+Live runs on the local app, real public companies, keyless sources and Gemini. Run on 2026-10-03.
+
+| Case | Input | What happened | Result |
+|---|---|---|---|
+| Happy path | Stripe, stripe.com | 70 finance or ops roles found; news found; top hook 61/100 (sales hiring) | Pass: draft flagged, claim check caught an overstated "multiple" roles claim |
+| Sensitive gate | Stripe (earlier run) | One hook blocked, shown greyed with reason | Pass: blocked hook never ranked first |
+| Same-name news | Basecamp | Headlines named a different company with the same name (biotech); the same-company check removed it | Pass after fix. Before the fix, a wrong-company claim passed the claim check |
+| Thin signals | Intel, Basecamp | Hooks scored 52 to 57; below 70, so drafts flagged | Pass as flagged. Abstain (below 50) not yet hit on a live company |
+| Abstain | none yet | — | Not tested live |
+| Identity ambiguity (edge case 1) | — | Not built | Not tested |
+| Role change (edge case 4) | — | Not built | Not tested |
+
+Known gaps from these runs:
+- Relevance scores come from the model, so a sales-hiring hook can still score 61. The prompt now says sales hiring is not a finance pain; it's a hypothesis to tune.
+- Drafts run short (36 to 45 words) and the style lint flags them. The hard limit is 35 to 130 words; the target is 50 to 100.
+- Google's model returned "high demand" often. The app retries and falls back to a second model.
+
 | Date | Change | Happy path | EC1 | EC2 | EC3 | EC4 | Notes |
 |---|---|---|---|---|---|---|---|
 | | | | | | | | |

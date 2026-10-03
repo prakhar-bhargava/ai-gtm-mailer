@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { getDb } from "@/lib/db";
-import { Draft, ProspectInput, StageEvent } from "@/lib/types";
+import { ProspectInput, StagePayload, StageEvent, type Outcome } from "@/lib/types";
 
 // new: created, not yet executed. running: pipeline in progress. finished: outcome is set.
 export type RunStatus = "new" | "running" | "finished";
-export type RunOutcome = "draft" | "stopped";
+export type RunOutcome = Outcome;
 
 export type RunRecord = {
   id: string;
@@ -65,7 +65,7 @@ export function setRunStatus(id: string, status: RunStatus, outcome: RunOutcome 
 export function appendEvent(runId: string, event: StageEvent) {
   getDb()
     .prepare(
-      "INSERT INTO run_events (run_id, stage, status, message, duration_ms, draft_json, at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO run_events (run_id, stage, status, message, duration_ms, payload_json, at) VALUES (?, ?, ?, ?, ?, ?, ?)",
     )
     .run(
       runId,
@@ -73,7 +73,7 @@ export function appendEvent(runId: string, event: StageEvent) {
       event.status,
       event.message,
       event.durationMs ?? null,
-      event.draft ? JSON.stringify(event.draft) : null,
+      event.payload ? JSON.stringify(event.payload) : null,
       event.at,
     );
 }
@@ -83,13 +83,13 @@ type EventRow = {
   status: string;
   message: string;
   duration_ms: number | null;
-  draft_json: string | null;
+  payload_json: string | null;
   at: string;
 };
 
 export function getEvents(runId: string): StageEvent[] {
   const rows = getDb()
-    .prepare("SELECT stage, status, message, duration_ms, draft_json, at FROM run_events WHERE run_id = ? ORDER BY id")
+    .prepare("SELECT stage, status, message, duration_ms, payload_json, at FROM run_events WHERE run_id = ? ORDER BY id")
     .all(runId) as EventRow[];
   return rows.map((row) =>
     StageEvent.parse({
@@ -97,7 +97,7 @@ export function getEvents(runId: string): StageEvent[] {
       status: row.status,
       message: row.message,
       durationMs: row.duration_ms ?? undefined,
-      draft: row.draft_json ? Draft.parse(JSON.parse(row.draft_json)) : undefined,
+      payload: row.payload_json ? StagePayload.parse(JSON.parse(row.payload_json)) : undefined,
       at: row.at,
     }),
   );

@@ -1,0 +1,29 @@
+{
+  "_note": "Hypotheses, not facts. Weights and thresholds come from docs/06 and are meant to be tuned from reviewer feedback.",
+  "weights": {
+    "relevance": 35,
+    "recency": 20,
+    "specificity": 15,
+    "seniority": 10,
+    "verifiability": 10,
+    "authorship": 10
+  },
+  "recencyBands": [
+    { "maxDays": 14, "points": 20 },
+    { "maxDays": 45, "points": 14 },
+    { "maxDays": 90, "points": 8 },
+    { "maxDays": 180, "points": 3 }
+  ],
+  "verifiabilityPoints": { "company_site": 10, "news": 8, "job": 8, "undated": 2 },
+  "authorshipPoints": { "company_site": 7, "news": 5, "job": 3 },
+  "seniorityPoints": { "senior": 10, "other": 6 },
+  "thresholds": { "personalised": 70, "flagged": 50 },
+  "bannedPhrases": [
+    "i noticed you recently",
+    "i came across your profile",
+    "i hope this finds you well",
+    "i wanted to reach out",
+    "i saw on linkedin",
+    "i hope you're doing well"
+  ]
+}

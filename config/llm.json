@@ -1,6 +1,6 @@
 {
   "provider": "gemini",
-  "model": "gemini-flash-latest",
+  "models": ["gemini-flash-latest", "gemini-flash-lite-latest"],
   "timeoutMs": 35000,
   "retryDelaysMs": [2000, 5000, 10000]
 }
