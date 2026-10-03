@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { checkMail } from "@/lib/mail-check";
 import { addToOutbox } from "@/lib/outbox";
 import { getRun } from "@/lib/runs";
 
@@ -16,6 +17,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const parsed = SendInput.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return Response.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
+  }
+
+  // Hard guardrails are enforced here too, not only in the browser.
+  const style = checkMail(parsed.data.subject, parsed.data.body);
+  if (style.hard.length > 0) {
+    return Response.json({ error: `Fix before sending: ${style.hard[0]}`, issues: style.hard }, { status: 422 });
   }
 
   const outboxId = addToOutbox({

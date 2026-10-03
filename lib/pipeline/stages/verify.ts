@@ -1,6 +1,6 @@
 import rubric from "@/config/rubric.json";
 import { generateJson } from "@/lib/llm";
-import { lintDraft } from "@/lib/pipeline/lint";
+import { checkMail } from "@/lib/mail-check";
 import { verifySystemPrompt, verifyUserPrompt } from "@/lib/pipeline/prompts";
 import type { StageSpec } from "@/lib/pipeline/stage";
 import { verifyAnswerSchema, type Outcome } from "@/lib/types";
@@ -26,8 +26,10 @@ export const verify: StageSpec = {
       ...claim,
       supported: answer.results.find((result) => result.index === index)?.supported ?? false,
     }));
+    const style = checkMail(current.subject, current.body);
     const lintIssues = [
-      ...lintDraft(current.subject, current.body),
+      ...style.hard,
+      ...style.soft,
       ...answer.uncitedFacts.map((fact) => `states a fact with no source: "${fact}"`),
     ];
     const unsupported = claims.filter((claim) => !claim.supported).length;

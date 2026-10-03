@@ -14,6 +14,12 @@ Source: link or file, if any.
 
 ## Decisions
 
+### 2026-10-03: Mail guardrails as hard and soft rules
+What: One rule set (config/mail-rules.json, docs/09-mail-guardrails.md, lib/mail-check.ts). Hard rules (length, plain text, no links or emoji, no ROI figures, no stock phrases, no "how I found this") block Send on the server and in the browser. Soft rules (target length, greeting, flattery) are warnings.
+Why it matters: A mail that breaks a hard rule can't reach the Outbox, so a rep can't send something the app already knows is wrong. Soft rules keep the rep in charge of tone.
+Interview line: "The model writes the draft, but the rules decide what can be sent."
+Source: docs/06-hook-rubric-and-writing-rules.md, docs/09-mail-guardrails.md
+
 ### 2026-10-03: Problem statement PS-3, personalised outreach
 What: Chose PS-3 over invoice processing (PS-1) and vendor onboarding (PS-2).
 Why it matters: GTM is the closest fit to a product and HCI background, and Zamp lists a "GTM Associate" among its own AI employees, so the build doubles as a demo of their product category.
@@ -143,3 +149,4 @@ Known gaps from these runs:
 ## Feedback from real people
 
 (Reactions from salespeople who look at drafts, with date.)
+

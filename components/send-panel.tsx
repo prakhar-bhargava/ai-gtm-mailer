@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Section } from "@/components/section";
+import { checkMail } from "@/lib/mail-check";
 
 export function SendPanel({
   runId,
@@ -23,6 +24,9 @@ export function SendPanel({
   const [body, setBody] = useState(initialBody);
   const [state, setState] = useState<"editing" | "saving" | "sent" | "error">("editing");
   const [message, setMessage] = useState<string | null>(null);
+  // Live checks, against the same rules the server enforces (docs/09-mail-guardrails.md).
+  const checks = checkMail(subject, `${body.trimEnd()}\n\n${signature.join("\n")}`);
+  const blocked = checks.hard.length > 0;
 
   async function send() {
     setState("saving");
@@ -72,8 +76,18 @@ export function SendPanel({
           <span key={line}>{line}</span>
         ))}
       </div>
+      {(checks.hard.length > 0 || checks.soft.length > 0) && (
+        <ul className="grid gap-1 text-sm">
+          {checks.hard.map((issue) => (
+            <li key={issue} className="text-amber-800">Must fix: {issue}</li>
+          ))}
+          {checks.soft.map((issue) => (
+            <li key={issue} className="text-zinc-500">Consider: {issue}</li>
+          ))}
+        </ul>
+      )}
       <div className="flex flex-wrap items-center gap-4">
-        <Button onClick={send} disabled={state === "saving" || !subject.trim() || !body.trim()}>
+        <Button onClick={send} disabled={blocked || state === "saving" || !subject.trim() || !body.trim()}>
           {state === "saving" ? "Saving..." : "Send"}
         </Button>
         <span className="text-xs text-zinc-500">Saves to the Outbox. Nothing is emailed.</span>

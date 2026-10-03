@@ -1,0 +1,34 @@
+{
+  "_note": "Guardrails for every outreach email. Hard rules block Send. Soft rules are shown as warnings. Explained in docs/09-mail-guardrails.md; change both together.",
+  "subject": {
+    "minWords": 2,
+    "maxWords": 4
+  },
+  "body": {
+    "hardMinWords": 40,
+    "hardMaxWords": 130,
+    "targetMinWords": 50,
+    "targetMaxWords": 100,
+    "minParagraphs": 2,
+    "maxParagraphs": 4,
+    "maxSentenceWords": 30,
+    "maxQuestions": 1
+  },
+  "greeting": "^(Hi|Hello) \\S+,",
+  "bannedPhrases": [
+    "i noticed you recently",
+    "i came across your profile",
+    "i hope this finds you well",
+    "i hope you're doing well",
+    "i wanted to reach out",
+    "i saw on linkedin",
+    "i hope you are well",
+    "just checking in",
+    "touch base"
+  ],
+  "howFoundPatterns": ["linkedin", "\\bi saw\\b", "\\bi noticed\\b", "\\bi came across\\b", "\\byour profile\\b", "\\byour post\\b"],
+  "flatteryWords": ["amazing", "incredible", "love", "excited", "thrilled", "fantastic", "awesome", "impressive"],
+  "roiPattern": "(\\d+(\\.\\d+)?\\s*(x|times|%|percent))|(\\d+\\s*(faster|cheaper|more|less)\\b)",
+  "markdownPattern": "(\\*\\*|__|^#{1,6}\\s|^\\s*[-*]\\s|`|\\]\\(|^>\\s)",
+  "urlPattern": "https?://|www\\."
+}

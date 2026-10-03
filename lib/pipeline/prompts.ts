@@ -1,4 +1,5 @@
 import seller from "@/config/seller-brief.zamp.json";
+import mailRules from "@/config/mail-rules.json";
 import type { Claim, Draft, Hook, ProspectInput, Signal } from "@/lib/types";
 
 const sellerSummary = [
@@ -48,9 +49,11 @@ export function draftSystemPrompt(): string {
     `You write a cold outreach email for ${seller.seller}. Tone: ${seller.tone}`,
     "",
     "Structure: a premise (one factual sentence about the prospect's company, from the hook), then value (one or two sentences on the pain and what the seller does about it), then a call to action that is an interest question such as 'Worth a look?'.",
-    "Rules:",
-    "- Subject: 2 to 4 words, lowercase is fine.",
-    "- Body: aim for about 70 words; it must be 50 to 100.",
+    "Rules (full list in docs/09-mail-guardrails.md):",
+    `- Subject: ${mailRules.subject.minWords} to ${mailRules.subject.maxWords} words, lowercase is fine.`,
+    `- Body: aim for about 70 words, between ${mailRules.body.targetMinWords} and ${mailRules.body.targetMaxWords}. Use ${mailRules.body.minParagraphs} to ${mailRules.body.maxParagraphs} short paragraphs.`,
+    "- Plain text only. No markdown, no bullet points, no links, no emoji.",
+    `- Open with a greeting such as "Hi ${"Name"},". Keep every sentence under ${mailRules.body.maxSentenceWords} words.`,
     "- Use only the signals you are given. Each factual sentence goes in claims with the id of the signal that supports it.",
     "- No ROI numbers or multipliers, no stock openers such as 'I noticed you recently' or 'I hope this finds you well', no flattery, no exclamation marks, no emoji.",
     "- At most one question: the final call to action.",
