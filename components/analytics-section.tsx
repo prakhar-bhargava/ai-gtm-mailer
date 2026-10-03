@@ -1,147 +1,87 @@
-import { Section } from "@/components/section";
 import type { Analytics } from "@/lib/analytics";
+
+const STEP_LABEL: Record<string, string> = {
+  identity: "Company website lookup",
+  news: "News search",
+  jobs: "Job boards",
+  company_site: "Company website",
+  discover: "Website links",
+  hooks: "Picking the angle",
+  draft: "Writing the email",
+  verify: "Claim check",
+};
 
 const percent = (value: number) => `${Math.round(value * 100)}%`;
 
-function formatSeconds(seconds: number | null) {
-  if (seconds === null) return "—";
-  return seconds < 60 ? `${Math.round(seconds)} s` : `${(seconds / 60).toFixed(1)} min`;
-}
-
-// Server-rendered, no chart library: bars are plain divs so they stay easy to restyle.
+// Two questions a manager asks: how much is it being used, and can we rely on it?
+// Bars are plain divs (no chart library) so they stay easy to restyle.
 export function AnalyticsSection({ data }: { data: Analytics }) {
   const maxDay = Math.max(1, ...data.perDay.map((day) => day.count));
-  const maxOutcome = Math.max(1, ...data.outcomes.map((item) => item.count));
-  const maxCompany = Math.max(1, ...data.topCompanies.map((item) => item.count));
+  const sources = [...data.sourceFailures].sort((a, b) => b.failed / Math.max(1, b.total) - a.failed / Math.max(1, a.total));
 
   return (
-    <section aria-labelledby="analytics-heading" className="grid gap-6">
-      <h2 id="analytics-heading" className="text-lg font-semibold text-zinc-950">Analytics</h2>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Tile label="Median time per search" value={formatSeconds(data.medianSeconds)} />
-        <Tile label="Ready or flagged" value={percent(data.readyRate)} hint="of finished searches" />
-        <Tile label="Abstained" value={percent(data.abstainRate)} hint="no hook strong enough" />
-        <Tile label="Stopped" value={percent(data.stoppedRate)} hint="a required step failed" />
+    <section aria-labelledby="health-heading" className="mt-12 grid gap-4">
+      <div className="grid gap-0.5">
+        <h2 id="health-heading" className="text-[15px] font-semibold">How it&apos;s running</h2>
+        <p className="text-sm text-muted-foreground">
+          Of finished runs, {percent(data.readyRate)} produced a draft, {percent(data.abstainRate)} found no good reason to
+          write, and {percent(data.stoppedRate)} stopped on an error.
+        </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-        <Panel title="Searches per day, last 14 days">
-          <div className="flex h-40 items-end gap-1.5" role="img" aria-label="Bar chart of searches per day">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 rounded-lg border border-border bg-card p-5">
+          <h3 className="text-sm font-medium">Runs per day, last 14 days</h3>
+          <div className="flex h-32 items-end gap-1" role="img" aria-label={`Runs per day. Busiest day had ${maxDay}.`}>
             {data.perDay.map((day) => (
-              <div key={day.day} className="flex flex-1 flex-col items-center justify-end gap-1">
-                <span className="text-xs text-zinc-500">{day.count || ""}</span>
+              <div key={day.day} className="flex h-full flex-1 flex-col justify-end" title={`${day.day}: ${day.count}`}>
                 <div
-                  className="w-full rounded-t bg-zinc-900"
-                  style={{ height: `${(day.count / maxDay) * 100}%`, minHeight: day.count ? 4 : 0 }}
-                  title={`${day.day}: ${day.count}`}
+                  className={`w-full rounded-sm ${day.count ? "bg-primary" : "bg-secondary"}`}
+                  style={{ height: day.count ? `${(day.count / maxDay) * 100}%` : 3 }}
                 />
               </div>
             ))}
           </div>
-          <div className="mt-2 flex justify-between text-xs text-zinc-500">
+          <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
             <span>{data.perDay[0]?.day.slice(5)}</span>
+            <span>Busiest day: {maxDay}</span>
             <span>{data.perDay[data.perDay.length - 1]?.day.slice(5)}</span>
           </div>
-        </Panel>
+        </div>
 
-        <Panel title="Outcomes">
-          <ul className="grid gap-3">
-            {data.outcomes.map((item) => (
-              <li key={item.label} className="grid gap-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-zinc-700">{item.label}</span>
-                  <span className="font-medium text-zinc-900">{item.count}</span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100">
-                  <div className="h-full rounded-full bg-zinc-900" style={{ width: `${(item.count / maxOutcome) * 100}%` }} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Panel title="Source failures">
-          {data.sourceFailures.length === 0 ? (
-            <p className="text-sm text-zinc-500">No source calls recorded yet.</p>
+        <div className="grid content-start gap-4 rounded-lg border border-border bg-card p-5">
+          <h3 className="text-sm font-medium">Source reliability</h3>
+          {sources.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No source calls recorded yet.</p>
           ) : (
             <ul className="grid gap-3">
-              {data.sourceFailures.map((item) => (
-                <li key={item.stage} className="flex justify-between text-sm">
-                  <span className="text-zinc-700">{STEP_LABEL[item.stage] ?? item.stage}</span>
-                  <span className="text-zinc-900">
-                    {item.failed} of {item.total} failed
-                  </span>
-                </li>
-              ))}
+              {sources.map((item) => {
+                const ok = item.total - item.failed;
+                return (
+                  <li key={item.stage} className="grid gap-1.5">
+                    <div className="flex justify-between gap-3 text-sm">
+                      <span>{STEP_LABEL[item.stage] ?? item.stage}</span>
+                      <span className={item.failed ? "text-caution tabular-nums" : "text-muted-foreground tabular-nums"}>
+                        {item.failed ? `${item.failed} of ${item.total} failed` : `${item.total} of ${item.total} worked`}
+                      </span>
+                    </div>
+                    <div className="flex h-1.5 overflow-hidden rounded-full bg-secondary">
+                      <div className="h-full bg-verified" style={{ width: `${(ok / Math.max(1, item.total)) * 100}%` }} />
+                      <div className="h-full bg-caution" style={{ width: `${(item.failed / Math.max(1, item.total)) * 100}%` }} />
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
-        </Panel>
-
-        <Panel title="Most common companies searched">
-          {data.topCompanies.length === 0 ? (
-            <p className="text-sm text-zinc-500">No searches yet.</p>
-          ) : (
-            <ul className="grid gap-3">
-              {data.topCompanies.map((item) => (
-                <li key={item.company} className="grid gap-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-700">{item.company}</span>
-                    <span className="font-medium text-zinc-900">{item.count}</span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100">
-                    <div className="h-full rounded-full bg-zinc-400" style={{ width: `${(item.count / maxCompany) * 100}%` }} />
-                  </div>
-                </li>
-              ))}
-            </ul>
+          {data.failedSteps.length > 0 && (
+            <p className="border-t border-border pt-3 text-sm text-muted-foreground">
+              Runs stopped at:{" "}
+              {data.failedSteps.map((item) => `${STEP_LABEL[item.stage] ?? item.stage} (${item.count})`).join(", ")}
+            </p>
           )}
-        </Panel>
+        </div>
       </div>
-
-      {data.failedSteps.length > 0 && (
-        <Panel title="Where runs failed">
-          <ul className="grid gap-2 text-sm">
-            {data.failedSteps.map((item) => (
-              <li key={item.stage} className="flex justify-between">
-                <span className="text-zinc-700">{STEP_LABEL[item.stage] ?? item.stage}</span>
-                <span className="text-zinc-900">{item.count}</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      )}
     </section>
-  );
-}
-
-const STEP_LABEL: Record<string, string> = {
-  identity: "Find the company's website",
-  news: "Recent news",
-  jobs: "Open roles",
-  company_site: "Company website",
-  hooks: "Rank hooks",
-  draft: "Write the draft",
-  verify: "Check claims",
-  discover: "Follow website links",
-};
-
-function Tile({ label, value, hint }: { label: string; value: string; hint?: string }) {
-  return (
-    <div className="grid gap-1 rounded-xl border border-zinc-200 bg-white p-5">
-      <span className="text-xs font-medium text-zinc-500">{label}</span>
-      <span className="text-2xl font-semibold tracking-tight text-zinc-950">{value}</span>
-      {hint && <span className="text-xs text-zinc-500">{hint}</span>}
-    </div>
-  );
-}
-
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <Section title={title} className="gap-4 p-5">
-      {children}
-    </Section>
   );
 }

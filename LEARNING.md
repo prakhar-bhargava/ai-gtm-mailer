@@ -14,6 +14,11 @@ Source: link or file, if any.
 
 ## Decisions
 
+### 2026-10-03: Screens redesigned around one job each
+What: One top bar (New run, Runs, Outbox, Accounts). New run asks only for name and company; the rest is optional and hidden. The run page shows the steps while running, then puts the email first as a letter: sourced sentences underlined and numbered, notes underneath, teal when the source supports the sentence and amber when it doesn't. Reasoning and sources sit on the right; steps fold into one line. Runs page: four numbers, filter tabs with counts, one table, then a short reliability section.
+Why it matters: The rep's decision is "can I send this?", so the draft and its evidence lead. Colour only means something (blue for actions, teal for checked, amber for look at this). Details in docs/10-screens.md.
+Interview line: "Every screen has one job, and the claim and its source are always side by side."
+
 ### 2026-10-03: Mail guardrails as hard and soft rules
 What: One rule set (config/mail-rules.json, docs/09-mail-guardrails.md, lib/mail-check.ts). Hard rules (length, plain text, no links or emoji, no ROI figures, no stock phrases, no "how I found this") block Send on the server and in the browser. Soft rules (target length, greeting, flattery) are warnings.
 Why it matters: A mail that breaks a hard rule can't reach the Outbox, so a rep can't send something the app already knows is wrong. Soft rules keep the rep in charge of tone.
@@ -69,6 +74,10 @@ Interview line: "The retries have a budget, so a busy model slows a run down but
 Source: docs/04-architecture.md (reliability rules)
 
 ## Things I learned
+
+### 2026-10-03: The font never loaded
+What: globals.css had `--font-sans: var(--font-sans)`, a variable pointing at itself, so the browser fell back to its default serif. Fixed by pointing it at the font loaded in layout.tsx (now IBM Plex Sans).
+Why it matters: A CSS variable that refers to itself is invalid and silently ignored; check computed styles when a font looks wrong.
 
 ### 2026-10-03: Gemini model names and overloads
 What: `gemini-2.5-flash` and `gemini-2.5-flash-lite` return 404 on this key, though they appear in the model list. `gemini-flash-latest` and `gemini-flash-lite-latest` work. Google also returns 503 "high demand" for minutes at a time, which is separate from the 429 rate limit.

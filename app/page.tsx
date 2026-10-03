@@ -1,52 +1,58 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RunForm } from "@/components/run-form";
+import { RunForm, type SampleProspect } from "@/components/run-form";
+import { StatusPill } from "@/components/status-pill";
+import fixtures from "@/fixtures/demo-prospects.json";
+import { timeAgo } from "@/lib/format";
 import { listRuns } from "@/lib/runs";
 
-// Read the saved searches on every request, not at build time.
+// Read the saved runs on every request, not at build time.
 export const dynamic = "force-dynamic";
 
+// The fixture's "case" text, cut to the part a rep cares about ("Happy path: many signals" -> "Many signals").
+function sampleLabel(text: string) {
+  const detail = text.includes(":") ? text.split(":").slice(1).join(":").trim() : text;
+  return detail.charAt(0).toUpperCase() + detail.slice(1);
+}
+
+const samples: SampleProspect[] = fixtures.prospects.map((prospect) => ({
+  id: prospect.id,
+  label: sampleLabel(prospect.case),
+  // Empty optional fields are dropped so the form's validation sees the same thing a person would type.
+  input: Object.fromEntries(Object.entries(prospect.input).filter(([, value]) => value)) as Record<string, string>,
+}));
+
 export default function Home() {
-  const recent = listRuns().slice(0, 5);
+  const recent = listRuns(5);
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-12">
+    <main className="mx-auto grid w-full max-w-3xl gap-10">
       <header className="grid gap-2">
-        <Badge variant="secondary" className="w-fit">Sample data</Badge>
-        <div className="flex items-center justify-between gap-4">
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">New prospect run</h1>
-          <nav className="flex gap-4 text-sm text-zinc-600">
-            <Link href="/dashboard" className="underline underline-offset-2 hover:text-zinc-900">Dashboard</Link>
-            <Link href="/accounts" className="underline underline-offset-2 hover:text-zinc-900">Accounts</Link>
-            <Link href="/outbox" className="underline underline-offset-2 hover:text-zinc-900">Outbox</Link>
-          </nav>
-        </div>
-        <p className="text-zinc-600">
-          Enter a prospect and the app will research public signals, rank possible reasons to reach out, and
-          write a draft for you to review. Nothing is sent automatically.
+        <h1 className="text-[1.75rem] font-semibold tracking-tight sm:text-3xl">Who are you writing to?</h1>
+        <p className="max-w-xl text-[15px] leading-6 text-muted-foreground">
+          The app reads public news, open roles and the company&apos;s website, picks the strongest reason to get in touch,
+          and writes a short email with every fact linked to its source. You review it before anything is saved.
         </p>
       </header>
-      <Card>
-        <CardHeader>
-          <CardTitle>Prospect</CardTitle>
-          <CardDescription>Name and company are required. Everything else helps the research.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RunForm />
-        </CardContent>
-      </Card>
+
+      <RunForm samples={samples} />
 
       {recent.length > 0 && (
-        <section className="grid gap-3">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-zinc-500">Recent searches</h2>
-          <ul className="grid gap-2">
+        <section aria-labelledby="recent-heading" className="grid gap-3">
+          <div className="flex items-baseline justify-between">
+            <h2 id="recent-heading" className="text-[15px] font-semibold">Recent</h2>
+            <Link href="/dashboard" className="text-sm text-primary hover:underline">
+              All runs
+            </Link>
+          </div>
+          <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
             {recent.map((run) => (
               <li key={run.id}>
-                <Link href={`/runs/${run.id}`} className="flex items-center justify-between rounded-md border bg-white px-4 py-3 hover:bg-zinc-50">
-                  <span className="font-medium text-zinc-900">
-                    {run.prospect.name} <span className="font-normal text-zinc-500">· {run.prospect.company}</span>
+                <Link href={`/runs/${run.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-secondary/60">
+                  <span className="min-w-0 flex-1 truncate">
+                    <span className="font-medium">{run.prospect.name}</span>
+                    <span className="text-muted-foreground">, {run.prospect.company}</span>
                   </span>
-                  <span className="text-xs text-zinc-500">{new Date(run.createdAt).toLocaleString()}</span>
+                  <StatusPill status={run.status} outcome={run.outcome} createdAt={run.createdAt} />
+                  <span className="hidden w-20 text-right text-sm text-muted-foreground sm:inline">{timeAgo(run.createdAt)}</span>
                 </Link>
               </li>
             ))}

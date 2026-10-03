@@ -1,10 +1,11 @@
 "use client";
 
-import { CheckCircle2, Circle, Loader2, TriangleAlert } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Section } from "@/components/section";
-import { StageEvent, type Claim, type Draft, type Hook, type Outcome, type Signal, type StageId } from "@/lib/types";
+import { CheckCircle2, ChevronDown, Circle, Loader2, TriangleAlert } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { DraftEditor } from "@/components/send-panel";
+import { StatusPill } from "@/components/status-pill";
+import { formatDate, hostOf } from "@/lib/format";
+import { StageEvent, type Hook, type ProspectInput, type Signal, type StageId } from "@/lib/types";
 
 // The stages the rep sees, in order. "run" is the end-of-run signal and is not shown.
 const STEPS: { id: StageId; label: string }[] = [
@@ -13,61 +14,55 @@ const STEPS: { id: StageId; label: string }[] = [
   { id: "jobs", label: "Check open roles" },
   { id: "company_site", label: "Read the company website" },
   { id: "discover", label: "Follow links on the website" },
-  { id: "hooks", label: "Rank possible hooks" },
-  { id: "draft", label: "Write the draft" },
-  { id: "verify", label: "Check claims against sources" },
+  { id: "hooks", label: "Pick the best reason to write" },
+  { id: "draft", label: "Write the email" },
+  { id: "verify", label: "Check every claim against its source" },
 ];
 
-type StepState = {
-  status: "pending" | "running" | "done" | "failed";
-  message?: string;
-  durationMs?: number;
-  startedAt?: string;
-  trail: string[]; // what the step has done so far, in order
-};
+type StepStatus = "pending" | "running" | "done" | "failed";
+type StepState = { status: StepStatus; message?: string; durationMs?: number; startedAt?: string; latest?: string };
 
 function deriveSteps(events: StageEvent[]): Record<string, StepState> {
   const steps: Record<string, StepState> = {};
   for (const event of events) {
     if (event.stage === "run") continue;
-    const current: StepState = steps[event.stage] ?? { status: "pending", trail: [] };
-    if (event.status === "progress") {
-      steps[event.stage] = { ...current, trail: [...current.trail, event.message] };
-    } else if (event.status === "started") {
-      steps[event.stage] = { ...current, status: "running", message: event.message, startedAt: event.at, trail: [...current.trail, event.message] };
-    } else {
-      steps[event.stage] = { ...current, status: event.status, message: event.message, durationMs: event.durationMs };
-    }
+    const current: StepState = steps[event.stage] ?? { status: "pending" };
+    if (event.status === "progress") steps[event.stage] = { ...current, latest: event.message };
+    else if (event.status === "started")
+      steps[event.stage] = { ...current, status: "running", startedAt: event.at, latest: event.message };
+    else steps[event.stage] = { ...current, status: event.status, message: event.message, durationMs: event.durationMs };
   }
   return steps;
 }
 
-// Collects everything the stages found, in the order they arrived.
+// Everything the stages found, in the order it arrived. Signals are de-duplicated by source URL.
 function collect(events: StageEvent[]) {
-  const signals: Signal[] = [];
+  const signals = new Map<string, Signal>();
   let hooks: Hook[] = [];
-  let draft: Draft | undefined;
-  let domain: string | undefined;
+  let draft;
   for (const event of events) {
-    if (event.payload?.signals) signals.push(...event.payload.signals);
+    for (const signal of event.payload?.signals ?? []) signals.set(`${signal.id}|${signal.sourceUrl}`, signal);
     if (event.payload?.hooks) hooks = event.payload.hooks;
     if (event.payload?.draft) draft = event.payload.draft;
-    if (event.payload?.domain) domain = event.payload.domain;
   }
-  return { signals, hooks, draft, domain };
+  return { signals: [...signals.values()], hooks, draft };
 }
 
-// streamUrl is set for a run that hasn't started; saved runs pass null and show their saved events.
-export function RunView({ streamUrl, initialEvents }: { streamUrl: string | null; initialEvents: StageEvent[] }) {
+export function RunView({
+  runId,
+  prospect,
+  signature,
+  streamUrl,
+  initialEvents,
+}: {
+  runId: string;
+  prospect: ProspectInput;
+  signature: string[];
+  streamUrl: string | null; // set for a run that hasn't started; saved runs pass null and show their events
+  initialEvents: StageEvent[];
+}) {
   const [events, setEvents] = useState<StageEvent[]>(initialEvents);
   const [connectionLost, setConnectionLost] = useState(false);
-  const [now, setNow] = useState(0);
-
-  // Ticks once a second so a running step can show how long it has been going.
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     if (!streamUrl) return;
@@ -94,236 +89,334 @@ export function RunView({ streamUrl, initialEvents }: { streamUrl: string | null
 
   const runEnd = [...events].reverse().find((event) => event.stage === "run") ?? null;
   const steps = deriveSteps(events);
-  const { signals, hooks, draft, domain } = collect(events);
+  const { signals, hooks, draft } = collect(events);
   const outcome = runEnd?.payload?.outcome;
+  const finished = runEnd !== null;
+
+  const subtitle = [prospect.role, prospect.company].filter(Boolean).join(", ");
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
-      <ol className="grid content-start gap-1">
+    <main className="grid gap-6">
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="grid gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-[1.75rem]">{prospect.name}</h1>
+          <p className="text-[15px] text-muted-foreground">{subtitle}</p>
+        </div>
+        {!finished && !streamUrl ? (
+          <StatusPill status="running" interrupted />
+        ) : (
+          <StatusPill status={finished ? "finished" : "running"} outcome={outcome ?? null} />
+        )}
+      </header>
+
+      {connectionLost && !finished && (
+        <p role="alert" className="rounded-lg bg-caution-soft px-4 py-3 text-sm text-caution">
+          Lost the connection to this run. Refresh the page to see what was saved.
+        </p>
+      )}
+
+      {!finished && !streamUrl && !connectionLost && (
+        <p className="rounded-lg bg-caution-soft px-4 py-3 text-sm text-caution">
+          This run was interrupted before it finished. The steps below are what was saved. Start a new run to try again.
+        </p>
+      )}
+
+      {!finished ? (
+        <InProgress steps={steps} signalCount={signals.length} />
+      ) : (
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="grid gap-4">
+            {draft && (outcome === "draft" || outcome === "flagged") ? (
+              <DraftEditor runId={runId} prospect={prospect} draft={draft} signature={signature} />
+            ) : outcome === "abstained" ? (
+              <AbstainPanel hooks={hooks} signalCount={signals.length} />
+            ) : (
+              <StoppedPanel message={runEnd.message} steps={steps} />
+            )}
+          </div>
+          <aside className="grid gap-4" aria-label="How this draft was made">
+            {hooks.length > 0 && <WhyThisHook hooks={hooks} outcome={outcome} />}
+            <SourcesPanel signals={signals} />
+            <StepsSummary steps={steps} stopped={outcome !== "draft" && outcome !== "flagged" && outcome !== "abstained"} />
+          </aside>
+        </div>
+      )}
+    </main>
+  );
+}
+
+function InProgress({ steps, signalCount }: { steps: Record<string, StepState>; signalCount: number }) {
+  // Starts at 0 and is set after mount, so the server and browser render the same first frame.
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    const first = setTimeout(() => setNow(Date.now()), 0);
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(timer);
+    };
+  }, []);
+  const done = STEPS.filter((step) => steps[step.id]?.status === "done" || steps[step.id]?.status === "failed").length;
+
+  return (
+    <section className="mx-auto grid w-full max-w-2xl gap-4 rounded-lg border border-border bg-card p-5 sm:p-6" aria-live="polite">
+      <div className="grid gap-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-[15px] font-semibold">Researching</h2>
+          <span className="text-sm text-muted-foreground">
+            {done} of {STEPS.length} steps{signalCount > 0 ? `, ${signalCount} sources found` : ""}
+          </span>
+        </div>
+        <div className="h-1 overflow-hidden rounded-full bg-secondary">
+          <div className="h-full rounded-full bg-primary transition-[width] duration-500" style={{ width: `${(done / STEPS.length) * 100}%` }} />
+        </div>
+      </div>
+      <ol className="grid">
         {STEPS.map((step) => {
-          // Steps that didn't exist when an old search ran show as waiting, with no notes.
-          const state: StepState = steps[step.id] ?? { status: "pending", trail: [] };
+          const state = steps[step.id] ?? { status: "pending" as const };
+          const note =
+            state.status === "running"
+              ? state.latest
+              : state.status === "done" || state.status === "failed"
+                ? state.message
+                : undefined;
           return (
-            <li key={step.id} className="rounded-lg border bg-white p-3">
-              <div className="flex items-center gap-3">
-                <StepIcon status={state.status} />
-                <span className="font-medium text-zinc-900">{step.label}</span>
-                {state.durationMs !== undefined && (
-                  <span className="ml-auto text-xs text-zinc-500">{(state.durationMs / 1000).toFixed(1)} s</span>
-                )}
-              </div>
-              {state.status === "running" && state.startedAt && (
-                <p className="mt-1 pl-7 text-xs text-zinc-500">
-                  Running for {Math.max(0, Math.round((now - Date.parse(state.startedAt)) / 1000))} s
+            <li key={step.id} className="grid grid-cols-[20px_1fr_auto] gap-x-3 py-2.5">
+              <StepIcon status={state.status} />
+              <span className={state.status === "pending" ? "text-muted-foreground" : "font-medium"}>{step.label}</span>
+              <span className="text-sm text-muted-foreground tabular-nums">
+                {state.status === "running" && state.startedAt && now > 0
+                  ? `${Math.max(0, Math.round((now - Date.parse(state.startedAt)) / 1000))} s`
+                  : state.durationMs !== undefined
+                    ? `${(state.durationMs / 1000).toFixed(1)} s`
+                    : ""}
+              </span>
+              {note && (
+                <p className={`col-start-2 col-end-4 mt-0.5 text-sm ${state.status === "failed" ? "text-caution" : "text-muted-foreground"}`}>
+                  {note}
                 </p>
-              )}
-              {state.message && state.status !== "pending" && state.status !== "running" && (
-                <p className={`mt-1 pl-7 text-sm ${state.status === "failed" ? "text-amber-700" : "text-zinc-600"}`}>
-                  {state.message}
-                </p>
-              )}
-              {state.trail.length > 0 && state.status !== "pending" && (
-                <ul className="mt-2 grid gap-0.5 border-l border-zinc-200 pl-7 text-xs text-zinc-500">
-                  {state.trail.slice(-6).map((note, index) => (
-                    <li key={`${index}-${note}`}>{note}</li>
-                  ))}
-                </ul>
               )}
             </li>
           );
         })}
       </ol>
-
-      <div className="grid content-start gap-5">
-        {connectionLost && (
-          <p className="text-sm text-amber-700">Lost the connection to this run. Refresh the page to see what was saved.</p>
-        )}
-        {runEnd && <OutcomeBanner outcome={outcome} message={runEnd.message} />}
-
-        {domain && signals.length > 0 && <SignalList signals={signals} />}
-        {hooks.length > 0 && <HookList hooks={hooks} />}
-        {outcome === "abstained" && <AbstainPanel />}
-        {draft && <DraftPanel draft={draft} />}
-
-        {!runEnd && signals.length === 0 && (
-          <div className="rounded-lg border bg-white p-6 text-zinc-500">Results will appear here as each step finishes.</div>
-        )}
-      </div>
-    </div>
+    </section>
   );
 }
 
-function OutcomeBanner({ outcome, message }: { outcome?: Outcome; message: string }) {
-  const label: Record<Outcome, string> = {
-    draft: "Ready for review",
-    flagged: "Ready, with points to check",
-    abstained: "Abstained",
-    stopped: "Stopped",
-  };
-  const variant = outcome === "draft" ? "default" : outcome === "stopped" ? "destructive" : "secondary";
+function WhyThisHook({ hooks, outcome }: { hooks: Hook[]; outcome?: string }) {
+  const used = outcome === "draft" || outcome === "flagged";
+  const usable = hooks.filter((hook) => !hook.blockedReason);
+  const winner = usable[0];
+  const others = hooks.filter((hook) => hook !== winner);
   return (
-    <div className="grid gap-2">
-      <Badge variant={variant} className="w-fit">
-        {outcome ? label[outcome] : "Finished"}
-      </Badge>
-      <p className="text-zinc-700">{message}</p>
-    </div>
-  );
-}
-
-function SignalList({ signals }: { signals: Signal[] }) {
-  return (
-    <Section title="What we found">
-      <ul className="grid gap-2">
-        {signals.map((signal) => (
-          <li key={`${signal.id}-${signal.sourceUrl}`} className="grid gap-1 rounded-md bg-zinc-50 p-3 text-sm">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">{signal.id}</Badge>
-              <Badge variant="secondary">{signal.type.replace("_", " ")}</Badge>
-              <span className="text-xs text-zinc-500">
-                {signal.publishedAt ? new Date(signal.publishedAt).toLocaleDateString() : "undated"}
-              </span>
+    <Panel title={used ? "Why this angle" : outcome === "abstained" ? "Best angle found, not strong enough to use" : "Best angle found"}>
+      {winner ? (
+        <div className="grid gap-3">
+          <p className="text-sm leading-6">{winner.text}</p>
+          <ScoreBar total={winner.scores.total} />
+          <dl className="grid gap-2 text-sm">
+            <div>
+              <dt className="text-muted-foreground">Likely pain</dt>
+              <dd>{winner.pain}</dd>
             </div>
-            <p className="text-zinc-900">{signal.claim}</p>
-            <a href={signal.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-zinc-600 underline underline-offset-2">
-              {signal.sourceName}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </Section>
-  );
-}
-
-function HookList({ hooks }: { hooks: Hook[] }) {
-  const winner = hooks.find((hook) => !hook.blockedReason);
-  const runnerUp = hooks.filter((hook) => !hook.blockedReason)[1];
-  return (
-    <Section title="Possible hooks">
-      {winner && runnerUp && (
-        <p className="text-sm text-zinc-600">
-          The top hook scored {winner.scores.total} out of 100, against {runnerUp.scores.total} for the next one.
-        </p>
-      )}
-      <ul className="grid gap-3">
-        {hooks.map((hook) => (
-          <li
-            key={hook.id}
-            className={`grid gap-3 rounded-lg border border-zinc-200 p-4 ${hook.blockedReason ? "opacity-60" : ""} ${hook === winner ? "border-zinc-900" : ""}`}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <span className="font-medium text-zinc-900">{hook.text}</span>
-              {hook === winner && <Badge>Top hook</Badge>}
+            <div>
+              <dt className="text-muted-foreground">Why now</dt>
+              <dd>{winner.whyNow}</dd>
             </div>
-            {hook.blockedReason ? (
-              <p className="text-sm text-amber-700">Blocked: {hook.blockedReason}</p>
-            ) : (
-              <>
-                <ScoreBar total={hook.scores.total} />
-                <p className="text-sm text-zinc-600">
-                  Pain: {hook.pain}. Why now: {hook.whyNow}
-                </p>
-                <details className="text-sm text-zinc-500">
-                  <summary className="cursor-pointer text-zinc-600 hover:text-zinc-900">How this was scored</summary>
-                  <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-                    <dt>Fit with the offer</dt>
-                    <dd>{hook.scores.relevance} of 35</dd>
-                    <dt>How recent</dt>
-                    <dd>{hook.scores.recency} of 20</dd>
-                    <dt>Specific to this company</dt>
-                    <dd>{hook.scores.specificity} of 15</dd>
-                    <dt>Seniority fit</dt>
-                    <dd>{hook.scores.seniority} of 10</dd>
-                    <dt>Verifiable source</dt>
-                    <dd>{hook.scores.verifiability} of 10</dd>
-                    <dt>Source type</dt>
-                    <dd>{hook.scores.authorship} of 10</dd>
-                  </dl>
-                </details>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-    </Section>
-  );
-}
-
-function ScoreBar({ total }: { total: number }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-200">
-        <div className="h-full rounded-full bg-zinc-900" style={{ width: `${total}%` }} />
-      </div>
-      <span className="w-14 text-right text-sm font-medium text-zinc-800">{total} / 100</span>
-    </div>
-  );
-}
-
-function AbstainPanel() {
-  return (
-    <Section title="No personalised draft">
-      <p className="text-zinc-700">
-        The public signals don&apos;t give a specific, recent reason to write. A made-up hook would be worse than none, so the
-        app stopped here. Choose one:
-      </p>
-      <ul className="grid gap-2 text-sm text-zinc-700">
-        <li>1. Write a value-led generic email about what Zamp does for finance teams.</li>
-        <li>2. Deprioritise this prospect and revisit when there is news or a job posting.</li>
-      </ul>
-    </Section>
-  );
-}
-
-function DraftPanel({ draft }: { draft: Draft }) {
-  return (
-    <Section title="Draft" className="ring-1 ring-zinc-900/5">
-      <div className="grid gap-1">
-        <span className="text-xs font-medium text-zinc-500">Subject</span>
-        <p className="text-base font-medium text-zinc-900">{draft.subject}</p>
-      </div>
-      <div className="grid gap-1">
-        <span className="text-xs font-medium text-zinc-500">Message</span>
-        <p className="whitespace-pre-line text-[15px] leading-7 text-zinc-800">{draft.body}</p>
-      </div>
-      <div className="grid gap-2">
-        <span className="text-xs font-medium text-zinc-500">Claims and sources</span>
-        <ul className="grid gap-2">
-          {draft.claims.map((claim) => (
-            <ClaimRow key={claim.text} claim={claim} />
-          ))}
-        </ul>
-      </div>
-      {draft.lintIssues.length > 0 && (
-        <div className="grid gap-1 text-sm text-amber-700">
-          <span className="text-xs font-medium">Style checks</span>
-          {draft.lintIssues.map((issue) => (
-            <p key={issue}>· {issue}</p>
-          ))}
+          </dl>
+          <Disclosure label="Score breakdown">
+            <ScoreBreakdown hook={winner} />
+          </Disclosure>
         </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">No angle passed the checks.</p>
       )}
-    </Section>
+      {others.length > 0 && (
+        <Disclosure label={`${others.length} other ${others.length === 1 ? "angle" : "angles"} considered`}>
+          <ul className="grid gap-3">
+            {others.map((hook) => (
+              <li key={hook.id} className="grid gap-1.5 text-sm">
+                <p className={hook.blockedReason ? "text-muted-foreground" : ""}>{hook.text}</p>
+                {hook.blockedReason ? (
+                  <p className="text-caution">Not used: {hook.blockedReason}</p>
+                ) : (
+                  <ScoreBar total={hook.scores.total} muted />
+                )}
+              </li>
+            ))}
+          </ul>
+        </Disclosure>
+      )}
+    </Panel>
   );
 }
 
-function ClaimRow({ claim }: { claim: Claim }) {
+function ScoreBreakdown({ hook }: { hook: Hook }) {
+  const rows: [string, number, number][] = [
+    ["Fits what we sell", hook.scores.relevance, 35],
+    ["How recent", hook.scores.recency, 20],
+    ["Specific to them", hook.scores.specificity, 15],
+    ["Right for their seniority", hook.scores.seniority, 10],
+    ["Source can be checked", hook.scores.verifiability, 10],
+    ["Kind of source", hook.scores.authorship, 10],
+  ];
   return (
-    <li className={`rounded-md p-3 text-sm ${claim.supported ? "bg-zinc-50" : "bg-amber-50 ring-1 ring-amber-300"}`}>
-      <p className="text-zinc-900">
-        {claim.text}{" "}
-        {!claim.supported && <span className="font-medium text-amber-700">(not supported by its source)</span>}
+    <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
+      {rows.map(([label, value, max]) => (
+        <div key={label} className="contents">
+          <dt className="text-muted-foreground">{label}</dt>
+          <dd className="text-right tabular-nums">
+            {value} / {max}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function ScoreBar({ total, muted = false }: { total: number; muted?: boolean }) {
+  return (
+    <div className="flex items-center gap-3" role="img" aria-label={`Score ${total} out of 100`}>
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
+        <div className={`h-full rounded-full ${muted ? "bg-chart-2" : "bg-primary"}`} style={{ width: `${total}%` }} />
+      </div>
+      <span className="w-12 text-right text-sm font-medium tabular-nums">{total}</span>
+    </div>
+  );
+}
+
+function SourcesPanel({ signals }: { signals: Signal[] }) {
+  if (signals.length === 0) return null;
+  const visible = signals.slice(0, 4);
+  const rest = signals.slice(4);
+  const item = (signal: Signal) => (
+    <li key={`${signal.id}-${signal.sourceUrl}`} className="grid gap-0.5 text-sm">
+      <p className="leading-5">{signal.claim}</p>
+      <p className="text-muted-foreground">
+        <a href={signal.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-border underline-offset-2 hover:text-foreground">
+          {signal.sourceName || hostOf(signal.sourceUrl)}
+        </a>
+        , {formatDate(signal.publishedAt)}
       </p>
-      <a href={claim.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-zinc-600 underline underline-offset-2">
-        {claim.sourceName}
-        {claim.publishedAt ? `, ${new Date(claim.publishedAt).toLocaleDateString()}` : ", undated"}
-      </a>
     </li>
   );
+  return (
+    <Panel title={`Sources (${signals.length})`}>
+      <ul className="grid gap-3">{visible.map(item)}</ul>
+      {rest.length > 0 && (
+        <Disclosure label={`Show ${rest.length} more`}>
+          <ul className="grid gap-3">{rest.map(item)}</ul>
+        </Disclosure>
+      )}
+    </Panel>
+  );
 }
 
-function StepIcon({ status }: { status: StepState["status"] }) {
-  if (status === "running") return <Loader2 className="size-5 animate-spin text-zinc-500" aria-label="Running" />;
-  if (status === "done") return <CheckCircle2 className="size-5 text-emerald-600" aria-label="Done" />;
-  if (status === "failed") return <TriangleAlert className="size-5 text-amber-600" aria-label="Failed" />;
-  return <Circle className="size-5 text-zinc-300" aria-label="Waiting" />;
+function StepsSummary({ steps, stopped }: { steps: Record<string, StepState>; stopped: boolean }) {
+  const ran = STEPS.filter((step) => steps[step.id]);
+  const failed = ran.filter((step) => steps[step.id].status === "failed");
+  const total = ran.reduce((sum, step) => sum + (steps[step.id].durationMs ?? 0), 0);
+  return (
+    <Panel title="Steps">
+      <p className="text-sm text-muted-foreground">
+        {ran.length} steps in {(total / 1000).toFixed(1)} s.{" "}
+        {failed.length === 0
+          ? "All finished."
+          : stopped
+            ? `${failed.length} could not finish.`
+            : `${failed.length} could not finish; the run continued without ${failed.length === 1 ? "it" : "them"}.`}
+      </p>
+      <Disclosure label="Show each step">
+        <ol className="grid gap-2">
+          {STEPS.map((step) => {
+            const state = steps[step.id];
+            if (!state) return null;
+            return (
+              <li key={step.id} className="grid grid-cols-[18px_1fr] gap-x-2 text-sm">
+                <StepIcon status={state.status} small />
+                <span>{step.label}</span>
+                {state.message && (
+                  <span className={`col-start-2 ${state.status === "failed" ? "text-caution" : "text-muted-foreground"}`}>{state.message}</span>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </Disclosure>
+    </Panel>
+  );
+}
+
+function AbstainPanel({ hooks, signalCount }: { hooks: Hook[]; signalCount: number }) {
+  return (
+    <section className="grid gap-4 rounded-lg border border-border bg-card p-6 sm:p-8">
+      <h2 className="text-lg font-semibold">No email written</h2>
+      <p className="max-w-prose leading-7 text-muted-foreground">
+        {signalCount > 0
+          ? `The app found ${signalCount} public ${signalCount === 1 ? "source" : "sources"}, but none gave a specific, recent reason to write${hooks.length ? ` (the best angle scored ${Math.max(...hooks.map((hook) => hook.scores.total))} out of 100)` : ""}.`
+          : "The app found no public sources about this company that it could use."}{" "}
+        A made-up reason would do more harm than a plain email, so it stopped here.
+      </p>
+      <div className="grid gap-2 text-sm">
+        <p className="font-medium">What you can do</p>
+        <ul className="grid gap-1.5 text-muted-foreground">
+          <li>Send a short, plain email about what Zamp does for finance teams, without pretending to know them.</li>
+          <li>Put this prospect aside and run it again when they post a job or appear in the news.</li>
+          <li>Add their website or notes on the New run page if you know something the app could not find.</li>
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function StoppedPanel({ message, steps }: { message: string; steps: Record<string, StepState> }) {
+  const failed = STEPS.find((step) => steps[step.id]?.status === "failed" && ["identity", "hooks", "draft", "verify"].includes(step.id))
+    ?? STEPS.find((step) => steps[step.id]?.status === "failed");
+  return (
+    <section className="grid gap-3 rounded-lg border border-border bg-card p-6 sm:p-8">
+      <h2 className="text-lg font-semibold">The run stopped</h2>
+      {failed ? (
+        <p className="max-w-prose leading-7 text-muted-foreground">
+          It stopped at <span className="font-medium text-foreground">{failed.label.toLowerCase()}</span>
+          {steps[failed.id]?.message ? `: ${steps[failed.id]?.message}` : "."}
+        </p>
+      ) : (
+        <p className="max-w-prose leading-7 text-muted-foreground">{message}</p>
+      )}
+      <p className="text-sm text-muted-foreground">
+        What it found before stopping is on the right. Try again in a minute; if it stops at the same step, check the API key
+        for that step in .env.local.
+      </p>
+    </section>
+  );
+}
+
+function Panel({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="grid gap-3 rounded-lg border border-border bg-card p-5">
+      <h2 className="text-[15px] font-semibold">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Disclosure({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <details className="group">
+      <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-sm text-primary hover:underline [&::-webkit-details-marker]:hidden">
+        <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
+        {label}
+      </summary>
+      <div className="mt-3">{children}</div>
+    </details>
+  );
+}
+
+function StepIcon({ status, small = false }: { status: StepStatus; small?: boolean }) {
+  const size = small ? "size-4 mt-0.5" : "size-5";
+  if (status === "running") return <Loader2 className={`${size} animate-spin text-primary`} aria-label="Running" />;
+  if (status === "done") return <CheckCircle2 className={`${size} text-verified`} aria-label="Done" />;
+  if (status === "failed") return <TriangleAlert className={`${size} text-caution`} aria-label="Could not finish" />;
+  return <Circle className={`${size} text-border`} aria-label="Waiting" />;
 }

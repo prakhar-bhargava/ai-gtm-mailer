@@ -1,21 +1,15 @@
+import { Search } from "lucide-react";
 import Link from "next/link";
-import { Section } from "@/components/section";
-import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/page-header";
+import { hostOf } from "@/lib/format";
 import { listAccounts } from "@/lib/accounts";
 
 export const dynamic = "force-dynamic";
 
-// A link shown as its host, so the list stays readable.
 function HostLink({ url }: { url: string }) {
-  let label = url;
-  try {
-    label = new URL(url).host.replace(/^www\./, "");
-  } catch {
-    // keep the raw text
-  }
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className="text-zinc-700 underline underline-offset-2 hover:text-zinc-950">
-      {label}
+    <a href={url} target="_blank" rel="noopener noreferrer" className="underline decoration-border underline-offset-2 hover:decoration-foreground">
+      {hostOf(url)}
     </a>
   );
 }
@@ -25,77 +19,84 @@ export default async function AccountsPage({ searchParams }: { searchParams: Pro
   const accounts = listAccounts(q.trim());
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-12">
-      <header className="grid gap-2">
-        <div className="flex gap-4 text-sm text-zinc-500">
-          <Link href="/" className="hover:text-zinc-900">← New run</Link>
-          <Link href="/dashboard" className="hover:text-zinc-900">Dashboard</Link>
-          <Link href="/outbox" className="hover:text-zinc-900">Outbox</Link>
-        </div>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Accounts</h1>
-        <p className="text-zinc-600">
-          Every company and person you have searched, with the links found on each company&apos;s own site. LinkedIn
-          links are references only.
-        </p>
-      </header>
+    <main className="mx-auto max-w-4xl">
+      <PageHeader
+        title="Accounts"
+        description="Companies and people you have researched, with the links found on each company's own website. LinkedIn links are saved for reference and never opened by the app."
+      />
 
-      <form action="/accounts" className="flex gap-3">
-        <Input name="q" defaultValue={q} placeholder="Search companies" className="max-w-sm" />
-        <button type="submit" className="h-9 rounded-md border border-zinc-200 px-4 text-sm font-medium hover:bg-zinc-50">
-          Search
-        </button>
+      <form action="/accounts" className="relative mb-4 w-full sm:w-72" role="search">
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+        <label htmlFor="q" className="sr-only">
+          Search companies
+        </label>
+        <input
+          id="q"
+          name="q"
+          defaultValue={q}
+          placeholder="Search companies"
+          className="h-9 w-full rounded-md border border-input bg-card pr-3 pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring"
+        />
       </form>
 
       {accounts.length === 0 ? (
-        <Section>
-          <p className="text-sm text-zinc-600">No accounts yet. Start a search and it will appear here.</p>
-        </Section>
+        <div className="grid justify-items-start gap-3 rounded-lg border border-dashed border-border bg-card p-8">
+          <p className="font-medium">{q ? "No companies match" : "No accounts yet"}</p>
+          <p className="text-sm text-muted-foreground">
+            {q ? "Try another name." : "Every company you research is added here automatically."}
+          </p>
+          <Link href={q ? "/accounts" : "/"} className="text-sm font-medium text-primary hover:underline">
+            {q ? "Clear search" : "Start a run"}
+          </Link>
+        </div>
       ) : (
-        <ul className="grid gap-4">
-          {accounts.map((company) => (
-            <li key={company.id}>
-              <Section>
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <h2 className="text-lg font-semibold text-zinc-950">{company.name}</h2>
-                  {company.domain && <HostLink url={`https://${company.domain}`} />}
-                </div>
-
-                <dl className="grid grid-cols-[9rem_1fr] gap-x-4 gap-y-2 text-sm">
-                  <dt className="text-zinc-500">Job board</dt>
-                  <dd className="text-zinc-800">{company.jobBoard ?? "Not found yet"}</dd>
-                  <dt className="text-zinc-500">Company LinkedIn</dt>
-                  <dd>{company.companyLinkedinUrl ? <HostLink url={company.companyLinkedinUrl} /> : <span className="text-zinc-500">Not added</span>}</dd>
-                  <dt className="text-zinc-500">Other profiles</dt>
-                  <dd className="grid gap-1">
-                    {company.social.filter((url) => !url.includes("linkedin.com")).length === 0 ? (
-                      <span className="text-zinc-500">None found on the website</span>
-                    ) : (
-                      company.social
-                        .filter((url) => !url.includes("linkedin.com"))
-                        .map((url) => <HostLink key={url} url={url} />)
-                    )}
-                  </dd>
-                </dl>
-
-                <div className="grid gap-2 border-t border-zinc-100 pt-4">
-                  <span className="text-xs font-medium text-zinc-500">People</span>
-                  {company.people.length === 0 ? (
-                    <span className="text-sm text-zinc-500">No people saved yet</span>
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+          {accounts.map((company) => {
+            const social = company.social.filter((url) => !url.includes("linkedin.com"));
+            return (
+              <li key={company.id} className="grid gap-3 px-5 py-5 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-6">
+                <div className="grid content-start gap-0.5">
+                  <h2 className="font-semibold">{company.name}</h2>
+                  {company.domain ? (
+                    <span className="text-sm text-muted-foreground">
+                      <HostLink url={`https://${company.domain}`} />
+                    </span>
                   ) : (
-                    <ul className="grid gap-2 text-sm">
-                      {company.people.map((person) => (
-                        <li key={person.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                          <span className="font-medium text-zinc-900">{person.name}</span>
-                          {person.role && <span className="text-zinc-600">{person.role}</span>}
-                          {person.linkedinUrl && <HostLink url={person.linkedinUrl} />}
-                        </li>
-                      ))}
-                    </ul>
+                    <span className="text-sm text-muted-foreground">No website found</span>
                   )}
                 </div>
-              </Section>
-            </li>
-          ))}
+
+                <dl className="grid grid-cols-[7.5rem_1fr] gap-x-4 gap-y-1.5 text-sm">
+                  <dt className="text-muted-foreground">People</dt>
+                  <dd>
+                    {company.people.length === 0
+                      ? <span className="text-muted-foreground">None saved</span>
+                      : company.people.map((person, index) => (
+                          <span key={person.id}>
+                            {index > 0 && ", "}
+                            {person.linkedinUrl ? (
+                              <a href={person.linkedinUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-border underline-offset-2">
+                                {person.name}
+                              </a>
+                            ) : (
+                              person.name
+                            )}
+                            {person.role && <span className="text-muted-foreground"> ({person.role})</span>}
+                          </span>
+                        ))}
+                  </dd>
+                  <dt className="text-muted-foreground">Job board</dt>
+                  <dd>{company.jobBoard ?? <span className="text-muted-foreground">Not found</span>}</dd>
+                  <dt className="text-muted-foreground">LinkedIn</dt>
+                  <dd>{company.companyLinkedinUrl ? <HostLink url={company.companyLinkedinUrl} /> : <span className="text-muted-foreground">Not added</span>}</dd>
+                  <dt className="text-muted-foreground">Other profiles</dt>
+                  <dd className="flex flex-wrap gap-x-3 gap-y-1">
+                    {social.length === 0 ? <span className="text-muted-foreground">None on the website</span> : social.map((url) => <HostLink key={url} url={url} />)}
+                  </dd>
+                </dl>
+              </li>
+            );
+          })}
         </ul>
       )}
     </main>

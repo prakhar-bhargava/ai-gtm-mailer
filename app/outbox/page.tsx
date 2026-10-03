@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Section } from "@/components/section";
+import { PageHeader } from "@/components/page-header";
+import { timeAgo } from "@/lib/format";
 import { listOutbox } from "@/lib/outbox";
 
 export const dynamic = "force-dynamic";
@@ -7,30 +8,33 @@ export const dynamic = "force-dynamic";
 export default function OutboxPage() {
   const items = listOutbox();
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-12">
-      <header className="grid gap-2">
-        <div className="flex gap-4 text-sm text-zinc-500">
-          <Link href="/" className="hover:text-zinc-900">← New run</Link>
-          <Link href="/dashboard" className="hover:text-zinc-900">Dashboard</Link>
-        </div>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Outbox</h1>
-        <p className="text-zinc-600">Messages you sent from this app. They are saved here and have not been delivered by email.</p>
-      </header>
+    <main className="mx-auto max-w-3xl">
+      <PageHeader title="Outbox" description="Emails you approved. They are stored here and have not been delivered." />
 
       {items.length === 0 ? (
-        <Section>
-          <p className="text-sm text-zinc-600">Nothing here yet. Review a draft and press Send to add it.</p>
-        </Section>
+        <div className="grid justify-items-start gap-3 rounded-lg border border-dashed border-border bg-card p-8">
+          <p className="font-medium">No emails yet</p>
+          <p className="text-sm text-muted-foreground">Open a finished run, review the draft, and choose Save to Outbox.</p>
+          <Link href="/dashboard" className="text-sm font-medium text-primary hover:underline">
+            Go to runs
+          </Link>
+        </div>
       ) : (
-        <ul className="grid gap-3">
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
           {items.map((item) => (
             <li key={item.id}>
-              <Link href={`/outbox/${item.id}`} className="grid gap-1 rounded-xl border border-zinc-200 bg-white p-5 hover:border-zinc-400">
-                <span className="font-medium text-zinc-900">{item.subject}</span>
-                <span className="text-sm text-zinc-600">
-                  To {item.toName} at {item.toCompany}
+              <Link href={`/outbox/${item.id}`} className="grid gap-0.5 px-5 py-4 hover:bg-secondary/50">
+                <span className="flex items-baseline justify-between gap-4">
+                  <span className="truncate font-medium">
+                    {item.toName}, {item.toCompany}
+                  </span>
+                  <span className="shrink-0 text-sm text-muted-foreground">{timeAgo(item.sentAt)}</span>
                 </span>
-                <span className="text-xs text-zinc-500">{new Date(item.sentAt).toLocaleString()}</span>
+                <span className="truncate text-sm text-muted-foreground">
+                  <span className="text-foreground">{item.subject}</span>
+                  {"  "}
+                  {item.body.replace(/\s+/g, " ").slice(0, 120)}
+                </span>
               </Link>
             </li>
           ))}
