@@ -15,9 +15,10 @@ export default function Home() {
         <Badge variant="secondary" className="w-fit">Sample data</Badge>
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">New prospect run</h1>
-          <Link href="/dashboard" className="text-sm text-zinc-600 underline underline-offset-2 hover:text-zinc-900">
-            Dashboard
-          </Link>
+          <nav className="flex gap-4 text-sm text-zinc-600">
+            <Link href="/dashboard" className="underline underline-offset-2 hover:text-zinc-900">Dashboard</Link>
+            <Link href="/outbox" className="underline underline-offset-2 hover:text-zinc-900">Outbox</Link>
+          </nav>
         </div>
         <p className="text-zinc-600">
           Enter a prospect and the app will research public signals, rank possible reasons to reach out, and

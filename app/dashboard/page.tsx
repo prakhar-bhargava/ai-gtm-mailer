@@ -68,7 +68,10 @@ export default async function DashboardPage({
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="grid gap-1">
-          <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900">← New run</Link>
+          <div className="flex gap-4 text-sm text-zinc-500">
+            <Link href="/" className="hover:text-zinc-900">← New run</Link>
+            <Link href="/outbox" className="hover:text-zinc-900">Outbox</Link>
+          </div>
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">Dashboard</h1>
           <p className="text-zinc-600">Every search saved on this machine. Search by name or company.</p>
         </div>

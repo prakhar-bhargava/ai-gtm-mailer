@@ -25,6 +25,15 @@ CREATE TABLE IF NOT EXISTS run_events (
   at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS run_events_by_run ON run_events(run_id, id);
+CREATE TABLE IF NOT EXISTS outbox (
+  id TEXT PRIMARY KEY,
+  run_id TEXT NOT NULL REFERENCES runs(id),
+  to_name TEXT NOT NULL,
+  to_company TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+  sent_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS cache (
   key TEXT PRIMARY KEY,
   body TEXT NOT NULL,

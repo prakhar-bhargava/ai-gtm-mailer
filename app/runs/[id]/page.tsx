@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RunView } from "@/components/run-view";
+import { SendPanel } from "@/components/send-panel";
+import { signatureLines } from "@/lib/signature";
 import { getEvents, getRun } from "@/lib/runs";
 
 export default async function RunPage({ params }: { params: Promise<{ id: string }> }) {
@@ -10,6 +12,9 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
 
   const { prospect } = run;
   const isNew = run.status === "new";
+  const events = isNew ? [] : getEvents(id);
+  // The last draft written by the run, if there is one.
+  const draft = [...events].reverse().find((event) => event.payload?.draft)?.payload?.draft;
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12">
@@ -25,8 +30,11 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
       </header>
       <RunView
         streamUrl={isNew ? `/api/runs/${id}/stream` : null}
-        initialEvents={isNew ? [] : getEvents(id)}
+        initialEvents={isNew ? [] : events}
       />
+      {draft && run.status === "finished" && (
+        <SendPanel runId={id} subject={draft.subject} body={draft.body} signature={signatureLines()} />
+      )}
     </main>
   );
 }

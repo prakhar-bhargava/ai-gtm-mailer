@@ -1,0 +1,8 @@
+{
+  "_note": "Who the email is from. Fill these in before using the Outbox. Placeholders are shown until then.",
+  "name": "[Your name]",
+  "title": "[Your title]",
+  "company": "Zamp",
+  "website": "zamp.ai",
+  "signoff": "Best,"
+}
