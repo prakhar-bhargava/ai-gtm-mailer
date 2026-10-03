@@ -19,7 +19,7 @@ Deadline (day 7): ____
 ## Day 3: happy path for real
 - [ ] Identity resolution (search + domain match)
 - [ ] Gather: news, company site, jobs, firmographics, person content (each with timeout, cache)
-- [ ] Normalise, hooks, scoring, draft, verify
+- [ ] Normalise, hooks, scoring, draft, verify (draft uses Gemini with sample signals; hooks, verify and real signals still to do)
 - [ ] One real prospect end to end on the deployed link. This is the checkpoint: if it is not working tonight, cut scope
 
 ## Day 4: edge cases

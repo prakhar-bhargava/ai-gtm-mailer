@@ -29,6 +29,27 @@ export const Draft = z.object({
 });
 export type Draft = z.infer<typeof Draft>;
 
+// What the model must return for the draft. Checked against the signal ids it was given.
+// Tags such as [s:s1] are stripped from the body before display; the claims list keeps the link.
+const TAG = /\[s:[^\]]+\]/g;
+const wordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
+
+export const draftAnswerSchema = (signalIds: [string, ...string[]]) =>
+  z.object({
+    subject: z
+      .string()
+      .refine((subject) => wordCount(subject) >= 2 && wordCount(subject) <= 4, "must be 2 to 4 words"),
+    body: z
+      .string()
+      .refine((body) => {
+        const words = wordCount(body.replace(TAG, ""));
+        return words >= 50 && words <= 100;
+      }, "must be 50 to 100 words"),
+    claims: z
+      .array(z.object({ text: z.string().min(1), signalId: z.enum(signalIds) }))
+      .min(1, "must cite at least one signal"),
+  });
+
 export const StageEvent = z.object({
   stage: StageId,
   status: z.enum(["started", "done", "failed"]),

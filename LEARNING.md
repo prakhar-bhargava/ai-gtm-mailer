@@ -56,6 +56,12 @@ Source: docs/04-architecture.md (route list differs for now)
 
 ## Things I learned
 
+### 2026-10-03: Gemini model names and overloads
+What: `gemini-2.5-flash` and `gemini-2.5-flash-lite` return 404 on this key, though they appear in the model list. `gemini-flash-latest` and `gemini-flash-lite-latest` work. Google also returns 503 "high demand" for minutes at a time, which is separate from the 429 rate limit.
+Why it matters: the model name lives in config/llm.json, not code. Both 429 and 503 get one retry, and a busy model gets a plain message ("Try again in a minute") instead of a generic failure.
+Interview line: "A model that's overloaded is a different failure from a rate limit, so the app tells the rep to wait rather than retrying forever."
+Source: config/llm.json, lib/llm.ts
+
 ### 2026-10-03: SSE has to be closed by the client on error
 What: EventSource reconnects automatically when the stream ends or errors. The run view closes the connection on the final `run` event and on error, so a finished run isn't replayed.
 Why it matters: Without this, every finished run would start again.

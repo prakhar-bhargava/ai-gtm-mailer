@@ -11,6 +11,8 @@ export type StageSpec = {
   // Required stages stop the run when they fail. Optional stages fail soft.
   required: boolean;
   startMessage: string;
+  // Per-stage override for slow steps such as LLM calls. Defaults to config/pipeline.json.
+  timeoutMs?: number;
   run: (prospect: ProspectInput) => Promise<StageOutput>;
 };
 
@@ -49,7 +51,7 @@ export async function runStage(
   const started = Date.now();
   emit(event(spec.id, "started", spec.startMessage));
   try {
-    const output = await withTimeout(spec.run(prospect), pipeline.stageTimeoutMs);
+    const output = await withTimeout(spec.run(prospect), spec.timeoutMs ?? pipeline.stageTimeoutMs);
     emit(event(spec.id, "done", output.summary, Date.now() - started, output.draft));
     return true;
   } catch (error) {

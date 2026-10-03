@@ -1,0 +1,35 @@
+{
+  "seller": "Zamp",
+  "offer": "AI employees for finance and operations roles. A company briefs each one once, and it owns the job end to end.",
+  "strongest_proof_point": "Invoice processing and accounts payable",
+  "ideal_customer": "Enterprises and large mid-market companies with heavy accounts payable, procurement or compliance volume.",
+  "personas": ["CFO", "VP Finance", "Controller", "Head of AP or Finance Ops", "Head of Procurement"],
+  "pains": [
+    {
+      "signal": "Hiring several AP, AR, accounting or finance ops roles",
+      "pain": "Volume is growing faster than the team",
+      "zamp_angle": "An AI employee takes the repetitive queue so new hires work on exceptions"
+    },
+    {
+      "signal": "ERP migration or a new finance system",
+      "pain": "Process redesign is underway, a window to change how work is done",
+      "zamp_angle": "Build the automated flow into the new system from day one"
+    },
+    {
+      "signal": "Expansion into new countries or entities",
+      "pain": "More vendors, currencies, tax rules and entities to close",
+      "zamp_angle": "Scale the process without scaling headcount in line"
+    },
+    {
+      "signal": "Funding round or growth news",
+      "pain": "Finance operations must scale for the next stage",
+      "zamp_angle": "Same as above"
+    }
+  ],
+  "tone": "Plain, peer to peer, short. No hype words. One interest question as the call to action.",
+  "do_not": [
+    "Do not name customers in a draft",
+    "Do not put ROI multipliers in a draft",
+    "Do not mention how the prospect's information was found"
+  ]
+}
