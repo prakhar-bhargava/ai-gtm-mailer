@@ -8,7 +8,6 @@ export const draft: StageSpec = {
   id: "draft",
   required: true,
   startMessage: "Writing the draft email",
-  timeoutMs: 40000, // above llm.timeoutMs so the model call times out first and gives a readable message
   run: async (ctx) => {
     const hook = ctx.hooks.find((item) => !item.blockedReason);
     if (!hook) throw new Error("no hook is usable for a draft");

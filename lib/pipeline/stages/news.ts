@@ -13,7 +13,6 @@ export const news: StageSpec = {
   id: "news",
   required: false,
   startMessage: "Checking recent news about the company",
-  timeoutMs: 40000, // includes a model call for the same-company check
   run: async (ctx) => {
     const name = ctx.prospect.company.toLowerCase();
     const cutoff = Date.now() - sources.newsDays * 86_400_000;

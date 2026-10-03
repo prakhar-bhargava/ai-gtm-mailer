@@ -1,5 +1,7 @@
 import pipeline from "@/config/pipeline.json";
 import { cacheGet, cacheSet } from "@/lib/cache";
+import { takeSlot } from "@/lib/rate-limit";
+import { hostOf, trail } from "@/lib/trail";
 
 // Every outside call goes through here: a timeout, one retry on 429, and the local cache.
 // Errors carry the HTTP status so callers can tell "not found" from "broken".
@@ -15,12 +17,18 @@ export class SourceError extends Error {
 const USER_AGENT = "Mozilla/5.0 (compatible; prospect-research-demo/0.1)";
 
 export async function fetchText(url: string, options: { cacheKey?: string; accept?: string } = {}): Promise<string> {
+  const host = hostOf(url);
   if (options.cacheKey) {
     const cached = cacheGet(options.cacheKey);
-    if (cached !== null) return cached;
+    if (cached !== null) {
+      trail(`Using a saved copy from ${host}, no request needed`);
+      return cached;
+    }
   }
 
   for (let attempt = 0; ; attempt++) {
+    await takeSlot();
+    trail(attempt === 0 ? `Asking ${host}` : `Asking ${host} again after a rate limit`);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), pipeline.sourceTimeoutMs);
     try {
@@ -33,9 +41,11 @@ export async function fetchText(url: string, options: { cacheKey?: string; accep
         continue;
       }
       if (!response.ok) {
+        trail(`${host} answered ${response.status}`);
         throw new SourceError(`the site answered with status ${response.status}`, response.status);
       }
       const text = await response.text();
+      trail(`${host} answered with ${Math.round(text.length / 1024) || "under 1"} KB`);
       if (options.cacheKey) cacheSet(options.cacheKey, text);
       return text;
     } catch (error) {

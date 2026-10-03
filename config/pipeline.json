@@ -1,6 +1,8 @@
 {
-  "stageTimeoutMs": 8000,
+  "maxRequestsPerMinute": 4,
+  "stageTimeoutMs": 300000,
   "sourceTimeoutMs": 8000,
   "sourceRetryMs": 2000,
+  "modelTimeoutMs": 30000,
   "cacheHours": 24
 }

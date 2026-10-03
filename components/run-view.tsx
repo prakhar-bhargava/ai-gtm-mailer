@@ -20,14 +20,22 @@ type StepState = {
   status: "pending" | "running" | "done" | "failed";
   message?: string;
   durationMs?: number;
+  startedAt?: string;
+  trail: string[]; // what the step has done so far, in order
 };
 
 function deriveSteps(events: StageEvent[]): Record<string, StepState> {
   const steps: Record<string, StepState> = {};
   for (const event of events) {
     if (event.stage === "run") continue;
-    const status = event.status === "started" ? "running" : event.status;
-    steps[event.stage] = { status, message: event.message, durationMs: event.durationMs };
+    const current: StepState = steps[event.stage] ?? { status: "pending", trail: [] };
+    if (event.status === "progress") {
+      steps[event.stage] = { ...current, trail: [...current.trail, event.message] };
+    } else if (event.status === "started") {
+      steps[event.stage] = { ...current, status: "running", message: event.message, startedAt: event.at, trail: [...current.trail, event.message] };
+    } else {
+      steps[event.stage] = { ...current, status: event.status, message: event.message, durationMs: event.durationMs };
+    }
   }
   return steps;
 }
@@ -51,6 +59,13 @@ function collect(events: StageEvent[]) {
 export function RunView({ streamUrl, initialEvents }: { streamUrl: string | null; initialEvents: StageEvent[] }) {
   const [events, setEvents] = useState<StageEvent[]>(initialEvents);
   const [connectionLost, setConnectionLost] = useState(false);
+  const [now, setNow] = useState(0);
+
+  // Ticks once a second so a running step can show how long it has been going.
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!streamUrl) return;
@@ -59,7 +74,9 @@ export function RunView({ streamUrl, initialEvents }: { streamUrl: string | null
       const event = StageEvent.parse(JSON.parse(message.data));
       // A reconnect or a second tab can resend events; keep each one once.
       setEvents((previous) =>
-        previous.some((seen) => seen.stage === event.stage && seen.status === event.status && seen.at === event.at)
+        previous.some(
+          (seen) => seen.stage === event.stage && seen.status === event.status && seen.at === event.at && seen.message === event.message,
+        )
           ? previous
           : [...previous, event],
       );
@@ -92,10 +109,22 @@ export function RunView({ streamUrl, initialEvents }: { streamUrl: string | null
                   <span className="ml-auto text-xs text-zinc-500">{(state.durationMs / 1000).toFixed(1)} s</span>
                 )}
               </div>
-              {state.message && state.status !== "pending" && (
+              {state.status === "running" && state.startedAt && (
+                <p className="mt-1 pl-7 text-xs text-zinc-500">
+                  Running for {Math.max(0, Math.round((now - Date.parse(state.startedAt)) / 1000))} s
+                </p>
+              )}
+              {state.message && state.status !== "pending" && state.status !== "running" && (
                 <p className={`mt-1 pl-7 text-sm ${state.status === "failed" ? "text-amber-700" : "text-zinc-600"}`}>
                   {state.message}
                 </p>
+              )}
+              {state.trail.length > 0 && state.status !== "pending" && (
+                <ul className="mt-2 grid gap-0.5 border-l border-zinc-200 pl-7 text-xs text-zinc-500">
+                  {state.trail.slice(-6).map((note, index) => (
+                    <li key={`${index}-${note}`}>{note}</li>
+                  ))}
+                </ul>
               )}
             </li>
           );

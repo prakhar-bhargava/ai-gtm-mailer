@@ -1,4 +1,5 @@
 import pipeline from "@/config/pipeline.json";
+import { withTrail } from "@/lib/trail";
 import type { Draft, Hook, Outcome, ProspectInput, Signal, StageEvent, StageId, StagePayload } from "@/lib/types";
 
 export type Emit = (event: StageEvent) => void;
@@ -54,7 +55,10 @@ export async function runStage(spec: StageSpec, ctx: RunContext, emit: Emit): Pr
   const started = Date.now();
   emit({ stage: spec.id, status: "started", message: spec.startMessage, at: new Date().toISOString() });
   try {
-    const output = await withTimeout(spec.run(ctx), spec.timeoutMs ?? pipeline.stageTimeoutMs);
+    // Notes from inside the step (requests, waits, saved copies) go out as progress events.
+    const note = (message: string) =>
+      emit({ stage: spec.id, status: "progress", message, at: new Date().toISOString() });
+    const output = await withTimeout(withTrail(note, () => spec.run(ctx)), pipeline.stageTimeoutMs);
 
     // Give each new signal the next id, then merge everything into the shared context.
     const assigned: Signal[] = (output.newSignals ?? []).map((signal) => ({

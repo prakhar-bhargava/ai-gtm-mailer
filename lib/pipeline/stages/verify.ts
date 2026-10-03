@@ -11,7 +11,6 @@ export const verify: StageSpec = {
   id: "verify",
   required: false,
   startMessage: "Checking each claim against its source",
-  timeoutMs: 40000,
   run: async (ctx) => {
     const current = ctx.draft;
     if (!current) throw new Error("there is no draft to check");

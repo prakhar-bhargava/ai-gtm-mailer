@@ -93,7 +93,8 @@ export type StagePayload = z.infer<typeof StagePayload>;
 
 export const StageEvent = z.object({
   stage: StageId,
-  status: z.enum(["started", "done", "failed"]),
+  // progress: a note from inside a running step, such as a request or a wait for a free slot.
+  status: z.enum(["started", "progress", "done", "failed"]),
   message: z.string(),
   durationMs: z.number().optional(),
   payload: StagePayload.optional(),

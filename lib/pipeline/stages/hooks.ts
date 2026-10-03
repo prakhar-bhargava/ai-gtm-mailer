@@ -9,7 +9,6 @@ export const hooks: StageSpec = {
   id: "hooks",
   required: true,
   startMessage: "Ranking the possible reasons to get in touch",
-  timeoutMs: 40000, // a model call, so it needs the same allowance as the draft
   run: async (ctx) => {
     if (ctx.signals.length === 0) {
       return { summary: "No public signals to build a hook from", hooks: [] };
