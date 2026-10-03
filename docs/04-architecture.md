@@ -99,7 +99,7 @@ Event messages are written for the rep, not the developer. They are what the int
 
 ## Reliability for the live demo
 
-- Every source call: 8 s timeout, one retry with backoff on 429, cached by key.
+- Every source call: 8 s timeout, retry with backoff on 429 and 503 (delays in `config/llm.json` for the LLM; sources follow the same pattern), cached by key.
 - Pre-run all demo prospects the night before; the cache makes live runs fast and survivable.
 - Replay mode replays a stored run's events with original timing. Labelled "replay" on screen. Use only if live fails, and say so.
 - Health check page that pings each source and shows green or red. Open it before the interview.

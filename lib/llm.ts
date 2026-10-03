@@ -34,15 +34,18 @@ async function send(system: string, contents: string, schema: z.ZodType, signal:
 
 const TRANSIENT = /\b(429|503)\b|RESOURCE_EXHAUSTED|UNAVAILABLE/;
 
-// One retry on 429 (rate limit) and 503 (high demand), as docs/04 requires for external calls.
+// Retries 429 (rate limit) and 503 (high demand) with the delays in config/llm.json.
+// The whole call still stops at llm.timeoutMs, so a long retry chain can't outlive the stage.
 async function sendWithRetry(system: string, contents: string, schema: z.ZodType, signal: AbortSignal) {
-  try {
-    return await send(system, contents, schema, signal);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "";
-    if (!TRANSIENT.test(message) || signal.aborted) throw error;
-    await new Promise((resolve) => setTimeout(resolve, llm.rateLimitRetryMs));
-    return send(system, contents, schema, signal);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await send(system, contents, schema, signal);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      const delay = llm.retryDelaysMs[attempt];
+      if (!TRANSIENT.test(message) || signal.aborted || delay === undefined) throw error;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
   }
 }
 

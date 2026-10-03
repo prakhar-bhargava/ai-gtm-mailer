@@ -54,6 +54,14 @@ Why it matters: Vercel serverless instances do not share memory, so a run create
 Interview line: "The first version has no state on the server, so there's nothing to lose when a function instance is recycled."
 Source: docs/04-architecture.md (route list differs for now)
 
+## Decisions
+
+### 2026-10-03: Retries back off on 429 and 503, within one time budget
+What: Transient errors (429, 503) retry at 2, 5 and 10 seconds (config/llm.json). The whole model call stops at 35 seconds, and the draft stage at 40. Schema failures still get one retry, with the problem described.
+Why it matters: Retrying forever would push past the 60-second route limit on Vercel, so the budget is capped. Total time for a full run is roughly identity (under 1 s) + gather (under 2 s) + hooks (under 1 s) + draft (up to 40 s).
+Interview line: "The retries have a budget, so a busy model slows a run down but can't hang it."
+Source: docs/04-architecture.md (reliability rules)
+
 ## Things I learned
 
 ### 2026-10-03: Gemini model names and overloads

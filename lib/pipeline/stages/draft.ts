@@ -10,7 +10,7 @@ export const draft: StageSpec = {
   id: "draft",
   required: true,
   startMessage: "Writing the draft email",
-  timeoutMs: 25000,
+  timeoutMs: 40000, // above llm.timeoutMs so the model call times out first and gives a readable message
   run: async (prospect) => {
     const signalIds = SAMPLE_SIGNALS.map((signal) => signal.id) as [string, ...string[]];
     const answer = await generateJson({
