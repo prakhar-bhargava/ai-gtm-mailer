@@ -7,6 +7,6 @@ export const hooks: StageSpec = {
   startMessage: "Ranking the possible reasons to get in touch",
   run: async () => {
     await sleep(900);
-    return "Ranked 3 possible hooks (sample data)";
+    return { summary: "Ranked 3 possible hooks (sample data)" };
   },
 };

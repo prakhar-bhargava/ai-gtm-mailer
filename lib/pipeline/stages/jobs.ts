@@ -7,6 +7,6 @@ export const jobs: StageSpec = {
   startMessage: "Looking for open roles on the company's job board",
   run: async (prospect) => {
     await sleep(1100);
-    return `Found 3 open finance roles at ${prospect.company} (sample data)`;
+    return { summary: `Found 3 open finance roles at ${prospect.company} (sample data)` };
   },
 };

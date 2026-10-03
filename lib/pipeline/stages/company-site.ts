@@ -7,6 +7,6 @@ export const companySite: StageSpec = {
   startMessage: "Reading the company website",
   run: async (prospect) => {
     await sleep(1800);
-    return `Read 4 pages of ${prospect.company}'s website (sample data)`;
+    return { summary: `Read 4 pages of ${prospect.company}'s website (sample data)` };
   },
 };

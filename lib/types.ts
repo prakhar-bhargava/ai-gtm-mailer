@@ -13,11 +13,28 @@ export const StageId = z.enum([
 ]);
 export type StageId = z.infer<typeof StageId>;
 
+// One factual sentence in the draft, tied to the source it came from.
+export const Claim = z.object({
+  text: z.string(),
+  sourceName: z.string(),
+  sourceUrl: z.string(),
+  publishedAt: z.string().nullable(),
+});
+export type Claim = z.infer<typeof Claim>;
+
+export const Draft = z.object({
+  subject: z.string(),
+  body: z.string(),
+  claims: z.array(Claim),
+});
+export type Draft = z.infer<typeof Draft>;
+
 export const StageEvent = z.object({
   stage: StageId,
   status: z.enum(["started", "done", "failed"]),
   message: z.string(),
   durationMs: z.number().optional(),
+  draft: Draft.optional(),
   at: z.string(),
 });
 export type StageEvent = z.infer<typeof StageEvent>;

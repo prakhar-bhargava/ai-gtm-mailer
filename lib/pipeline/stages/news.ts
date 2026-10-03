@@ -7,6 +7,6 @@ export const news: StageSpec = {
   startMessage: "Checking recent news about the company",
   run: async (prospect) => {
     await sleep(1400);
-    return `Found 2 recent news items about ${prospect.company} (sample data)`;
+    return { summary: `Found 2 recent news items about ${prospect.company} (sample data)` };
   },
 };

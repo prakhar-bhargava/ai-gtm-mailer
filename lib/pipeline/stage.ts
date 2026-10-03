@@ -1,14 +1,17 @@
 import pipeline from "@/config/pipeline.json";
-import type { ProspectInput, StageEvent, StageId } from "@/lib/types";
+import type { Draft, ProspectInput, StageEvent, StageId } from "@/lib/types";
 
 export type Emit = (event: StageEvent) => void;
+
+// What a stage hands back: a rep-facing summary, plus the draft when the stage writes one.
+export type StageOutput = { summary: string; draft?: Draft };
 
 export type StageSpec = {
   id: StageId;
   // Required stages stop the run when they fail. Optional stages fail soft.
   required: boolean;
   startMessage: string;
-  run: (prospect: ProspectInput) => Promise<string>; // returns a rep-facing summary
+  run: (prospect: ProspectInput) => Promise<StageOutput>;
 };
 
 export function sleep(ms: number) {
@@ -31,8 +34,9 @@ function event(
   status: StageEvent["status"],
   message: string,
   durationMs?: number,
+  draft?: Draft,
 ): StageEvent {
-  return { stage, status, message, durationMs, at: new Date().toISOString() };
+  return { stage, status, message, durationMs, draft, at: new Date().toISOString() };
 }
 
 // Runs one stage with a timeout and emits started, then done or failed.
@@ -45,8 +49,8 @@ export async function runStage(
   const started = Date.now();
   emit(event(spec.id, "started", spec.startMessage));
   try {
-    const summary = await withTimeout(spec.run(prospect), pipeline.stageTimeoutMs);
-    emit(event(spec.id, "done", summary, Date.now() - started));
+    const output = await withTimeout(spec.run(prospect), pipeline.stageTimeoutMs);
+    emit(event(spec.id, "done", output.summary, Date.now() - started, output.draft));
     return true;
   } catch (error) {
     const reason = error instanceof Error ? error.message : "unknown error";

@@ -7,6 +7,6 @@ export const identity: StageSpec = {
   startMessage: "Working out which company and person this is",
   run: async (prospect) => {
     await sleep(700);
-    return `Matched ${prospect.name} to ${prospect.company} (sample data)`;
+    return { summary: `Matched ${prospect.name} to ${prospect.company} (sample data)` };
   },
 };
