@@ -31,21 +31,18 @@ function deriveSteps(events: StageEvent[]): Record<string, StepState> {
   return steps;
 }
 
-export function RunView({ streamUrl }: { streamUrl: string }) {
-  const [events, setEvents] = useState<StageEvent[]>([]);
-  const [runEnd, setRunEnd] = useState<StageEvent | null>(null);
+// streamUrl is set for a run that hasn't started; saved runs pass null and show their saved events.
+export function RunView({ streamUrl, initialEvents }: { streamUrl: string | null; initialEvents: StageEvent[] }) {
+  const [events, setEvents] = useState<StageEvent[]>(initialEvents);
   const [connectionLost, setConnectionLost] = useState(false);
 
   useEffect(() => {
+    if (!streamUrl) return;
     const source = new EventSource(streamUrl);
     source.onmessage = (message) => {
       const event = StageEvent.parse(JSON.parse(message.data));
-      if (event.stage === "run") {
-        setRunEnd(event);
-        source.close();
-      } else {
-        setEvents((previous) => [...previous, event]);
-      }
+      setEvents((previous) => [...previous, event]);
+      if (event.stage === "run") source.close();
     };
     // Close on error so the browser does not reconnect and replay the run.
     source.onerror = () => {
@@ -55,6 +52,7 @@ export function RunView({ streamUrl }: { streamUrl: string }) {
     return () => source.close();
   }, [streamUrl]);
 
+  const runEnd = [...events].reverse().find((event) => event.stage === "run") ?? null;
   const steps = deriveSteps(events);
   const draft = [...events].reverse().find((event) => event.draft)?.draft;
 

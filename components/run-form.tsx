@@ -11,7 +11,9 @@ export function RunForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  const [saving, setSaving] = useState(false);
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const fields: Record<string, string> = {};
@@ -22,8 +24,21 @@ export function RunForm() {
       setError("Enter the prospect's name and company.");
       return;
     }
-    const id = crypto.randomUUID();
-    router.push(`/runs/${id}?${new URLSearchParams(fields).toString()}`);
+    setSaving(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/runs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const body = (await response.json()) as { id?: string; error?: string };
+      if (!response.ok || !body.id) throw new Error(body.error ?? "Could not save the run");
+      router.push(`/runs/${body.id}`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not save the run");
+      setSaving(false);
+    }
   }
 
   return (
@@ -53,7 +68,9 @@ export function RunForm() {
         <Textarea id="notes" name="notes" rows={3} />
       </div>
       <div className="flex items-center gap-4 sm:col-span-2">
-        <Button type="submit">Start run</Button>
+        <Button type="submit" disabled={saving}>
+          {saving ? "Saving..." : "Start run"}
+        </Button>
         {error && <p className="text-sm text-amber-700">{error}</p>}
       </div>
     </form>
