@@ -57,12 +57,13 @@ If a task threatens priority 1 late in the week, stop and say so.
 
 ## Commands
 
-Fill in once the app is scaffolded.
+Stack installed: Node 24 LTS, Next.js 16 (App Router, Turbopack), React 19, Tailwind 4, shadcn/ui, zod, Supabase JS, Anthropic / Gemini / OpenAI SDKs, tsx, Vercel CLI. Copy `.env.example` to `.env.local` for keys.
 
 ```
 npm install
 npm run dev        # local at http://localhost:3000
 npm run lint
-npm run test       # runs fixtures/demo-prospects.json through the pipeline
+npm run build
+npm run test       # not wired yet: will run fixtures/demo-prospects.json through the pipeline
 vercel --prod      # deploy
 ```

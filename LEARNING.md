@@ -48,6 +48,11 @@ Source: docs/04-architecture.md
 
 ## Things I learned
 
+### 2026-10-03: Toolchain is newer than expected
+What: Scaffold landed on Next.js 16.3 (Turbopack default), React 19.2, Tailwind 4, Node 24 LTS, npm 11. npm 11 blocks package install scripts unless approved, so esbuild (needed by tsx) and unrs-resolver (ESLint) had to be approved with `npm approve-scripts`. Next 16 ships its own docs in node_modules/next/dist/docs; read those before writing route code (see AGENTS.md).
+Why it matters: Older Next.js tutorials may not match; a silently skipped postinstall would break the test runner.
+Interview line: n/a.
+
 ### 2026-10-03: What the brief actually grades
 What: It runs live; the judgment behind choices; the UI (live run view and dashboard are named explicitly); explaining to a non-technical buyer; demo composure. A process that runs on the happy path beats one that's 80% built.
 Interview line: n/a, this shapes the plan.
