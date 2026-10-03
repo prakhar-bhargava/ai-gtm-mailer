@@ -46,7 +46,25 @@ Source: docs/04-architecture.md
 - Rubric weights are starting hypotheses, to be tuned by reviewer reject reasons.
 - Public web data is enough for most enterprise prospects.
 
+## Decisions
+
+### 2026-10-03: Run executes inside the stream request, no run store yet
+What: The SSE route (GET /api/runs/[id]/stream) runs the whole pipeline and streams its events. There is no POST create route and no in-memory run store. The new-run form puts the prospect in the URL query.
+Why it matters: Vercel serverless instances do not share memory, so a run created on one instance can't be read from another. Reloading the run page starts it again. Supabase in Day 2 replaces this with a stored run.
+Interview line: "The first version has no state on the server, so there's nothing to lose when a function instance is recycled."
+Source: docs/04-architecture.md (route list differs for now)
+
 ## Things I learned
+
+### 2026-10-03: SSE has to be closed by the client on error
+What: EventSource reconnects automatically when the stream ends or errors. The run view closes the connection on the final `run` event and on error, so a finished run isn't replayed.
+Why it matters: Without this, every finished run would start again.
+Interview line: n/a.
+
+### 2026-10-03: Next 16 route params are a Promise
+What: `params` and `searchParams` must be awaited in route handlers and pages. Docs: node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/route.md.
+Why it matters: Copying older examples gives a type error or undefined values.
+Interview line: n/a.
 
 ### 2026-10-03: Toolchain is newer than expected
 What: Scaffold landed on Next.js 16.3 (Turbopack default), React 19.2, Tailwind 4, Node 24 LTS, npm 11. npm 11 blocks package install scripts unless approved, so esbuild (needed by tsx) and unrs-resolver (ESLint) had to be approved with `npm approve-scripts`. Next 16 ships its own docs in node_modules/next/dist/docs; read those before writing route code (see AGENTS.md).

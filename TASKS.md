@@ -13,8 +13,8 @@ Deadline (day 7): ____
 ## Day 2: skeleton that runs
 - [ ] Scaffold Next.js + Tailwind + shadcn, deploy an empty page to Vercel (prove the live link works on day 2, not day 7)
 - [ ] Supabase tables from docs/04-architecture.md
-- [ ] Orchestrator with stage events streamed over SSE; stub stages that return fake data
-- [ ] Run view showing the stage timeline ticking live
+- [x] Orchestrator with stage events streamed over SSE; stub stages that return fake data
+- [x] Run view showing the stage timeline ticking live (checked by curl on the stream; visual check in browser still to do)
 
 ## Day 3: happy path for real
 - [ ] Identity resolution (search + domain match)
