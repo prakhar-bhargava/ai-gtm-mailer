@@ -1,122 +1,134 @@
 # Architecture
 
-Status: proposed. Change anything here, but record the change and the reason in LEARNING.md under "Decisions".
+Status: as built on 2026-10-03, with the planned pieces marked. Change anything here, and record the change and the reason in LEARNING.md under "Decisions".
 
 ## Stack
 
 | Layer | Choice | Why |
 |---|---|---|
-| App | Next.js (App Router) + TypeScript | One codebase for UI and API routes; deploys to a public link in minutes. |
-| UI | Tailwind + shadcn/ui | Good-looking run view and dashboard without design time. |
-| Hosting | Vercel | The submission needs a live link. Set `maxDuration` on the run route (pipeline should finish in under 60 s). |
-| Database | Local SQLite file (`data/app.db`, `node:sqlite`) | Decided 2026-10-03: the app runs locally for now. Supabase was the plan for a hosted deploy; switch back if the app is deployed. |
-| Live updates | Server-Sent Events from the run route, plus events written to the DB | The run view streams stages; the dashboard and reloads read from the DB. |
-| LLM | One wrapper (`lib/llm.ts`) over whichever provider you have a key for (Claude, Gemini or OpenAI). Structured output validated with zod. | Lets you swap models; Gemini's free tier helps if budget is tight. |
-| Search and news | Tavily (1,000 free credits a month), fallback Serper or Exa | Returns snippets, URLs and often dates. |
-| Page reading | Jina Reader (`https://r.jina.ai/<url>`), fallback Firecrawl | Clean markdown of company pages without a scraper. |
-| Hiring | Greenhouse and Ashby public job board APIs (no key). Lever is not used yet. | Finance and ops hiring is a strong Zamp-relevant signal. |
-| News | Google News RSS (no key), with a model check that each headline is about this company | Keyless. It matches words, so same-name companies need the check. |
-| Firmographics | Apollo free API, fallback People Data Labs (100 lookups a month) | Size, industry, title confirmation. |
-| Funding | News search plus LLM extraction | No useful free funding API (Crunchbase API is about $500 a month). |
+| App | Next.js 16 (App Router) + TypeScript, strict | One codebase for the UI and the API routes. |
+| UI | Tailwind 4 + shadcn/ui, one shared `Section` panel | One look across screens. |
+| Runtime | Runs locally with `npm run dev` or `npm start` | Decided 2026-10-03: local only for now. Public access by tunnel is decided later. Vercel is not used. |
+| Database | Local SQLite file `data/app.db` through Node's built-in `node:sqlite` | No install and no hosted account. Git ignores the file. |
+| Live updates | Server-Sent Events from the stream route; events are saved to the DB first | A reload or a second tab replays the saved run and follows it while it runs. |
+| LLM | Gemini through `@google/genai`, model list in `config/llm.json` | Structured output checked by zod. Busy and rate-limited responses retry and switch model. |
+| Company website | The company's own HTML and Jina Reader (`r.jina.ai`) | Keyless. The site's own links (about, news, careers, social) are followed. |
+| News | Google News RSS (keyless) | Matches words, so a model check confirms each headline is about this company. |
+| Hiring | Greenhouse and Ashby public job board APIs (keyless). Board names come from the site's own links first, then guesses. | Finance and ops hiring is a strong signal for Zamp. |
+| Social and LinkedIn | Stored as references only, never fetched | The project rule. LinkedIn is never fetched or scraped. |
+| Rate limit | One limiter for every outside request: 4 per minute (`config/pipeline.json`) | Keeps the model and the sources within free-tier limits. |
 
-Verify free-tier numbers on day 1; they come from 2026 comparison posts and change often (see docs/research/notes/data_sources.md).
+Not used: LinkedIn scraping of any kind, Proxycurl (shut down July 2025), paid search tiers, Supabase (see Decisions).
 
-Not used: LinkedIn scraping of any kind, Proxycurl (shut down July 2025), Brave free tier (ended Feb 2026), Clearbit free tools (ended 2025), NewsAPI/GNews free tiers (delayed, dev-only terms).
-
-Python alternative if you prefer it: FastAPI + SSE backend, Streamlit or a small React front end. Same pipeline and data model.
+Planned, not built: Apollo or People Data Labs for firmographics, Tavily or Serper as search fallbacks, Firecrawl as a page-reading fallback.
 
 ## Folder layout
 
 ```
 app/
-  page.tsx                  # new run form + demo prospects
-  runs/[id]/page.tsx        # live run view + review
-  dashboard/page.tsx        # history and metrics
-  settings/page.tsx         # seller brief
-  api/runs/route.ts         # POST create run
-  api/runs/[id]/stream/route.ts   # GET SSE: executes pipeline, streams events
-  api/runs/[id]/resolve/route.ts  # POST rep picks entity (edge case 1)
-  api/runs/[id]/review/route.ts   # POST approve / edit / reject
+  page.tsx                          new run form, recent searches
+  runs/[id]/page.tsx                run view, draft and Send panel
+  dashboard/page.tsx                searches, filters, analytics
+  accounts/page.tsx                 companies and people, with LinkedIn references
+  outbox/page.tsx                   sent mails
+  outbox/[id]/page.tsx              one mail, shown exactly as stored
+  not-found.tsx
+  api/runs/route.ts                 POST create a search, GET list
+  api/runs/[id]/stream/route.ts     GET SSE: runs a new search, or follows a saved one
+  api/runs/[id]/send/route.ts       POST save a reviewed draft to the Outbox
+components/
+  run-form.tsx  run-view.tsx  send-panel.tsx  analytics-section.tsx  section.tsx
+  ui/                               shadcn components
 lib/
   pipeline/
-    index.ts                # orchestrator: runs stages, emits events, handles pause
-    resolve-identity.ts
-    gather/
-      news.ts  person-content.ts  jobs.ts  company-site.ts  firmographics.ts
-    normalise.ts
-    filter.ts               # entity match, freshness, sensitivity, role change
-    hooks.ts                # generate candidates
-    score.ts                # rubric
-    draft.ts
-    verify.ts               # claim check + style lint
-  sources/                  # thin API clients with timeout + cache
-  llm.ts
-  cache.ts                  # key: source + query + date bucket
-  db.ts
-  types.ts                  # zod schemas shared by everything
+    index.ts                        orchestrator: order of stages, outcome
+    stage.ts                        runs one stage: timeout, events, shared context
+    stages/                         one file per stage (see Pipeline)
+    prompts.ts                      prompts for hooks, draft and claim check
+    score-hooks.ts                  rubric scoring, code side
+    sensitivity.ts  lint.ts  links.ts  domain.ts
+  sources/                          http.ts (timeout, 429 retry, cache), google-news.ts,
+                                    job-boards.ts, company-page.ts
+  llm.ts                            model client: rate limit, retries, schema check, answer cache
+  rate-limit.ts                     the shared request limiter
+  trail.ts                          notes from inside a step, without passing a logger
+  cache.ts                          source and answer cache in the DB
+  db.ts                             schema and migration
+  runs.ts  accounts.ts  outbox.ts  analytics.ts  signature.ts
+  types.ts                          zod schemas shared by everything
 config/
-  seller-brief.zamp.json
-  rubric.json               # weights and thresholds, tunable
+  pipeline.json                     rate limit, timeouts, cache hours
+  llm.json                          model list, retry delays
+  rubric.json                       weights, bands, thresholds, banned phrases
   sensitive-topics.json
+  sources.json                      news window, news and role keywords
+  seller-brief.zamp.json            what Zamp sells, pains, value line, tone
+  sender.json                       sender name, company and sign-off (fill in)
 fixtures/
-  demo-prospects.json       # golden prospects for happy path + edge cases
-  replays/                  # cached runs for replay mode
-docs/                       # this folder
+  demo-prospects.json               sample prospects for testing drafts and sending
+data/                               app.db (git-ignored)
+docs/                               this folder
 ```
+
+## Pipeline
+
+Order, from `lib/pipeline/index.ts`:
+
+1. **identity** (required). Checks the company's website answers. A typed website is trusted; a guessed one is labelled as a guess. Also saves the company to the accounts list.
+2. **company_site** (optional). Reads the about page, falling back to the homepage. Its first sentence is the company description, used to tell same-name companies apart. Cookie text is skipped.
+3. **discover** (optional). Reads the company's own HTML, then follows its useful pages (about, news, press, blog, careers, team) up to 2 levels deep and 4 pages in total. Records social profiles (not fetched), job-board links (used by the jobs step), and the company's LinkedIn page as a reference.
+4. **news** and **jobs** (optional, run in parallel). News: headlines that name the company and read like business news, then a model check that each one is about this company. Jobs: open finance and ops roles on Greenhouse or Ashby.
+5. **hooks** (required). The model proposes 3 to 5 hooks citing signal IDs. Code scores them with the rubric (recency, verifiability, authorship and seniority are scored in code; relevance and specificity come from the model). Sensitive topics block a hook; blocked hooks stay on screen.
+6. **Decision.** If no unblocked hook scores at least 50, the run ends as **abstained**: no draft, and two options are shown.
+7. **draft** (required). Writes subject and body from the best hook, citing only its signals. The seller's approved value line is used as written.
+8. **verify** (optional). Checks each claim against its signal, asks whether the body states any uncited fact about the prospect, and lints the style. A failed check or a score under 70 makes the draft **flagged**; otherwise it is **draft**.
+
+Outcomes: `draft`, `flagged`, `abstained`, `stopped` (a required step failed).
+
+Every step emits `started`, then zero or more `progress` notes (requests made, waits for a free slot, saved copies used), then `done` or `failed`. The final `run` event carries the outcome. Messages are written for the rep.
 
 ## Data model
 
+Tables in `data/app.db`:
+
 ```
-runs(id, prospect_name, company, role, domain, linkedin_url, notes,
-     status, mode[live|replay], outcome[draft|draft_flagged|abstained|stopped],
-     top_score, started_at, finished_at, duration_ms, error)
+runs(id, prospect_json, status[new|running|finished], outcome, created_at, finished_at)
 
-run_events(id, run_id, stage, status[started|progress|done|failed|paused],
-           message, data_json, at)
+run_events(id, run_id, stage, status[started|progress|done|failed], message,
+           duration_ms, payload_json, at)
+  payload_json holds, when present: domain, signals[], hooks[], draft, outcome.
+  Signals keep source_url, published_at (null = undated) and fetched_at.
 
-signals(id, run_id, type, about[person|company], claim, snippet,
-        source_url, source_name, published_at, fetched_at,
-        entity_match, status[used|background|blocked|dropped], block_reason)
+cache(key, body, stored_at)          source pages, feeds and model answers, 24 h
 
-hooks(id, run_id, text, signal_ids[], pain, why_zamp, why_now,
-      scores_json, total, rank, chosen bool, reject_reason)
+companies(id, name, domain, job_board, social_json, company_linkedin_url, updated_at)
+people(id, name, role, company_id, linkedin_url, updated_at)
 
-drafts(id, run_id, version, subject, body, claims_json, lint_json,
-       is_final bool, created_at)
-
-reviews(id, run_id, action[approve|edit_approve|reject], reason_code,
-        final_body, edit_distance, review_ms, at)
+outbox(id, run_id, to_name, to_company, subject, body, sent_at)
+  body is the mail exactly as sent, signature included.
 ```
 
-## Pipeline contract
+Planned, not built: `signals`, `hooks` and `drafts` as their own tables (today they live inside `run_events.payload_json`), `reviews` (approve, edit, reject with reason, edit distance, review time).
 
-Every stage is a function `(ctx) => Promise<StageResult>` and the orchestrator wraps it to:
-1. emit `started`,
-2. enforce a stage timeout,
-3. catch errors and emit `failed` without killing the run when the stage is optional (all gather sources are optional; identity, hooks and draft are required),
-4. emit `done` with a short human-readable summary ("Found 7 signals, 2 blocked as sensitive").
+Old saved data stays readable: defaults are used for fields added later, and an event that no longer matches the schema keeps its message but drops its payload.
 
-Event messages are written for the rep, not the developer. They are what the interviewers will read on screen.
+## Reliability
 
-## Reliability for the live demo
+- Every outside call goes through `takeSlot()` (4 per minute) and has an 8 s timeout. Source calls retry once after 429. Model calls retry on 429 and 503 with delays 2, 5 and 10 s, switching to the second model in the list.
+- Every answer is cached by its exact prompt for 24 h, so a repeat search costs no model calls.
+- Each model answer is checked against its schema; a bad answer is retried once with the problem described.
+- A run that crashes still ends as `stopped`. A live connection gives up after 2 minutes without new events.
+- A search that is already running or finished never runs again: its page replays the saved events.
 
-- Every source call: 8 s timeout, retry with backoff on 429 and 503 (delays in `config/llm.json` for the LLM; sources follow the same pattern), cached by key.
-- Pre-run all demo prospects the night before; the cache makes live runs fast and survivable.
-- Replay mode replays a stored run's events with original timing. Labelled "replay" on screen. Use only if live fails, and say so.
-- Health check page that pings each source and shows green or red. Open it before the interview.
+Planned, not built: a replay mode that re-runs a stored search with original timing, labelled "replay", and a health check page that pings each source. Both are needed for the interview.
 
 ## Environment variables
 
 ```
-LLM_PROVIDER=anthropic|gemini|openai
-ANTHROPIC_API_KEY= / GEMINI_API_KEY= / OPENAI_API_KEY=
-TAVILY_API_KEY=
-SERPER_API_KEY=        # fallback
-APOLLO_API_KEY=
-PDL_API_KEY=           # fallback
-FIRECRAWL_API_KEY=     # fallback
+LLM_PROVIDER=gemini                    # only gemini is wired up
+GEMINI_API_KEY=                        # in .env.local only
 ```
 
-Not needed while the app runs locally: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
+Planned, not wired: `TAVILY_API_KEY`, `SERPER_API_KEY`, `APOLLO_API_KEY`, `PDL_API_KEY`, `FIRECRAWL_API_KEY`.
 
-Never commit `.env*`. Add them to Vercel project settings for the deployed link.
+Never commit `.env*` (git ignores them). `data/` is also git-ignored.
