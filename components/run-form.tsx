@@ -59,9 +59,13 @@ export function RunForm() {
         <Label htmlFor="domain">Company website (optional)</Label>
         <Input id="domain" name="domain" placeholder="e.g. example.com" />
       </div>
-      <div className="grid gap-2 sm:col-span-2">
-        <Label htmlFor="linkedinUrl">LinkedIn URL (optional, stored for reference only)</Label>
+      <div className="grid gap-2">
+        <Label htmlFor="linkedinUrl">Person&apos;s LinkedIn (optional, reference only)</Label>
         <Input id="linkedinUrl" name="linkedinUrl" placeholder="https://www.linkedin.com/in/..." />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="companyLinkedinUrl">Company LinkedIn page (optional, reference only)</Label>
+        <Input id="companyLinkedinUrl" name="companyLinkedinUrl" placeholder="https://www.linkedin.com/company/..." />
       </div>
       <div className="grid gap-2 sm:col-span-2">
         <Label htmlFor="notes">Notes for the rep (optional)</Label>

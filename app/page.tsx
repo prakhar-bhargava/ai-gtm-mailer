@@ -17,6 +17,7 @@ export default function Home() {
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">New prospect run</h1>
           <nav className="flex gap-4 text-sm text-zinc-600">
             <Link href="/dashboard" className="underline underline-offset-2 hover:text-zinc-900">Dashboard</Link>
+            <Link href="/accounts" className="underline underline-offset-2 hover:text-zinc-900">Accounts</Link>
             <Link href="/outbox" className="underline underline-offset-2 hover:text-zinc-900">Outbox</Link>
           </nav>
         </div>

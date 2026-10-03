@@ -7,6 +7,7 @@ export const StageId = z.enum([
   "news",
   "jobs",
   "company_site",
+  "discover",
   "hooks",
   "draft",
   "verify",
@@ -19,7 +20,8 @@ export const ProspectInput = z.object({
   company: z.string().trim().min(1, "Company is required"),
   role: z.string().trim().optional(),
   domain: z.string().trim().optional(),
-  linkedinUrl: z.string().trim().optional(),
+  linkedinUrl: z.string().trim().optional(), // the person's profile: stored as a reference, never fetched
+  companyLinkedinUrl: z.string().trim().optional(), // the company page: stored as a reference, never fetched
   notes: z.string().trim().optional(),
 });
 export type ProspectInput = z.infer<typeof ProspectInput>;

@@ -12,6 +12,7 @@ const STEPS: { id: StageId; label: string }[] = [
   { id: "news", label: "Check recent news" },
   { id: "jobs", label: "Check open roles" },
   { id: "company_site", label: "Read the company website" },
+  { id: "discover", label: "Follow links on the website" },
   { id: "hooks", label: "Rank possible hooks" },
   { id: "draft", label: "Write the draft" },
   { id: "verify", label: "Check claims against sources" },

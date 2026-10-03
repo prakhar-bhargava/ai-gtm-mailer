@@ -125,6 +125,7 @@ const STEP_LABEL: Record<string, string> = {
   hooks: "Rank hooks",
   draft: "Write the draft",
   verify: "Check claims",
+  discover: "Follow website links",
 };
 
 function Tile({ label, value, hint }: { label: string; value: string; hint?: string }) {

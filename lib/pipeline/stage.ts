@@ -12,6 +12,7 @@ export type RunContext = {
   prospect: ProspectInput;
   domain: string | null;
   companyDescription: string | null; // the company's own one-line description, used to tell same-name companies apart
+  jobSlugs: string[]; // job-board names found on the company's own site
   signals: Signal[];
   hooks: Hook[];
   draft: Draft | null;
@@ -21,6 +22,7 @@ export type StageOutput = {
   summary: string;
   domain?: string;
   companyDescription?: string;
+  jobSlugs?: string[];
   newSignals?: NewSignal[];
   hooks?: Hook[];
   draft?: Draft;
@@ -38,7 +40,7 @@ export type StageSpec = {
 };
 
 export function newContext(prospect: ProspectInput): RunContext {
-  return { prospect, domain: null, companyDescription: null, signals: [], hooks: [], draft: null };
+  return { prospect, domain: null, companyDescription: null, jobSlugs: [], signals: [], hooks: [], draft: null };
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -68,6 +70,7 @@ export async function runStage(spec: StageSpec, ctx: RunContext, emit: Emit): Pr
     ctx.signals.push(...assigned);
     if (output.domain) ctx.domain = output.domain;
     if (output.companyDescription) ctx.companyDescription = output.companyDescription;
+    if (output.jobSlugs) ctx.jobSlugs = [...new Set([...ctx.jobSlugs, ...output.jobSlugs])];
     if (output.hooks) ctx.hooks = output.hooks;
     if (output.draft) ctx.draft = output.draft;
 

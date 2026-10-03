@@ -1,3 +1,4 @@
+import { upsertCompany } from "@/lib/accounts";
 import { guessDomain, normalizeDomain } from "@/lib/pipeline/domain";
 import type { StageSpec } from "@/lib/pipeline/stage";
 import { fetchText } from "@/lib/sources/http";
@@ -16,6 +17,7 @@ export const identity: StageSpec = {
     } catch {
       throw new Error(`${domain} did not answer. Add the company website and try again`);
     }
+    upsertCompany({ name: prospect.company, domain });
     const note = typed ? "" : " (guessed from the name; add the website to be sure)";
     return { summary: `Matched ${prospect.company} to ${domain}${note}`, domain };
   },

@@ -11,7 +11,9 @@ export const jobs: StageSpec = {
   required: false,
   startMessage: "Looking for open roles on the company's job board",
   run: async (ctx) => {
-    const board = await findJobBoard(boardSlugs(ctx.prospect.company, ctx.domain));
+    // Boards linked from the company's own site come first; guessed names are the fallback.
+    const slugs = [...new Set([...ctx.jobSlugs, ...boardSlugs(ctx.prospect.company, ctx.domain)])];
+    const board = await findJobBoard(slugs);
     if (!board) {
       return { summary: `No public job board found for ${ctx.prospect.company} (checked Greenhouse and Ashby)` };
     }

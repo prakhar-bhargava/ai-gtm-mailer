@@ -34,6 +34,23 @@ CREATE TABLE IF NOT EXISTS outbox (
   body TEXT NOT NULL,
   sent_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS companies (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  domain TEXT,
+  job_board TEXT,
+  social_json TEXT NOT NULL DEFAULT '[]',
+  company_linkedin_url TEXT,
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS people (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT,
+  company_id TEXT NOT NULL REFERENCES companies(id),
+  linkedin_url TEXT,
+  updated_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS cache (
   key TEXT PRIMARY KEY,
   body TEXT NOT NULL,

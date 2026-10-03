@@ -4,6 +4,7 @@ import { identity } from "@/lib/pipeline/stages/identity";
 import { news } from "@/lib/pipeline/stages/news";
 import { jobs } from "@/lib/pipeline/stages/jobs";
 import { companySite } from "@/lib/pipeline/stages/company-site";
+import { discover } from "@/lib/pipeline/stages/discover";
 import { hooks } from "@/lib/pipeline/stages/hooks";
 import { draft } from "@/lib/pipeline/stages/draft";
 import { verify } from "@/lib/pipeline/stages/verify";
@@ -24,6 +25,8 @@ export async function runPipeline(prospect: ProspectInput, emit: Emit): Promise<
 
   // The website goes first: its description lets the news check tell same-name companies apart.
   await runStage(companySite, ctx, emit);
+  // Following the site's links can find job boards, so it runs before the job check.
+  await runStage(discover, ctx, emit);
   await Promise.all([news, jobs].map((spec) => runStage(spec, ctx, emit)));
 
   if (!(await runStage(hooks, ctx, emit))) {
