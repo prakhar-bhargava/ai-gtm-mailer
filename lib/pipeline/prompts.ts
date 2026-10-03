@@ -30,6 +30,7 @@ export function hookSystemPrompt(): string {
     "Score specificity from 0 to 15: how specific the hook is to this company rather than the industry.",
     "Set sensitiveReason to a short reason if the hook touches layoffs, lawsuits, investigations, executive departures, health, family, politics, rumours or personal life. Otherwise null.",
     "Give 3 to 5 hooks. Only cite ids that appear in the signal list.",
+    "Every hook must state a fact from a cited signal. Never write a hook about what is missing, absent or unknown (for example 'no hiring signals found'). If no signal supports a pain, give the hooks anyway with relevance 0 and say so in the pain field.",
   ].join("\n");
 }
 

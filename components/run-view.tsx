@@ -57,7 +57,12 @@ export function RunView({ streamUrl, initialEvents }: { streamUrl: string | null
     const source = new EventSource(streamUrl);
     source.onmessage = (message) => {
       const event = StageEvent.parse(JSON.parse(message.data));
-      setEvents((previous) => [...previous, event]);
+      // A reconnect or a second tab can resend events; keep each one once.
+      setEvents((previous) =>
+        previous.some((seen) => seen.stage === event.stage && seen.status === event.status && seen.at === event.at)
+          ? previous
+          : [...previous, event],
+      );
       if (event.stage === "run") source.close();
     };
     // Close on error so the browser does not reconnect and replay the run.
@@ -140,7 +145,7 @@ function SignalList({ signals }: { signals: Signal[] }) {
       <h2 className="text-lg font-semibold text-zinc-950">What we found</h2>
       <ul className="grid gap-2">
         {signals.map((signal) => (
-          <li key={signal.id} className="grid gap-1 rounded-md bg-zinc-50 p-3 text-sm">
+          <li key={`${signal.id}-${signal.sourceUrl}`} className="grid gap-1 rounded-md bg-zinc-50 p-3 text-sm">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">{signal.id}</Badge>
               <Badge variant="secondary">{signal.type.replace("_", " ")}</Badge>

@@ -16,8 +16,13 @@ export const companySite: StageSpec = {
       page = await readPage(`https://${ctx.domain}`);
     }
     const flat = page.text.replace(/\s+/g, " ");
-    const sentence = flat.split(/(?<=[.!?])\s/)[0]?.trim() ?? "";
-    if (sentence.length < 20) throw new Error("the page had no readable description");
+    // Skip cookie and consent text: many sites open with it, and it says nothing about the company.
+    const sentence =
+      flat
+        .split(/(?<=[.!?])\s/)
+        .map((item) => item.trim())
+        .find((item) => item.length >= 40 && !/cookie|consent|privacy|javascript/i.test(item)) ?? "";
+    if (!sentence) throw new Error("the page had no readable description");
 
     return {
       summary: `Read ${ctx.domain}'s ${page.url.endsWith("/about") ? "about page" : "home page"}`,
