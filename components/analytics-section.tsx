@@ -1,3 +1,4 @@
+import { Section } from "@/components/section";
 import type { Analytics } from "@/lib/analytics";
 
 const percent = (value: number) => `${Math.round(value * 100)}%`;
@@ -29,7 +30,7 @@ export function AnalyticsSection({ data }: { data: Analytics }) {
           <div className="flex h-40 items-end gap-1.5" role="img" aria-label="Bar chart of searches per day">
             {data.perDay.map((day) => (
               <div key={day.day} className="flex flex-1 flex-col items-center justify-end gap-1">
-                <span className="text-[10px] text-zinc-500">{day.count || ""}</span>
+                <span className="text-xs text-zinc-500">{day.count || ""}</span>
                 <div
                   className="w-full rounded-t bg-zinc-900"
                   style={{ height: `${(day.count / maxDay) * 100}%`, minHeight: day.count ? 4 : 0 }}
@@ -38,7 +39,7 @@ export function AnalyticsSection({ data }: { data: Analytics }) {
               </div>
             ))}
           </div>
-          <div className="mt-2 flex justify-between text-[10px] text-zinc-400">
+          <div className="mt-2 flex justify-between text-xs text-zinc-500">
             <span>{data.perDay[0]?.day.slice(5)}</span>
             <span>{data.perDay[data.perDay.length - 1]?.day.slice(5)}</span>
           </div>
@@ -128,8 +129,8 @@ const STEP_LABEL: Record<string, string> = {
 
 function Tile({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="grid gap-1 rounded-lg border bg-white p-5">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</span>
+    <div className="grid gap-1 rounded-xl border border-zinc-200 bg-white p-5">
+      <span className="text-xs font-medium text-zinc-500">{label}</span>
       <span className="text-2xl font-semibold tracking-tight text-zinc-950">{value}</span>
       {hint && <span className="text-xs text-zinc-500">{hint}</span>}
     </div>
@@ -138,9 +139,8 @@ function Tile({ label, value, hint }: { label: string; value: string; hint?: str
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="grid content-start gap-4 rounded-lg border bg-white p-5">
-      <h3 className="text-sm font-medium text-zinc-700">{title}</h3>
+    <Section title={title} className="gap-4 p-5">
       {children}
-    </div>
+    </Section>
   );
 }

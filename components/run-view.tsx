@@ -3,6 +3,7 @@
 import { CheckCircle2, Circle, Loader2, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Section } from "@/components/section";
 import { StageEvent, type Claim, type Draft, type Hook, type Outcome, type Signal, type StageId } from "@/lib/types";
 
 // The stages the rep sees, in order. "run" is the end-of-run signal and is not shown.
@@ -170,8 +171,7 @@ function OutcomeBanner({ outcome, message }: { outcome?: Outcome; message: strin
 
 function SignalList({ signals }: { signals: Signal[] }) {
   return (
-    <section className="grid gap-3 rounded-lg border bg-white p-6">
-      <h2 className="text-lg font-semibold text-zinc-950">What we found</h2>
+    <Section title="What we found">
       <ul className="grid gap-2">
         {signals.map((signal) => (
           <li key={`${signal.id}-${signal.sourceUrl}`} className="grid gap-1 rounded-md bg-zinc-50 p-3 text-sm">
@@ -189,7 +189,7 @@ function SignalList({ signals }: { signals: Signal[] }) {
           </li>
         ))}
       </ul>
-    </section>
+    </Section>
   );
 }
 
@@ -197,20 +197,19 @@ function HookList({ hooks }: { hooks: Hook[] }) {
   const winner = hooks.find((hook) => !hook.blockedReason);
   const runnerUp = hooks.filter((hook) => !hook.blockedReason)[1];
   return (
-    <section className="grid gap-3 rounded-lg border bg-white p-6">
-      <h2 className="text-lg font-semibold text-zinc-950">Possible hooks</h2>
+    <Section title="Possible hooks">
       {winner && runnerUp && (
         <p className="text-sm text-zinc-600">
-          The top hook scored {winner.scores.total} against {runnerUp.scores.total} for the next one.
+          The top hook scored {winner.scores.total} out of 100, against {runnerUp.scores.total} for the next one.
         </p>
       )}
       <ul className="grid gap-3">
         {hooks.map((hook) => (
           <li
             key={hook.id}
-            className={`grid gap-2 rounded-md border p-3 ${hook.blockedReason ? "opacity-50" : ""} ${hook === winner ? "border-zinc-900" : ""}`}
+            className={`grid gap-3 rounded-lg border border-zinc-200 p-4 ${hook.blockedReason ? "opacity-60" : ""} ${hook === winner ? "border-zinc-900" : ""}`}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-start justify-between gap-3">
               <span className="font-medium text-zinc-900">{hook.text}</span>
               {hook === winner && <Badge>Top hook</Badge>}
             </div>
@@ -219,19 +218,32 @@ function HookList({ hooks }: { hooks: Hook[] }) {
             ) : (
               <>
                 <ScoreBar total={hook.scores.total} />
-                <p className="text-xs text-zinc-500">
-                  Relevance {hook.scores.relevance}/35 · Recency {hook.scores.recency}/20 · Specificity {hook.scores.specificity}/15 ·
-                  Seniority {hook.scores.seniority}/10 · Verifiability {hook.scores.verifiability}/10 · Source {hook.scores.authorship}/10
-                </p>
                 <p className="text-sm text-zinc-600">
                   Pain: {hook.pain}. Why now: {hook.whyNow}
                 </p>
+                <details className="text-sm text-zinc-500">
+                  <summary className="cursor-pointer text-zinc-600 hover:text-zinc-900">How this was scored</summary>
+                  <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                    <dt>Fit with the offer</dt>
+                    <dd>{hook.scores.relevance} of 35</dd>
+                    <dt>How recent</dt>
+                    <dd>{hook.scores.recency} of 20</dd>
+                    <dt>Specific to this company</dt>
+                    <dd>{hook.scores.specificity} of 15</dd>
+                    <dt>Seniority fit</dt>
+                    <dd>{hook.scores.seniority} of 10</dd>
+                    <dt>Verifiable source</dt>
+                    <dd>{hook.scores.verifiability} of 10</dd>
+                    <dt>Source type</dt>
+                    <dd>{hook.scores.authorship} of 10</dd>
+                  </dl>
+                </details>
               </>
             )}
           </li>
         ))}
       </ul>
-    </section>
+    </Section>
   );
 }
 
@@ -248,8 +260,7 @@ function ScoreBar({ total }: { total: number }) {
 
 function AbstainPanel() {
   return (
-    <section className="grid gap-3 rounded-lg border bg-white p-6">
-      <h2 className="text-lg font-semibold text-zinc-950">No personalised draft</h2>
+    <Section title="No personalised draft">
       <p className="text-zinc-700">
         The public signals don&apos;t give a specific, recent reason to write. A made-up hook would be worse than none, so the
         app stopped here. Choose one:
@@ -258,24 +269,23 @@ function AbstainPanel() {
         <li>1. Write a value-led generic email about what Zamp does for finance teams.</li>
         <li>2. Deprioritise this prospect and revisit when there is news or a job posting.</li>
       </ul>
-    </section>
+    </Section>
   );
 }
 
 function DraftPanel({ draft }: { draft: Draft }) {
   return (
-    <section className="grid gap-5 rounded-lg border bg-white p-6">
-      <h2 className="text-lg font-semibold text-zinc-950">Draft</h2>
+    <Section title="Draft" className="ring-1 ring-zinc-900/5">
       <div className="grid gap-1">
-        <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">Subject</span>
-        <p className="font-medium text-zinc-900">{draft.subject}</p>
+        <span className="text-xs font-medium text-zinc-500">Subject</span>
+        <p className="text-base font-medium text-zinc-900">{draft.subject}</p>
       </div>
       <div className="grid gap-1">
-        <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">Body</span>
-        <p className="whitespace-pre-line leading-7 text-zinc-800">{draft.body}</p>
+        <span className="text-xs font-medium text-zinc-500">Message</span>
+        <p className="whitespace-pre-line text-[15px] leading-7 text-zinc-800">{draft.body}</p>
       </div>
       <div className="grid gap-2">
-        <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">Claims and sources</span>
+        <span className="text-xs font-medium text-zinc-500">Claims and sources</span>
         <ul className="grid gap-2">
           {draft.claims.map((claim) => (
             <ClaimRow key={claim.text} claim={claim} />
@@ -284,13 +294,13 @@ function DraftPanel({ draft }: { draft: Draft }) {
       </div>
       {draft.lintIssues.length > 0 && (
         <div className="grid gap-1 text-sm text-amber-700">
-          <span className="text-xs font-medium uppercase tracking-wide">Style checks</span>
+          <span className="text-xs font-medium">Style checks</span>
           {draft.lintIssues.map((issue) => (
             <p key={issue}>· {issue}</p>
           ))}
         </div>
       )}
-    </section>
+    </Section>
   );
 }
 

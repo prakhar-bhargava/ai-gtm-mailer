@@ -112,7 +112,7 @@ export default async function DashboardPage({
           <Link
             key={filter.value}
             href={filterHref(filter.value)}
-            className={`rounded-full border px-3 py-1 text-sm ${outcome === filter.value ? "border-zinc-900 bg-zinc-900 text-white" : "hover:bg-zinc-50"}`}
+            className={`inline-flex h-9 items-center rounded-full border px-4 text-sm ${outcome === filter.value ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-200 hover:bg-zinc-50"}`}
           >
             {filter.label}
           </Link>

@@ -22,7 +22,6 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">{prospect.name}</h1>
           <span className="text-lg text-zinc-600">{prospect.company}</span>
         </div>
-        <p className="text-xs text-zinc-400">Run {id}</p>
       </header>
       <RunView
         streamUrl={isNew ? `/api/runs/${id}/stream` : null}
