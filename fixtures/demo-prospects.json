@@ -1,0 +1,68 @@
+{
+  "_note": "Real public companies, checked by hand on 2026-10-03. The 'observed' fields are what the app produced in those runs. Live sources change, so expect different results later. Test names are placeholders, not real people; send to your own address only.",
+  "prospects": [
+    {
+      "id": "stripe-happy",
+      "case": "Happy path: many hiring and news signals",
+      "input": {
+        "name": "Test Contact",
+        "company": "Stripe",
+        "domain": "stripe.com",
+        "role": "Head of Finance"
+      },
+      "observed": {
+        "outcome": "flagged",
+        "topHookScore": 65,
+        "note": "70 finance or ops roles found on Greenhouse; 8 news items. The claim check flagged one overstated claim."
+      },
+      "mailTest": "Review the draft, edit it if needed, press Send, then open the Outbox to see it formatted."
+    },
+    {
+      "id": "intel-leadership",
+      "case": "Leadership news, no job board",
+      "input": {
+        "name": "Test Contact",
+        "company": "Intel",
+        "domain": "intel.com",
+        "role": "CFO"
+      },
+      "observed": {
+        "outcome": "flagged",
+        "topHookScore": 57,
+        "note": "No public job board. Recent news about Intel Foundry leadership. Premise flagged as not fully supported by its headline."
+      },
+      "mailTest": "Check the flagged premise before sending. Use this case to test the flagged-send path."
+    },
+    {
+      "id": "basecamp-thin",
+      "case": "Thin signals: no job board, one funding-style news item",
+      "input": {
+        "name": "Test Contact",
+        "company": "Basecamp",
+        "domain": "basecamp.com",
+        "role": "Head of Finance"
+      },
+      "observed": {
+        "outcome": "flagged",
+        "topHookScore": 53,
+        "note": "No public job board. One news item about estimated ARR. Style checks flagged length and an uncited sentence."
+      },
+      "mailTest": "Use this to test that style issues are shown and the send still works after an edit."
+    },
+    {
+      "id": "abstain-candidate",
+      "case": "Expected abstain: thin public footprint (not yet verified)",
+      "input": {
+        "name": "Test Contact",
+        "company": "Ripik AI",
+        "domain": "",
+        "role": "Head of Finance"
+      },
+      "observed": {
+        "outcome": "not verified",
+        "note": "Earlier run scored 30 with only a cookie banner as its source. Re-run to confirm the abstain panel appears."
+      },
+      "mailTest": "Should not produce a draft. Confirm the abstain panel and the two options are shown."
+    }
+  ]
+}
