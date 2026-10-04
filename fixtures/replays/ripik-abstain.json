@@ -1,0 +1,326 @@
+{
+  "name": "ripik-abstain",
+  "label": "Ripik AI: no good reason to write",
+  "why": "The public signals are thin, so the app abstains and offers a generic template.",
+  "outcome": "abstained",
+  "prospect": {
+    "name": "Prakhar Bhargava",
+    "company": "Ripik AI",
+    "domain": "ripik.ai",
+    "companyLinkedinUrl": "https://www.linkedin.com/company/ripik-ai"
+  },
+  "recordedAt": "2026-10-03T17:58:17.486Z",
+  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls.",
+  "events": [
+    {
+      "stage": "identity",
+      "status": "started",
+      "message": "Finding the company's website",
+      "at": "2026-10-03T17:58:23.690Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Using a saved copy from ripik.ai, no request needed",
+      "at": "2026-10-03T17:58:23.699Z"
+    },
+    {
+      "stage": "identity",
+      "status": "done",
+      "message": "Matched Ripik AI to ripik.ai",
+      "durationMs": 18,
+      "payload": {
+        "domain": "ripik.ai"
+      },
+      "at": "2026-10-03T17:58:23.708Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "started",
+      "message": "Reading the company website",
+      "at": "2026-10-03T17:58:23.712Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Using a saved copy from reader for ripik.ai, no request needed",
+      "at": "2026-10-03T17:58:23.716Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "done",
+      "message": "Read ripik.ai's about page",
+      "durationMs": 8,
+      "payload": {
+        "signals": [
+          {
+            "type": "company_site",
+            "claim": "The company describes itself: \"It does not collect or store any personal information about the site visitors.\"",
+            "snippet": "![Image 6: Revisit consent button](https://cdn-cookieyes.com/assets/images/revisit.svg) We value your privacy We use cookies to enhance your browsing experience, serve personalised ads or content, and analyse our traffic. By clicking \"Accept All\", you consent to our use of cookies. Customise Reject ",
+            "sourceName": "ripik.ai (company website)",
+            "sourceUrl": "https://ripik.ai/about",
+            "publishedAt": null,
+            "fetchedAt": "2026-10-03T17:58:23.720Z",
+            "id": "s1"
+          }
+        ]
+      },
+      "at": "2026-10-03T17:58:23.720Z"
+    },
+    {
+      "stage": "discover",
+      "status": "started",
+      "message": "Following links on the company's website",
+      "at": "2026-10-03T17:58:23.723Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy from ripik.ai, no request needed",
+      "at": "2026-10-03T17:58:23.727Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 3 social links and 2 useful pages on https://ripik.ai",
+      "at": "2026-10-03T17:58:23.737Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Asking www.ripik.ai",
+      "at": "2026-10-03T17:58:23.740Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "www.ripik.ai answered with 624 KB",
+      "at": "2026-10-03T17:58:27.080Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 3 social links and 16 useful pages on https://www.ripik.ai/press",
+      "at": "2026-10-03T17:58:27.099Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Asking www.ripik.ai",
+      "at": "2026-10-03T17:58:27.101Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "www.ripik.ai answered with 588 KB",
+      "at": "2026-10-03T17:58:28.459Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 3 social links and 2 useful pages on https://www.ripik.ai/careers",
+      "at": "2026-10-03T17:58:28.502Z"
+    },
+    {
+      "stage": "discover",
+      "status": "done",
+      "message": "Read 3 pages on ripik.ai, found 3 social profiles",
+      "durationMs": 4786,
+      "payload": {},
+      "at": "2026-10-03T17:58:28.508Z"
+    },
+    {
+      "stage": "news",
+      "status": "started",
+      "message": "Checking recent news about the company",
+      "at": "2026-10-03T17:58:28.510Z"
+    },
+    {
+      "stage": "news",
+      "status": "progress",
+      "message": "Using a saved copy from news.google.com, no request needed",
+      "at": "2026-10-03T17:58:28.513Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "started",
+      "message": "Looking for open roles on the company's job board",
+      "at": "2026-10-03T17:58:28.515Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Asking boards-api.greenhouse.io",
+      "at": "2026-10-03T17:58:28.520Z"
+    },
+    {
+      "stage": "news",
+      "status": "done",
+      "message": "No recent news about Ripik AI that clearly matched",
+      "durationMs": 17,
+      "payload": {},
+      "at": "2026-10-03T17:58:28.527Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "boards-api.greenhouse.io answered 404",
+      "at": "2026-10-03T17:58:28.848Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Asking api.ashbyhq.com",
+      "at": "2026-10-03T17:58:28.850Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "api.ashbyhq.com answered 404",
+      "at": "2026-10-03T17:58:29.245Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Waiting for a free request slot (limit 4 a minute). Continuing in about 55 s",
+      "at": "2026-10-03T17:58:29.248Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Asking boards-api.greenhouse.io",
+      "at": "2026-10-03T17:59:23.795Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "boards-api.greenhouse.io answered 404",
+      "at": "2026-10-03T17:59:24.164Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Waiting for a free request slot (limit 4 a minute). Continuing in about 3 s",
+      "at": "2026-10-03T17:59:24.168Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Asking api.ashbyhq.com",
+      "at": "2026-10-03T17:59:27.164Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "api.ashbyhq.com answered 404",
+      "at": "2026-10-03T17:59:27.543Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Waiting for a free request slot (limit 4 a minute). Continuing in about 2 s",
+      "at": "2026-10-03T17:59:27.546Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Asking boards-api.greenhouse.io",
+      "at": "2026-10-03T17:59:28.584Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "boards-api.greenhouse.io answered 404",
+      "at": "2026-10-03T17:59:28.923Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Asking api.ashbyhq.com",
+      "at": "2026-10-03T17:59:28.943Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "api.ashbyhq.com answered 404",
+      "at": "2026-10-03T17:59:29.265Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "done",
+      "message": "No public job board found for Ripik AI (checked Greenhouse and Ashby)",
+      "durationMs": 60772,
+      "payload": {},
+      "at": "2026-10-03T17:59:29.287Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "started",
+      "message": "Ranking the possible reasons to get in touch",
+      "at": "2026-10-03T17:59:29.288Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "progress",
+      "message": "Waiting for a free request slot (limit 4 a minute). Continuing in about 55 s",
+      "at": "2026-10-03T17:59:29.293Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "progress",
+      "message": "Asking the model (gemini-flash-latest)",
+      "at": "2026-10-03T18:00:23.850Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "progress",
+      "message": "Waiting for a free request slot (limit 4 a minute). Continuing in about 1 s",
+      "at": "2026-10-03T18:00:26.839Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "progress",
+      "message": "Asking the model (gemini-flash-lite-latest)",
+      "at": "2026-10-03T18:00:27.227Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "done",
+      "message": "Ranked 1 possible hooks. The best scores 20 of 100",
+      "durationMs": 59413,
+      "payload": {
+        "hooks": [
+          {
+            "id": "h1",
+            "text": "Ripik AI states on its website that it does not collect or store any personal information about site visitors.",
+            "signalIds": [
+              "s1"
+            ],
+            "pain": "No finance operations pain is evident in the available signals, as the website text only discusses privacy and cookies.",
+            "whyNow": "Since no specific finance pain is shown, outreach should focus on general operational efficiency.",
+            "scores": {
+              "relevance": 0,
+              "recency": 0,
+              "specificity": 5,
+              "seniority": 6,
+              "verifiability": 2,
+              "authorship": 7,
+              "total": 20
+            },
+            "blockedReason": null
+          }
+        ]
+      },
+      "at": "2026-10-03T18:00:28.701Z"
+    },
+    {
+      "stage": "run",
+      "status": "done",
+      "message": "Nothing specific or recent enough to write about. Choose a value-led generic draft, or deprioritise this prospect",
+      "payload": {
+        "outcome": "abstained"
+      },
+      "at": "2026-10-03T18:00:28.703Z"
+    }
+  ]
+}

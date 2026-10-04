@@ -1,0 +1,206 @@
+{
+  "name": "basecamp-clean-draft",
+  "label": "Basecamp: a draft that passes every check",
+  "why": "Recent news about the company. The draft passes the claim check and the mail rules.",
+  "outcome": "draft",
+  "prospect": {
+    "name": "Test Contact",
+    "company": "Basecamp",
+    "role": "Head of Finance",
+    "domain": "basecamp.com"
+  },
+  "recordedAt": "2026-10-03T16:42:25.222Z",
+  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls.",
+  "events": [
+    {
+      "stage": "identity",
+      "status": "started",
+      "message": "Finding the company's website",
+      "at": "2026-10-03T16:42:25.270Z"
+    },
+    {
+      "stage": "identity",
+      "status": "done",
+      "message": "Matched Basecamp to basecamp.com",
+      "durationMs": 4,
+      "payload": {
+        "domain": "basecamp.com"
+      },
+      "at": "2026-10-03T16:42:25.274Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "started",
+      "message": "Reading the company website",
+      "at": "2026-10-03T16:42:25.275Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "done",
+      "message": "Read basecamp.com's about page",
+      "durationMs": 1,
+      "payload": {
+        "signals": [
+          {
+            "type": "company_site",
+            "claim": "The company describes itself: \"Born out of desperate necessity to stop embarrassing ourselves in front of our clients, the story of how Basecamp was born is likely your story, too.\"",
+            "snippet": "Born out of desperate necessity to stop embarrassing ourselves in front of our clients, the story of how Basecamp was born is likely your story, too. Hey there, I’m Jason Fried, one of the co-founders here. I’ve been running 37signals — the business that makes Basecamp — for 27 years. People often a",
+            "sourceName": "basecamp.com (company website)",
+            "sourceUrl": "https://basecamp.com/about",
+            "publishedAt": null,
+            "fetchedAt": "2026-10-03T16:42:25.276Z",
+            "id": "s1"
+          }
+        ]
+      },
+      "at": "2026-10-03T16:42:25.276Z"
+    },
+    {
+      "stage": "news",
+      "status": "started",
+      "message": "Checking recent news about the company",
+      "at": "2026-10-03T16:42:25.277Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "started",
+      "message": "Looking for open roles on the company's job board",
+      "at": "2026-10-03T16:42:25.278Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "done",
+      "message": "No public job board found for Basecamp (checked Greenhouse and Ashby)",
+      "durationMs": 494,
+      "payload": {},
+      "at": "2026-10-03T16:42:25.772Z"
+    },
+    {
+      "stage": "news",
+      "status": "done",
+      "message": "Found 1 recent news item about Basecamp",
+      "durationMs": 3220,
+      "payload": {
+        "signals": [
+          {
+            "type": "news",
+            "claim": "Basecamp Revenue 2024: $280M Est. ARR (Bootstrapped)",
+            "snippet": "Basecamp Revenue 2024: $280M Est. ARR (Bootstrapped)",
+            "sourceName": "getlatka.com",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5sWDhFZWxoR19NOWdrMkh0QWVQUy15emVfSlI4OWJrVnozclpRNjRibktqZDBxM1VyWUlTQVBjRjVZalpHVUhjQnhxazZoYlRR?oc=5",
+            "publishedAt": "2026-08-10T07:00:00.000Z",
+            "fetchedAt": "2026-10-03T16:42:28.497Z",
+            "id": "s2"
+          }
+        ]
+      },
+      "at": "2026-10-03T16:42:28.497Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "started",
+      "message": "Ranking the possible reasons to get in touch",
+      "at": "2026-10-03T16:42:28.499Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "done",
+      "message": "Ranked 1 possible hooks. The best scores 71 of 100",
+      "durationMs": 3673,
+      "payload": {
+        "hooks": [
+          {
+            "id": "h1",
+            "text": "Basecamp has reached an estimated $280M in ARR as a bootstrapped business.",
+            "signalIds": [
+              "s2"
+            ],
+            "pain": "Finance operations must scale for the next stage",
+            "whyNow": "Rapid revenue growth demands efficient handling of increased transaction volumes without a proportional increase in headcount.",
+            "scores": {
+              "relevance": 30,
+              "recency": 8,
+              "specificity": 10,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 71
+            },
+            "blockedReason": null
+          }
+        ]
+      },
+      "at": "2026-10-03T16:42:32.172Z"
+    },
+    {
+      "stage": "draft",
+      "status": "started",
+      "message": "Writing the draft email",
+      "at": "2026-10-03T16:42:32.175Z"
+    },
+    {
+      "stage": "draft",
+      "status": "done",
+      "message": "Wrote a draft with 1 cited claim",
+      "durationMs": 7278,
+      "payload": {
+        "draft": {
+          "subject": "basecamp accounts payable",
+          "body": "Basecamp has reached an estimated $280M in ARR as a bootstrapped business. As transaction volumes grow rapidly through this scaling phase, finance operations face mounting pressure to handle increased workloads without adding proportional headcount. An AI employee takes the repetitive accounts payable queue, so the team's own people can work on the exceptions. Worth a look?",
+          "claims": [
+            {
+              "text": "Basecamp has reached an estimated $280M in ARR as a bootstrapped business.",
+              "signalId": "s2",
+              "sourceName": "getlatka.com",
+              "sourceUrl": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5sWDhFZWxoR19NOWdrMkh0QWVQUy15emVfSlI4OWJrVnozclpRNjRibktqZDBxM1VyWUlTQVBjRjVZalpHVUhjQnhxazZoYlRR?oc=5",
+              "publishedAt": "2026-08-10T07:00:00.000Z",
+              "supported": false
+            }
+          ],
+          "lintIssues": []
+        }
+      },
+      "at": "2026-10-03T16:42:39.453Z"
+    },
+    {
+      "stage": "verify",
+      "status": "started",
+      "message": "Checking each claim against its source",
+      "at": "2026-10-03T16:42:39.454Z"
+    },
+    {
+      "stage": "verify",
+      "status": "done",
+      "message": "All claims supported and the style checks pass",
+      "durationMs": 3398,
+      "payload": {
+        "draft": {
+          "subject": "basecamp accounts payable",
+          "body": "Basecamp has reached an estimated $280M in ARR as a bootstrapped business. As transaction volumes grow rapidly through this scaling phase, finance operations face mounting pressure to handle increased workloads without adding proportional headcount. An AI employee takes the repetitive accounts payable queue, so the team's own people can work on the exceptions. Worth a look?",
+          "claims": [
+            {
+              "text": "Basecamp has reached an estimated $280M in ARR as a bootstrapped business.",
+              "signalId": "s2",
+              "sourceName": "getlatka.com",
+              "sourceUrl": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5sWDhFZWxoR19NOWdrMkh0QWVQUy15emVfSlI4OWJrVnozclpRNjRibktqZDBxM1VyWUlTQVBjRjVZalpHVUhjQnhxazZoYlRR?oc=5",
+              "publishedAt": "2026-08-10T07:00:00.000Z",
+              "supported": true
+            }
+          ],
+          "lintIssues": []
+        },
+        "outcome": "draft"
+      },
+      "at": "2026-10-03T16:42:42.852Z"
+    },
+    {
+      "stage": "run",
+      "status": "done",
+      "message": "Draft ready for review",
+      "payload": {
+        "outcome": "draft"
+      },
+      "at": "2026-10-03T16:42:42.854Z"
+    }
+  ]
+}

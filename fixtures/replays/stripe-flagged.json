@@ -1,0 +1,468 @@
+{
+  "name": "stripe-flagged",
+  "label": "Stripe: a draft that needs one check",
+  "why": "Strong hiring signals. The draft is flagged because one claim is not fully backed by its source.",
+  "outcome": "flagged",
+  "prospect": {
+    "name": "Test Contact",
+    "company": "Stripe",
+    "role": "Head of Finance",
+    "domain": "stripe.com"
+  },
+  "recordedAt": "2026-10-03T17:25:38.388Z",
+  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls.",
+  "events": [
+    {
+      "stage": "identity",
+      "status": "started",
+      "message": "Finding the company's website",
+      "at": "2026-10-03T17:25:38.557Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Using a saved copy from stripe.com, no request needed",
+      "at": "2026-10-03T17:25:38.563Z"
+    },
+    {
+      "stage": "identity",
+      "status": "done",
+      "message": "Matched Stripe to stripe.com",
+      "durationMs": 10,
+      "payload": {
+        "domain": "stripe.com"
+      },
+      "at": "2026-10-03T17:25:38.567Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "started",
+      "message": "Reading the company website",
+      "at": "2026-10-03T17:25:38.569Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Using a saved copy from reader for stripe.com, no request needed",
+      "at": "2026-10-03T17:25:38.570Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "done",
+      "message": "Read stripe.com's about page",
+      "durationMs": 3,
+      "payload": {
+        "signals": [
+          {
+            "type": "company_site",
+            "claim": "The company describes itself: \"Stripe is a technology company focused on improving the conditions for economic growth and prosperity.\"",
+            "snippet": "Stripe is a technology company focused on improving the conditions for economic growth and prosperity. We build programmable financial infrastructure, rethinking from first principles how financial services should work, to make it easier and cheaper for any business to start and scale. More than 5 m",
+            "sourceName": "stripe.com (company website)",
+            "sourceUrl": "https://stripe.com/about",
+            "publishedAt": null,
+            "fetchedAt": "2026-10-03T17:25:38.572Z",
+            "id": "s1"
+          }
+        ]
+      },
+      "at": "2026-10-03T17:25:38.572Z"
+    },
+    {
+      "stage": "discover",
+      "status": "started",
+      "message": "Following links on the company's website",
+      "at": "2026-10-03T17:25:38.573Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy from stripe.com, no request needed",
+      "at": "2026-10-03T17:25:38.578Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 2 social links and 11 useful pages on https://stripe.com",
+      "at": "2026-10-03T17:25:38.582Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Asking stripe.com",
+      "at": "2026-10-03T17:25:38.583Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "stripe.com answered with 343 KB",
+      "at": "2026-10-03T17:25:39.278Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 4 social links and 86 useful pages on https://stripe.com/in/newsroom/news/stripe-openai-instant-checkout",
+      "at": "2026-10-03T17:25:39.307Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Asking stripe.com",
+      "at": "2026-10-03T17:25:39.309Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "stripe.com answered with 339 KB",
+      "at": "2026-10-03T17:25:39.763Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 4 social links and 87 useful pages on https://stripe.com/in/newsroom/news/nvidia-collaboration-with-stripe",
+      "at": "2026-10-03T17:25:39.774Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Asking stripe.com",
+      "at": "2026-10-03T17:25:39.775Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "stripe.com answered with 336 KB",
+      "at": "2026-10-03T17:25:40.156Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 4 social links and 85 useful pages on https://stripe.com/in/newsroom/news/stripe-ford-agreement",
+      "at": "2026-10-03T17:25:40.166Z"
+    },
+    {
+      "stage": "discover",
+      "status": "done",
+      "message": "Read 4 pages on stripe.com, found 12 social profiles",
+      "durationMs": 1596,
+      "payload": {},
+      "at": "2026-10-03T17:25:40.169Z"
+    },
+    {
+      "stage": "news",
+      "status": "started",
+      "message": "Checking recent news about the company",
+      "at": "2026-10-03T17:25:40.172Z"
+    },
+    {
+      "stage": "news",
+      "status": "progress",
+      "message": "Using a saved copy from news.google.com, no request needed",
+      "at": "2026-10-03T17:25:40.173Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "started",
+      "message": "Looking for open roles on the company's job board",
+      "at": "2026-10-03T17:25:40.175Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Using a saved copy from boards-api.greenhouse.io, no request needed",
+      "at": "2026-10-03T17:25:40.179Z"
+    },
+    {
+      "stage": "news",
+      "status": "progress",
+      "message": "Using an answer saved from an earlier run, no model call needed",
+      "at": "2026-10-03T17:25:40.186Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "done",
+      "message": "Found 70 open finance or ops roles on Greenhouse (716 roles in total)",
+      "durationMs": 15,
+      "payload": {
+        "signals": [
+          {
+            "type": "job",
+            "claim": "Hiring for Account Executive, Financial Services, Grower ",
+            "snippet": "Account Executive, Financial Services, Grower , listed on the Greenhouse board",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8048193",
+            "publishedAt": "2026-09-25T20:44:49.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.189Z",
+            "id": "s2"
+          },
+          {
+            "type": "job",
+            "claim": "Hiring for Account Executive Product - Billing (Japanese Fluency) ",
+            "snippet": "Account Executive Product - Billing (Japanese Fluency) , listed on the Greenhouse board",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8188088",
+            "publishedAt": "2026-09-25T20:45:03.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.189Z",
+            "id": "s2"
+          },
+          {
+            "type": "job",
+            "claim": "Hiring for Account Executive Product - Issuing & Treasury ",
+            "snippet": "Account Executive Product - Issuing & Treasury , listed on the Greenhouse board",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8203649",
+            "publishedAt": "2026-09-25T20:45:06.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.189Z",
+            "id": "s2"
+          },
+          {
+            "type": "job",
+            "claim": "Hiring for Account Executive, Product - Issuing & Treasury (Grower)",
+            "snippet": "Account Executive, Product - Issuing & Treasury (Grower), listed on the Greenhouse board",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8190044",
+            "publishedAt": "2026-09-28T21:18:40.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.189Z",
+            "id": "s2"
+          },
+          {
+            "type": "job",
+            "claim": "Hiring for Account Executive, Product - Issuing & Treasury (Hunter)",
+            "snippet": "Account Executive, Product - Issuing & Treasury (Hunter), listed on the Greenhouse board",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8238098",
+            "publishedAt": "2026-09-28T21:21:40.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.189Z",
+            "id": "s2"
+          }
+        ]
+      },
+      "at": "2026-10-03T17:25:40.190Z"
+    },
+    {
+      "stage": "news",
+      "status": "done",
+      "message": "Found 8 recent news items about Stripe",
+      "durationMs": 19,
+      "payload": {
+        "signals": [
+          {
+            "type": "news",
+            "claim": "Production-grade AI agents for financial compliance: Lessons from Stripe | Amazon Web Services",
+            "snippet": "Production-grade AI agents for financial compliance: Lessons from Stripe | Amazon Web Services",
+            "sourceName": "Amazon Web Services (AWS)",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOOFF0cUlscmRyQ282ZVI5REtKRFBYc1ZVS1VVLURTdmc5UU9vajdxZTZxTnVVS3NjbVhSZmhQcGMxZ0tyRVdkeE5vbU5MT2swN1d2Mk5Hb0pINE1tM1V0WGpMZFlwcjBqaUl2QmlVXzNGQUxNYm1NV1BJSTU4cGFoQnd5Y3lLbTJCS1FodTlIM0tmOFRWS1VKLWVsMEROR1RBcnQtcnBfOFdyLVZqWmJLSW80VUozejg0VUE?oc=5",
+            "publishedAt": "2026-06-26T07:00:00.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.190Z",
+            "id": "s7"
+          },
+          {
+            "type": "news",
+            "claim": "OpenRouter & Stripe: The Intelligence Network",
+            "snippet": "OpenRouter & Stripe: The Intelligence Network",
+            "sourceName": "Andreessen Horowitz",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBnY0ppR0I1TG04dU4yMXF1MldZcXFER2lLeUdOUGFOQ1RJaG90MHU5MU85MTJMQkpjalZnQ09xQUkyakJ5MFdMRjdpaTFMZm5NZVFlUERSSGxXQWNESFkzWHdfbDItNkJFVHI1VQ?oc=5",
+            "publishedAt": "2026-08-19T07:00:00.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.190Z",
+            "id": "s7"
+          },
+          {
+            "type": "news",
+            "claim": "Stripe Sessions 2026: Stripe Is Rearchitecting Payments For An Agentic AI Economy",
+            "snippet": "Stripe Sessions 2026: Stripe Is Rearchitecting Payments For An Agentic AI Economy",
+            "sourceName": "Forrester",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQRTBpM0RPUjd4VS1nbzdqZEZSR3R2cHNNSVlCcXUzczZDbFBJVVU5UVpYaUpYMmM0RnV0cWVNQ2k0TVdYd2VSUzBkd2YtTmVWSkFTQVZsUUpvZ1dGSGJEU29UUGhDc2dZa1hUQlYwZUZxMnpyTmVKSERzTEQtUEJYWXZ2dWpuZ2kwQk5ETG8wOG9vUDM5TUlKNEFwdkU1czJ6Y0VjaE9zaGE0bm5qcUstanpXOA?oc=5",
+            "publishedAt": "2026-05-21T07:00:00.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.190Z",
+            "id": "s7"
+          },
+          {
+            "type": "news",
+            "claim": "Stripe Acquires OpenRouter for $7B+, Turning Model Routing Into a Payments Infrastructure Problem",
+            "snippet": "Stripe Acquires OpenRouter for $7B+, Turning Model Routing Into a Payments Infrastructure Problem",
+            "sourceName": "Yahoo Finance",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPRk5PWnZoSW9BXy1DRTl3bDNJYktLWlNFOC1EekVGWmx4Ulk2dEJZUGhpeHJDUzZxel9qcWl4ZkI0d09pbmNxUS1rd2R1VkwyclFyUGdicTVSTG43QXJ3NzlRaFJoNHN1VVhFbHpKSnJjbVl4WGZua2ZHVnJOZUhwenBwLWlkdDRxN3V3UWZxWFFnUjk5a0dkcTJlU295QUJ4Qkhn?oc=5",
+            "publishedAt": "2026-08-17T07:00:00.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.190Z",
+            "id": "s7"
+          },
+          {
+            "type": "news",
+            "claim": "Stripe to buy OpenRouter as fintech expands deeper into AI",
+            "snippet": "Stripe to buy OpenRouter as fintech expands deeper into AI",
+            "sourceName": "CNBC",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMijAFBVV95cUxOZlFodUNsWkh6b2Y2dTVORE9hWGVPUVhVMWMyQ1RuQTI2OXhYeGRzRG8ydlYzVFYyLUxPQ3lscjh0Mm43U01pcWhKanp3RE5oUWtsenh2NUlocmVDY0Z4MFFlYnhWZV92QWpSZ25MX3FDd3pfZUIwSFdQaTRZQXhfLWRfTnlsT3hzS0JJYtIBkgFBVV95cUxNQ3BuTzVGUXR4akhfSG93ZW5CMGF6SjBqOFl0S3lRc1QyeW82X3FtVEpzdmd6VEFwZjNjUDlqd1N4UmJWUk11UVRoWWppNlVQN09vakdjd013VjNheW1MVUNpWWdmd29fa2tuT1lHdkJqQW8wWXNPczFJSUZOTkU1WHRkSDM0YVJzLTY0YVdZaTdtdw?oc=5",
+            "publishedAt": "2026-08-19T07:00:00.000Z",
+            "fetchedAt": "2026-10-03T17:25:40.190Z",
+            "id": "s7"
+          }
+        ]
+      },
+      "at": "2026-10-03T17:25:40.191Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "started",
+      "message": "Ranking the possible reasons to get in touch",
+      "at": "2026-10-03T17:25:40.193Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "progress",
+      "message": "Using an answer saved from an earlier run, no model call needed",
+      "at": "2026-10-03T17:25:40.197Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "done",
+      "message": "Ranked 3 possible hooks. The best scores 65 of 100",
+      "durationMs": 7,
+      "payload": {
+        "hooks": [
+          {
+            "id": "h3",
+            "text": "Stripe published insights on production-grade AI agents for financial compliance in partnership with Amazon Web Services.",
+            "signalIds": [
+              "s7"
+            ],
+            "pain": "Process redesign is underway, providing a window to change how finance work is done.",
+            "whyNow": "The organization is actively exploring AI agents for compliance and operations, making it an ideal time to implement an end-to-end AI employee for accounts payable.",
+            "scores": {
+              "relevance": 20,
+              "recency": 8,
+              "specificity": 14,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 65
+            },
+            "blockedReason": null
+          },
+          {
+            "id": "h2",
+            "text": "Stripe is actively hiring multiple Account Executive roles across financial services and product lines.",
+            "signalIds": [
+              "s2"
+            ],
+            "pain": "Sales hiring does not directly imply a finance or accounts payable operations pain in this context.",
+            "whyNow": "Commercial expansion creates downstream finance ops volume that requires automated workflows from day one.",
+            "scores": {
+              "relevance": 5,
+              "recency": 20,
+              "specificity": 8,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 3,
+              "total": 54
+            },
+            "blockedReason": null
+          },
+          {
+            "id": "h1",
+            "text": "Stripe operates as a technology company focused on improving the conditions for economic growth and prosperity.",
+            "signalIds": [
+              "s1"
+            ],
+            "pain": "Volume is growing faster than the team",
+            "whyNow": "As the business scales its financial infrastructure globally, finance operations must scale without linear headcount growth.",
+            "scores": {
+              "relevance": 10,
+              "recency": 0,
+              "specificity": 12,
+              "seniority": 10,
+              "verifiability": 2,
+              "authorship": 7,
+              "total": 41
+            },
+            "blockedReason": null
+          }
+        ]
+      },
+      "at": "2026-10-03T17:25:40.200Z"
+    },
+    {
+      "stage": "draft",
+      "status": "started",
+      "message": "Writing the draft email",
+      "at": "2026-10-03T17:25:40.202Z"
+    },
+    {
+      "stage": "draft",
+      "status": "progress",
+      "message": "Using an answer saved from an earlier run, no model call needed",
+      "at": "2026-10-03T17:25:40.204Z"
+    },
+    {
+      "stage": "draft",
+      "status": "done",
+      "message": "Wrote a draft with 1 cited claim",
+      "durationMs": 3,
+      "payload": {
+        "draft": {
+          "subject": "ai compliance",
+          "body": "Stripe published insights on production-grade AI agents for financial compliance in partnership with Amazon Web Services. An AI employee takes the repetitive accounts payable queue, so the team's own people can work on the exceptions. Worth a look?",
+          "claims": [
+            {
+              "text": "Stripe published insights on production-grade AI agents for financial compliance in partnership with Amazon Web Services.",
+              "signalId": "s7",
+              "sourceName": "Amazon Web Services (AWS)",
+              "sourceUrl": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOOFF0cUlscmRyQ282ZVI5REtKRFBYc1ZVS1VVLURTdmc5UU9vajdxZTZxTnVVS3NjbVhSZmhQcGMxZ0tyRVdkeE5vbU5MT2swN1d2Mk5Hb0pINE1tM1V0WGpMZFlwcjBqaUl2QmlVXzNGQUxNYm1NV1BJSTU4cGFoQnd5Y3lLbTJCS1FodTlIM0tmOFRWS1VKLWVsMEROR1RBcnQtcnBfOFdyLVZqWmJLSW80VUozejg0VUE?oc=5",
+              "publishedAt": "2026-06-26T07:00:00.000Z",
+              "supported": false
+            }
+          ],
+          "lintIssues": []
+        }
+      },
+      "at": "2026-10-03T17:25:40.205Z"
+    },
+    {
+      "stage": "verify",
+      "status": "started",
+      "message": "Checking each claim against its source",
+      "at": "2026-10-03T17:25:40.207Z"
+    },
+    {
+      "stage": "verify",
+      "status": "progress",
+      "message": "Using an answer saved from an earlier run, no model call needed",
+      "at": "2026-10-03T17:25:40.212Z"
+    },
+    {
+      "stage": "verify",
+      "status": "done",
+      "message": "Flagged for review: 1 claim not supported by the source, 2 style issues, the hook scored below the personalised threshold",
+      "durationMs": 7,
+      "payload": {
+        "draft": {
+          "subject": "ai compliance",
+          "body": "Stripe published insights on production-grade AI agents for financial compliance in partnership with Amazon Web Services. An AI employee takes the repetitive accounts payable queue, so the team's own people can work on the exceptions. Worth a look?",
+          "claims": [
+            {
+              "text": "Stripe published insights on production-grade AI agents for financial compliance in partnership with Amazon Web Services.",
+              "signalId": "s7",
+              "sourceName": "Amazon Web Services (AWS)",
+              "sourceUrl": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOOFF0cUlscmRyQ282ZVI5REtKRFBYc1ZVS1VVLURTdmc5UU9vajdxZTZxTnVVS3NjbVhSZmhQcGMxZ0tyRVdkeE5vbU5MT2swN1d2Mk5Hb0pINE1tM1V0WGpMZFlwcjBqaUl2QmlVXzNGQUxNYm1NV1BJSTU4cGFoQnd5Y3lLbTJCS1FodTlIM0tmOFRWS1VKLWVsMEROR1RBcnQtcnBfOFdyLVZqWmJLSW80VUozejg0VUE?oc=5",
+              "publishedAt": "2026-06-26T07:00:00.000Z",
+              "supported": false
+            }
+          ],
+          "lintIssues": [
+            "body is 38 words; the target is 50 to 100",
+            "states a fact with no source: \"An AI employee takes the repetitive accounts payable queue, so the team's own people can work on the exceptions.\""
+          ]
+        },
+        "outcome": "flagged"
+      },
+      "at": "2026-10-03T17:25:40.214Z"
+    },
+    {
+      "stage": "run",
+      "status": "done",
+      "message": "Draft ready, but check the flagged points",
+      "payload": {
+        "outcome": "flagged"
+      },
+      "at": "2026-10-03T17:25:40.215Z"
+    }
+  ]
+}

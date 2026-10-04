@@ -4,6 +4,7 @@ import { RunForm, type SampleProspect } from "@/components/run-form";
 import { StatusPill } from "@/components/status-pill";
 import fixtures from "@/fixtures/demo-prospects.json";
 import { timeAgo } from "@/lib/format";
+import { listReplays } from "@/lib/replay";
 import { listRuns } from "@/lib/runs";
 
 // Read the saved runs on every request, not at build time.
@@ -24,6 +25,7 @@ const samples: SampleProspect[] = fixtures.prospects.map((prospect) => ({
 
 export default function Home() {
   const recent = listRuns(5);
+  const replays = listReplays();
   return (
     <main className="mx-auto grid w-full max-w-3xl gap-10">
       <header className="grid gap-2">
@@ -55,6 +57,31 @@ export default function Home() {
                   <StatusPill status={run.status} outcome={run.outcome} createdAt={run.createdAt} />
                   <span className="hidden w-20 text-right text-sm text-muted-foreground sm:inline">{timeAgo(run.createdAt)}</span>
                 </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {replays.length > 0 && (
+        <section aria-labelledby="replays-heading" className="grid gap-3">
+          <div className="grid gap-0.5">
+            <h2 id="replays-heading" className="text-[15px] font-semibold">Test flows</h2>
+            <p className="text-sm text-muted-foreground">
+              Recorded searches from this app. Each one makes no model or source calls, so you can test Send and the Outbox
+              without Gemini.
+            </p>
+          </div>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {replays.map((replay) => (
+              <li key={replay.name}>
+                <a
+                  href={`/replay/${replay.name}`}
+                  className="grid h-full gap-1 rounded-lg border border-border bg-card px-4 py-3 transition-colors hover:border-primary/40"
+                >
+                  <span className="font-medium">{replay.label}</span>
+                  <span className="text-sm text-muted-foreground">{replay.why}</span>
+                </a>
               </li>
             ))}
           </ul>
