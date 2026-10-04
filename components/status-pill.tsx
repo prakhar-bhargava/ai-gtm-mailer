@@ -5,15 +5,15 @@ type Tone = "verified" | "caution" | "neutral" | "danger" | "active";
 const TONE: Record<Tone, string> = {
   verified: "bg-verified-soft text-verified",
   caution: "bg-caution-soft text-caution",
-  neutral: "bg-secondary text-muted-foreground",
+  neutral: "bg-foreground/[0.07] text-foreground/70",
   danger: "bg-destructive/10 text-destructive",
-  active: "bg-primary/10 text-primary",
+  active: "bg-electric/10 text-electric",
 };
 
 // A run still marked running after this long was cut off (server restart, closed tab) and will not finish.
 const STALE_MS = 10 * 60 * 1000;
 
-// The same words everywhere a run's result appears: run page, runs table, recent list.
+// The same words everywhere a run's result appears: run page, dashboard, recent list, cases.
 export function runLabel(
   status: RunStatus,
   outcome: RunOutcome | null | undefined,
@@ -49,7 +49,7 @@ export function StatusPill({
 }) {
   const { text, tone } = runLabel(status, outcome, createdAt, interrupted);
   return (
-    <span className={`inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium whitespace-nowrap ${TONE[tone]}`}>
+    <span className={`inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full px-2.5 font-mono text-[10.5px] whitespace-nowrap ${TONE[tone]}`}>
       {text === "Running" && <span aria-hidden className="size-1.5 animate-pulse rounded-full bg-current" />}
       {text}
     </span>

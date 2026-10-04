@@ -10,13 +10,41 @@
     "domain": "basecamp.com"
   },
   "recordedAt": "2026-10-03T16:42:25.222Z",
-  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls.",
+  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls. Website pages added from a crawl on 2026-10-04.",
   "events": [
     {
       "stage": "identity",
       "status": "started",
       "message": "Finding the company's website",
       "at": "2026-10-03T16:42:25.270Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Opened basecamp.com: \"Basecamp\"",
+      "payload": {
+        "crawl": {
+          "url": "https://basecamp.com/",
+          "kind": "home",
+          "title": "Basecamp",
+          "description": "Trusted by millions, Basecamp puts everything you need to get work done in one place. It’s the calm, organized way to manage projects, work with clients, and communicate company-wide.",
+          "headings": [
+            "Basecamp is project management without all the nonsense. Rock solid and famously easy to use.",
+            "Take a minute to meet some of our customers",
+            "We asked our customers: “What changed for the better since you switched to Basecamp?”",
+            "How about a quick demonstration?",
+            "Big numbers. Highly-trusted. Rugged, reliable, ready.",
+            "Remember when companies cared about service?"
+          ],
+          "excerpt": "At Enormicom, we like to work with our clientsdirectly and we do that in Basecamp. We're so happyyou're here! ✨ The project that we're working on ...",
+          "facts": [],
+          "tech": [],
+          "linkCount": 85,
+          "ms": 3899,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T16:42:25.272Z"
     },
     {
       "stage": "identity",
@@ -32,6 +60,30 @@
       "stage": "company_site",
       "status": "started",
       "message": "Reading the company website",
+      "at": "2026-10-03T16:42:25.275Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Read the about page: \"Basecamp — Where we came from\"",
+      "payload": {
+        "crawl": {
+          "url": "https://basecamp.com/about",
+          "kind": "about",
+          "title": "Basecamp — Where we came from",
+          "description": "Born out of desperate necessity to stop embarrassing ourselves in front of our clients, the story of how Basecamp was born is likely your story, too.",
+          "headings": [
+            "Where we came from",
+            "Have a nice day!"
+          ],
+          "excerpt": "Born out of desperate necessity to stop embarrassing ourselves in front of our clients, the story of how Basecamp was born is likely your story, too.",
+          "facts": [],
+          "tech": [],
+          "linkCount": 52,
+          "ms": 1770,
+          "via": "browser"
+        }
+      },
       "at": "2026-10-03T16:42:25.275Z"
     },
     {

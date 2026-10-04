@@ -1,10 +1,9 @@
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { AnalyticsSection } from "@/components/analytics-section";
-import { PageHeader } from "@/components/page-header";
+import { PillLink } from "@/components/brand";
+import { DashboardCharts } from "@/components/dashboard-charts";
 import { StatusPill } from "@/components/status-pill";
-import { buttonVariants } from "@/components/ui/button";
-import { getAnalytics } from "@/lib/analytics";
+import { getAnalytics, getChartData } from "@/lib/analytics";
 import { formatSeconds, timeAgo } from "@/lib/format";
 import { countRuns, searchRuns, type RunRecord } from "@/lib/runs";
 
@@ -49,38 +48,25 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     return qs ? `/dashboard?${qs}` : "/dashboard";
   };
 
-  const stats = [
-    { label: "Runs", value: String(counts.total) },
-    { label: "Drafts to review", value: String(countFor("draft") + countFor("flagged")) },
-    { label: "No good reason to write", value: String(countFor("abstained")) },
-    { label: "Median time per run", value: formatSeconds(analytics.medianSeconds) },
-  ];
-
   return (
-    <main>
-      <PageHeader
-        title="Runs"
-        description="Every prospect researched in this app, newest first."
-        actions={
-          <Link href="/" className={buttonVariants({ size: "lg", className: "h-10 px-4" })}>
-            New run
-          </Link>
-        }
-      />
+    <main className="grid gap-10">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div className="grid gap-2">
+          <h1 className="text-[34px] leading-tight font-normal tracking-tight sm:text-[42px]">Dashboard</h1>
+          <p className="max-w-2xl text-[15px] leading-6 text-muted-foreground">
+            How the research is going: what each run produced, where runs drop off, how confident the angles are, and how reliable each source is.
+          </p>
+        </div>
+        <PillLink href="/app">New run</PillLink>
+      </header>
 
-      <dl className="mb-8 grid grid-cols-2 overflow-hidden rounded-lg border border-border bg-card sm:grid-cols-4">
-        {stats.map((stat, index) => (
-          <div
-            key={stat.label}
-            className={`grid gap-1 p-5 ${index % 2 === 1 ? "border-l border-border" : ""} ${index >= 2 ? "border-t border-border sm:border-t-0" : ""} ${index === 2 ? "sm:border-l" : ""}`}
-          >
-            <dt className="text-sm text-muted-foreground">{stat.label}</dt>
-            <dd className="text-2xl font-semibold tracking-tight tabular-nums">{stat.value}</dd>
-          </div>
-        ))}
-      </dl>
+      {/* Database rows have no prototype; a JSON round trip makes them plain objects for the client charts. */}
+      <DashboardCharts analytics={JSON.parse(JSON.stringify(analytics))} charts={JSON.parse(JSON.stringify(getChartData()))} />
 
-      <section aria-label="Runs" className="grid gap-4">
+      <section aria-labelledby="runs-heading" className="grid gap-4">
+        <h2 id="runs-heading" className="text-[20px] tracking-tight">
+          All runs
+        </h2>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <nav className="flex flex-wrap gap-1" aria-label="Filter by result">
             {FILTERS.map((filter) => {
@@ -90,8 +76,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   key={filter.value}
                   href={filterHref(filter.value)}
                   aria-current={active ? "page" : undefined}
-                  className={`inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-sm ${
-                    active ? "bg-foreground text-background" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  className={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] ${
+                    active ? "bg-foreground text-background" : "text-foreground/65 hover:bg-black/5 hover:text-foreground"
                   }`}
                 >
                   {filter.label}
@@ -110,36 +96,36 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               name="q"
               defaultValue={q}
               placeholder="Search name or company"
-              className="h-9 w-full rounded-md border border-input bg-card pr-3 pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring"
+              className="h-9 w-full rounded-full border border-line bg-white pr-3 pl-9 text-[13px] outline-none placeholder:text-foreground/45 focus-visible:border-electric"
             />
             {outcome !== "all" && <input type="hidden" name="outcome" value={outcome} />}
           </form>
         </div>
 
         {runs.length === 0 ? (
-          <div className="grid justify-items-start gap-3 rounded-lg border border-dashed border-border bg-card p-8">
+          <div className="grid justify-items-start gap-3 rounded-2xl border border-dashed border-line p-8">
             <p className="font-medium">{q || outcome !== "all" ? "No runs match" : "No runs yet"}</p>
             <p className="text-sm text-muted-foreground">
               {q || outcome !== "all" ? "Try another name, or clear the filter." : "Research a prospect and it will appear here."}
             </p>
-            <Link href={q || outcome !== "all" ? "/dashboard" : "/"} className="text-sm font-medium text-primary hover:underline">
+            <Link href={q || outcome !== "all" ? "/dashboard" : "/app"} className="text-[13px] text-electric hover:underline">
               {q || outcome !== "all" ? "Clear search and filter" : "Start a run"}
             </Link>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border bg-card">
+          <div className="overflow-x-auto rounded-2xl border border-line bg-card">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border text-left text-muted-foreground">
+                <tr className="border-b border-line text-left font-mono text-[11px] text-foreground/55">
                   <th scope="col" className="px-4 py-3 font-medium">Prospect</th>
                   <th scope="col" className="px-4 py-3 font-medium">Result</th>
                   <th scope="col" className="hidden px-4 py-3 text-right font-medium sm:table-cell">Took</th>
                   <th scope="col" className="px-4 py-3 text-right font-medium">When</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-line">
                 {runs.map((run) => (
-                  <tr key={run.id} className="group relative hover:bg-secondary/50">
+                  <tr key={run.id} className="group relative hover:bg-white">
                     <td className="px-4 py-3">
                       {/* The link covers the whole row, so any part of it opens the run. */}
                       <Link href={`/runs/${run.id}`} className="font-medium after:absolute after:inset-0 group-hover:underline">
@@ -162,7 +148,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         )}
       </section>
 
-      <AnalyticsSection data={analytics} />
     </main>
   );
 }

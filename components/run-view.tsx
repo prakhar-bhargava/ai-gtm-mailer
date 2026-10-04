@@ -1,52 +1,30 @@
 "use client";
 
 import { CheckCircle2, ChevronDown, Circle, Loader2, TriangleAlert } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { LiveFeed } from "@/components/run/live-feed";
+import { StepGraph } from "@/components/run/step-graph";
+import { STEPS, deriveSteps, type StepState, type StepStatus } from "@/components/run/steps";
+import { WritingPreview } from "@/components/run/writing-preview";
 import { DraftEditor } from "@/components/send-panel";
-import { TemplateChooser } from "@/components/template-chooser";
 import { StatusPill } from "@/components/status-pill";
+import { TemplateChooser } from "@/components/template-chooser";
 import { formatDate, hostOf } from "@/lib/format";
-import { StageEvent, type Hook, type ProspectInput, type Signal, type StageId } from "@/lib/types";
-
-// The stages the rep sees, in order. "run" is the end-of-run signal and is not shown.
-const STEPS: { id: StageId; label: string }[] = [
-  { id: "identity", label: "Find the company's website" },
-  { id: "news", label: "Check recent news" },
-  { id: "jobs", label: "Check open roles" },
-  { id: "company_site", label: "Read the company website" },
-  { id: "discover", label: "Follow links on the website" },
-  { id: "hooks", label: "Pick the best reason to write" },
-  { id: "draft", label: "Write the email" },
-  { id: "verify", label: "Check every claim against its source" },
-];
-
-type StepStatus = "pending" | "running" | "done" | "failed";
-type StepState = { status: StepStatus; message?: string; durationMs?: number; startedAt?: string; latest?: string };
-
-function deriveSteps(events: StageEvent[]): Record<string, StepState> {
-  const steps: Record<string, StepState> = {};
-  for (const event of events) {
-    if (event.stage === "run") continue;
-    const current: StepState = steps[event.stage] ?? { status: "pending" };
-    if (event.status === "progress") steps[event.stage] = { ...current, latest: event.message };
-    else if (event.status === "started")
-      steps[event.stage] = { ...current, status: "running", startedAt: event.at, latest: event.message };
-    else steps[event.stage] = { ...current, status: event.status, message: event.message, durationMs: event.durationMs };
-  }
-  return steps;
-}
+import { StageEvent, type CrawlPage, type Draft, type Hook, type ProspectInput, type Signal } from "@/lib/types";
 
 // Everything the stages found, in the order it arrived. Signals are de-duplicated by source URL.
 function collect(events: StageEvent[]) {
   const signals = new Map<string, Signal>();
+  const pages: CrawlPage[] = [];
   let hooks: Hook[] = [];
-  let draft;
+  let draft: Draft | null = null;
   for (const event of events) {
     for (const signal of event.payload?.signals ?? []) signals.set(`${signal.id}|${signal.sourceUrl}`, signal);
+    if (event.payload?.crawl) pages.push(event.payload.crawl);
     if (event.payload?.hooks) hooks = event.payload.hooks;
     if (event.payload?.draft) draft = event.payload.draft;
   }
-  return { signals: [...signals.values()], hooks, draft };
+  return { signals: [...signals.values()], pages, hooks, draft };
 }
 
 export function RunView({
@@ -55,15 +33,20 @@ export function RunView({
   signature,
   streamUrl,
   initialEvents,
+  replay = false,
 }: {
   runId: string;
   prospect: ProspectInput;
   signature: string[];
   streamUrl: string | null; // set for a run that hasn't started; saved runs pass null and show their events
   initialEvents: StageEvent[];
+  replay?: boolean;
 }) {
   const [events, setEvents] = useState<StageEvent[]>(initialEvents);
   const [connectionLost, setConnectionLost] = useState(false);
+  // A live run keeps the writing preview on screen until the final draft has finished typing.
+  const [revealed, setRevealed] = useState(streamUrl === null);
+  const reveal = useCallback(() => setRevealed(true), []);
 
   useEffect(() => {
     if (!streamUrl) return;
@@ -90,18 +73,24 @@ export function RunView({
 
   const runEnd = [...events].reverse().find((event) => event.stage === "run") ?? null;
   const steps = deriveSteps(events);
-  const { signals, hooks, draft } = collect(events);
+  const { signals, pages, hooks, draft } = collect(events);
   const outcome = runEnd?.payload?.outcome;
   const finished = runEnd !== null;
-
-  const subtitle = [prospect.role, prospect.company].filter(Boolean).join(", ");
+  const wrote = outcome === "draft" || outcome === "flagged";
+  // Without a draft to finish typing there's nothing to wait for.
+  const showResult = finished && (revealed || !wrote || !draft);
 
   return (
-    <main className="grid gap-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
+    <main className="grid min-w-0 gap-6 [&>*]:min-w-0">
+      <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="grid gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-[1.75rem]">{prospect.name}</h1>
-          <p className="text-[15px] text-muted-foreground">{subtitle}</p>
+          <p className="font-mono text-[11px] text-foreground/55">{replay ? "Recorded run, replayed step by step" : "Run"}</p>
+          <h1 className="text-[32px] leading-tight font-normal tracking-tight sm:text-[38px]">{prospect.name}</h1>
+          <p className="flex flex-wrap items-center gap-x-2 text-[14px] text-muted-foreground">
+            <span>{[prospect.role, prospect.company].filter(Boolean).join(", ")}</span>
+            {prospect.domain && <span className="font-mono text-[12px]">{prospect.domain}</span>}
+            {prospect.email && <span className="font-mono text-[12px]">{prospect.email}</span>}
+          </p>
         </div>
         {!finished && !streamUrl ? (
           <StatusPill status="running" interrupted />
@@ -111,192 +100,77 @@ export function RunView({
       </header>
 
       {connectionLost && !finished && (
-        <p role="alert" className="rounded-lg bg-caution-soft px-4 py-3 text-sm text-caution">
+        <p role="alert" className="rounded-xl bg-caution-soft px-4 py-3 text-[13px] text-caution">
           Lost the connection to this run. Refresh the page to see what was saved.
         </p>
       )}
-
       {!finished && !streamUrl && !connectionLost && (
-        <p className="rounded-lg bg-caution-soft px-4 py-3 text-sm text-caution">
-          This run was interrupted before it finished. The steps below are what was saved. Start a new run to try again.
+        <p className="rounded-xl bg-caution-soft px-4 py-3 text-[13px] text-caution">
+          This run was interrupted before it finished. Below is what was saved. Start a new run to try again.
         </p>
       )}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="grid gap-4">
-          {!finished ? (
-            <InProgress steps={steps} signalCount={signals.length} />
-          ) : draft && (outcome === "draft" || outcome === "flagged") ? (
-            <DraftEditor runId={runId} prospect={prospect} draft={draft} signature={signature} />
-          ) : outcome === "abstained" ? (
-            <>
-              <AbstainPanel hooks={hooks} signalCount={signals.length} />
-              <TemplateChooser runId={runId} prospect={prospect} signature={signature} />
-            </>
-          ) : (
-            <StoppedPanel message={runEnd.message} steps={steps} />
-          )}
+      <StepGraph steps={steps} finished={finished} />
+
+      {!showResult ? (
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] [&>*]:min-w-0">
+          <LiveFeed events={events} />
+          <div className="grid gap-3 lg:sticky lg:top-24">
+            <WritingPreview prospect={prospect} pages={pages} signals={signals} hooks={hooks} draft={draft} finished={finished} onSettled={reveal} />
+            <p className="px-1 text-[12px] text-muted-foreground">
+              A live preview. The checked email, with every fact linked to its source, replaces it when the run finishes.
+            </p>
+          </div>
         </div>
-        <aside className="grid gap-4" aria-label={finished ? "How this draft was made" : "Findings so far"}>
-          {!finished ? (
-            <LiveFindings events={events} signals={signals} hooks={hooks} steps={steps} />
-          ) : (
-            <>
-              {hooks.length > 0 && <WhyThisHook hooks={hooks} outcome={outcome} />}
-              <SourcesPanel signals={signals} />
-              <StepsSummary steps={steps} stopped={outcome !== "draft" && outcome !== "flagged" && outcome !== "abstained"} />
-            </>
-          )}
-        </aside>
-      </div>
+      ) : (
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px] [&>*]:min-w-0">
+          <div className="grid gap-4">
+            {wrote && draft ? (
+              <DraftEditor runId={runId} prospect={prospect} draft={draft} signature={signature} />
+            ) : outcome === "abstained" ? (
+              <>
+                <AbstainPanel hooks={hooks} signalCount={signals.length} />
+                <TemplateChooser runId={runId} prospect={prospect} signature={signature} />
+              </>
+            ) : (
+              <StoppedPanel message={runEnd?.message ?? ""} steps={steps} />
+            )}
+            <Disclosure label={`Research log: ${pages.length} pages read, ${signals.length} sources`} panel>
+              <LiveFeed events={events} compact />
+            </Disclosure>
+          </div>
+          <aside className="grid gap-4" aria-label="How this draft was made">
+            {hooks.length > 0 && <WhyThisHook hooks={hooks} outcome={outcome} />}
+            <SourcesPanel signals={signals} />
+            {pages.length > 0 && <PagesPanel pages={pages} />}
+            <StepsSummary steps={steps} stopped={!wrote && outcome !== "abstained"} />
+          </aside>
+        </div>
+      )}
     </main>
   );
 }
 
-// Everything found so far, shown while the run is still going, so the rep can follow it and check it.
-function LiveFindings({
-  events,
-  signals,
-  hooks,
-  steps,
-}: {
-  events: StageEvent[];
-  signals: Signal[];
-  hooks: Hook[];
-  steps: Record<string, StepState>;
-}) {
-  const label = Object.fromEntries(STEPS.map((step) => [step.id, step.label]));
-  const failed = Object.entries(steps).filter(([, state]) => state.status === "failed");
-  const activity = events
-    .filter((event) => event.stage !== "run")
-    .slice(-14)
-    .reverse();
-
+function PagesPanel({ pages }: { pages: CrawlPage[] }) {
+  const unique = pages.filter((page, index) => pages.findIndex((other) => other.url === page.url) === index);
+  const browser = unique.filter((page) => page.via === "browser").length;
   return (
-    <>
-      <Panel title={`Sources found (${signals.length})`}>
-        {signals.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing yet. Sources appear here as each step finds them.</p>
-        ) : (
-          <SourcesPanel signals={signals} />
-        )}
-      </Panel>
-
-      <Panel title={hooks.length ? `Hooks scored (${hooks.length})` : "Hooks"}>
-        {hooks.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Scored after the sources are read.</p>
-        ) : (
-          <ul className="grid gap-3">
-            {[...hooks]
-              .sort((a, b) => b.scores.total - a.scores.total)
-              .map((hook) => (
-                <li key={hook.id} className="grid gap-1 text-sm">
-                  <span className={hook.blockedReason ? "text-muted-foreground line-through" : "text-foreground"}>{hook.text}</span>
-                  {hook.blockedReason ? (
-                    <span className="text-xs text-caution">Blocked: {hook.blockedReason}</span>
-                  ) : (
-                    <ScoreBar total={hook.scores.total} />
-                  )}
-                </li>
-              ))}
-          </ul>
-        )}
-      </Panel>
-
-      <Panel title={failed.length ? `Skipped or failed (${failed.length})` : "Skipped or failed"}>
-        {failed.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing skipped so far.</p>
-        ) : (
-          <ul className="grid gap-2 text-sm">
-            {failed.map(([stage, state]) => (
-              <li key={stage} className="grid gap-0.5">
-                <span className="font-medium">{label[stage] ?? stage}</span>
-                <span className="text-xs text-caution">{state.message}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
-
-      <Panel title="Activity">
-        {activity.length === 0 ? (
-          <p className="text-sm text-muted-foreground">The first step is starting.</p>
-        ) : (
-          <ol className="grid gap-2 text-xs">
-            {activity.map((event, index) => (
-              <li key={`${event.at}-${event.stage}-${index}`} className="grid grid-cols-[3.25rem_1fr] gap-x-2">
-                <span className="tabular-nums text-muted-foreground">
-                  {new Date(event.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                </span>
-                <span className="text-foreground">
-                  <span className="font-medium">{label[event.stage] ?? event.stage}: </span>
-                  <span className={event.status === "failed" ? "text-caution" : "text-muted-foreground"}>{event.message}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-        )}
-      </Panel>
-    </>
-  );
-}
-
-function InProgress({ steps, signalCount }: { steps: Record<string, StepState>; signalCount: number }) {
-  // Starts at 0 and is set after mount, so the server and browser render the same first frame.
-  const [now, setNow] = useState(0);
-  useEffect(() => {
-    const first = setTimeout(() => setNow(Date.now()), 0);
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => {
-      clearTimeout(first);
-      clearInterval(timer);
-    };
-  }, []);
-  const done = STEPS.filter((step) => steps[step.id]?.status === "done" || steps[step.id]?.status === "failed").length;
-
-  return (
-    <section className="mx-auto grid w-full max-w-2xl gap-4 rounded-lg border border-border bg-card p-5 sm:p-6" aria-live="polite">
-      <div className="grid gap-2">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-[15px] font-semibold">Researching</h2>
-          <span className="text-sm text-muted-foreground">
-            {done} of {STEPS.length} steps{signalCount > 0 ? `, ${signalCount} sources found` : ""}
-          </span>
-        </div>
-        <div className="h-1 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-primary transition-[width] duration-500" style={{ width: `${(done / STEPS.length) * 100}%` }} />
-        </div>
-      </div>
-      <ol className="grid">
-        {STEPS.map((step) => {
-          const state = steps[step.id] ?? { status: "pending" as const };
-          const note =
-            state.status === "running"
-              ? state.latest
-              : state.status === "done" || state.status === "failed"
-                ? state.message
-                : undefined;
-          return (
-            <li key={step.id} className="grid grid-cols-[20px_1fr_auto] gap-x-3 py-2.5">
-              <StepIcon status={state.status} />
-              <span className={state.status === "pending" ? "text-muted-foreground" : "font-medium"}>{step.label}</span>
-              <span className="text-sm text-muted-foreground tabular-nums">
-                {state.status === "running" && state.startedAt && now > 0
-                  ? `${Math.max(0, Math.round((now - Date.parse(state.startedAt)) / 1000))} s`
-                  : state.durationMs !== undefined
-                    ? `${(state.durationMs / 1000).toFixed(1)} s`
-                    : ""}
-              </span>
-              {note && (
-                <p className={`col-start-2 col-end-4 mt-0.5 text-sm ${state.status === "failed" ? "text-caution" : "text-muted-foreground"}`}>
-                  {note}
-                </p>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </section>
+    <Panel title={`Website pages read (${unique.length})`}>
+      <p className="text-[12px] text-muted-foreground">
+        {browser === unique.length ? "All read in a headless browser." : `${browser} in a headless browser, ${unique.length - browser} as plain HTML.`} No model
+        tokens used.
+      </p>
+      <ul className="grid gap-1.5">
+        {unique.map((page) => (
+          <li key={page.url} className="flex items-center justify-between gap-2 text-[12.5px]">
+            <a href={page.url} target="_blank" rel="noopener noreferrer" className="truncate hover:underline">
+              {new URL(page.url).pathname === "/" ? hostOf(page.url) : new URL(page.url).pathname}
+            </a>
+            <span className="shrink-0 font-mono text-[10.5px] text-foreground/50">{(page.ms / 1000).toFixed(1)} s</span>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   );
 }
 
@@ -375,7 +249,7 @@ function ScoreBar({ total, muted = false }: { total: number; muted?: boolean }) 
   return (
     <div className="flex items-center gap-3" role="img" aria-label={`Score ${total} out of 100`}>
       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
-        <div className={`h-full rounded-full ${muted ? "bg-chart-2" : "bg-primary"}`} style={{ width: `${total}%` }} />
+        <div className={`h-full rounded-full ${muted ? "bg-chart-2" : "bg-electric"}`} style={{ width: `${total}%` }} />
       </div>
       <span className="w-12 text-right text-sm font-medium tabular-nums">{total}</span>
     </div>
@@ -390,7 +264,7 @@ function SourcesPanel({ signals }: { signals: Signal[] }) {
     <li key={`${signal.id}-${signal.sourceUrl}`} className="grid gap-0.5 text-sm">
       <p className="leading-5">{signal.claim}</p>
       <p className="text-muted-foreground">
-        <a href={signal.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-border underline-offset-2 hover:text-foreground">
+        <a href={signal.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-line underline-offset-2 hover:text-foreground">
           {signal.sourceName || hostOf(signal.sourceUrl)}
         </a>
         , {formatDate(signal.publishedAt)}
@@ -446,8 +320,8 @@ function StepsSummary({ steps, stopped }: { steps: Record<string, StepState>; st
 
 function AbstainPanel({ hooks, signalCount }: { hooks: Hook[]; signalCount: number }) {
   return (
-    <section className="grid gap-4 rounded-lg border border-border bg-card p-6 sm:p-8">
-      <h2 className="text-lg font-semibold">No email written</h2>
+    <section className="grid gap-4 rounded-2xl border border-line bg-card p-6 sm:p-8">
+      <h2 className="text-[24px] font-normal tracking-tight">No email written</h2>
       <p className="max-w-prose leading-7 text-muted-foreground">
         {signalCount > 0
           ? `The app found ${signalCount} public ${signalCount === 1 ? "source" : "sources"}, but none gave a specific, recent reason to write${hooks.length ? ` (the best angle scored ${Math.max(...hooks.map((hook) => hook.scores.total))} out of 100)` : ""}.`
@@ -470,8 +344,8 @@ function StoppedPanel({ message, steps }: { message: string; steps: Record<strin
   const failed = STEPS.find((step) => steps[step.id]?.status === "failed" && ["identity", "hooks", "draft", "verify"].includes(step.id))
     ?? STEPS.find((step) => steps[step.id]?.status === "failed");
   return (
-    <section className="grid gap-3 rounded-lg border border-border bg-card p-6 sm:p-8">
-      <h2 className="text-lg font-semibold">The run stopped</h2>
+    <section className="grid gap-3 rounded-2xl border border-line bg-card p-6 sm:p-8">
+      <h2 className="text-[24px] font-normal tracking-tight">The run stopped</h2>
       {failed ? (
         <p className="max-w-prose leading-7 text-muted-foreground">
           It stopped at <span className="font-medium text-foreground">{failed.label.toLowerCase()}</span>
@@ -481,8 +355,9 @@ function StoppedPanel({ message, steps }: { message: string; steps: Record<strin
         <p className="max-w-prose leading-7 text-muted-foreground">{message}</p>
       )}
       <p className="text-sm text-muted-foreground">
-        What it found before stopping is on the right. Try again in a minute; if it stops at the same step, check the API key
-        for that step in .env.local.
+        {failed?.id === "identity"
+          ? "Check the website address on the New run page. Some sites refuse automated readers; a run with the right address continues with news and job boards."
+          : "What it found before stopping is on the right. Try again in a minute; if it stops at the same step, check the model key in .env.local."}
       </p>
     </section>
   );
@@ -490,17 +365,17 @@ function StoppedPanel({ message, steps }: { message: string; steps: Record<strin
 
 function Panel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="grid gap-3 rounded-lg border border-border bg-card p-5">
-      <h2 className="text-[15px] font-semibold">{title}</h2>
+    <section className="grid gap-3 rounded-2xl border border-line bg-card p-5">
+      <h2 className="text-[14px] font-medium">{title}</h2>
       {children}
     </section>
   );
 }
 
-function Disclosure({ label, children }: { label: string; children: ReactNode }) {
+function Disclosure({ label, children, panel = false }: { label: string; children: ReactNode; panel?: boolean }) {
   return (
-    <details className="group">
-      <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-sm text-primary hover:underline [&::-webkit-details-marker]:hidden">
+    <details className={`group ${panel ? "rounded-2xl border border-line bg-card p-4" : ""}`}>
+      <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-[13px] text-electric hover:underline [&::-webkit-details-marker]:hidden">
         <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
         {label}
       </summary>
@@ -511,7 +386,7 @@ function Disclosure({ label, children }: { label: string; children: ReactNode })
 
 function StepIcon({ status, small = false }: { status: StepStatus; small?: boolean }) {
   const size = small ? "size-4 mt-0.5" : "size-5";
-  if (status === "running") return <Loader2 className={`${size} animate-spin text-primary`} aria-label="Running" />;
+  if (status === "running") return <Loader2 className={`${size} animate-spin text-electric`} aria-label="Running" />;
   if (status === "done") return <CheckCircle2 className={`${size} text-verified`} aria-label="Done" />;
   if (status === "failed") return <TriangleAlert className={`${size} text-caution`} aria-label="Could not finish" />;
   return <Circle className={`${size} text-border`} aria-label="Waiting" />;

@@ -7,10 +7,20 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-heading: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --color-electric: var(--electric);
+  --color-pink: var(--pink);
+  --color-lavender: var(--lavender);
+  --color-navy: var(--navy);
+  --color-olive: var(--olive);
+  --color-line: var(--line);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
   --color-verified: var(--verified);
   --color-verified-soft: var(--verified-soft);
   --color-caution: var(--caution);
@@ -55,45 +65,55 @@
 }
 
 :root {
-  /* Ink on cool paper. One action colour (ink blue); teal means "checked against a source",
-     amber means "a person should look at this". Nothing else carries colour. */
-  --page: #f5f6f8;
-  --background: #f5f6f8;
-  --foreground: #18212f;
-  --card: #ffffff;
-  --card-foreground: #18212f;
+  /* Grey canvas, black ink, one electric blue. Pink, lavender and teal appear in the pixel art and in
+     the AI writing effect. Teal still means "checked against a source"; amber still means "look at this". */
+  --page: #ececec;
+  --background: #ececec;
+  --foreground: #0d0d0d;
+  --card: #f8f8f8;
+  --card-foreground: #0d0d0d;
   --popover: #ffffff;
-  --popover-foreground: #18212f;
-  --primary: #233d91;
+  --popover-foreground: #0d0d0d;
+  --primary: #0d0d0d;
   --primary-foreground: #ffffff;
-  --secondary: #eef0f4;
-  --secondary-foreground: #18212f;
-  --muted: #eef0f4;
-  --muted-foreground: #5b6573;
-  --accent: #eef0f4;
-  --accent-foreground: #18212f;
-  --destructive: #b42318;
-  --border: #e2e5ea;
-  --input: #d5d9e0;
-  --ring: #233d91;
+  --secondary: #e3e3e3;
+  --secondary-foreground: #0d0d0d;
+  --muted: #e3e3e3;
+  --muted-foreground: #5e5e5e;
+  --accent: #e3e3e3;
+  --accent-foreground: #0d0d0d;
+  --destructive: #c2362b;
+  --border: #d8d8d8;
+  --line: #d8d8d8;
+  --input: #cfcfcf;
+  --ring: #1a54ff;
+  --electric: #1a54ff;
+  --pink: #f39bdc;
+  --lavender: #b8a8ff;
+  --navy: #0b1638;
+  --olive: #6c7a4e;
   --verified: #0e7c6b;
-  --verified-soft: #e5f3f0;
+  --verified-soft: #e2f2ee;
   --caution: #9a5700;
-  --caution-soft: #fdf2e1;
-  --chart-1: #233d91;
-  --chart-2: #8d9bc4;
-  --chart-3: #0e7c6b;
-  --chart-4: #9a5700;
-  --chart-5: #5b6573;
-  --radius: 0.5rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #18212f;
-  --sidebar-primary: #233d91;
+  --caution-soft: #fbf0dd;
+  --series-1: #1a54ff;
+  --series-2: #1e9c84;
+  --series-3: #d94fd5;
+  --series-4: #c77800;
+  --chart-1: #1a54ff;
+  --chart-2: #9db4ff;
+  --chart-3: #1e9c84;
+  --chart-4: #c77800;
+  --chart-5: #5e5e5e;
+  --radius: 0.625rem;
+  --sidebar: #f8f8f8;
+  --sidebar-foreground: #0d0d0d;
+  --sidebar-primary: #0d0d0d;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eef0f4;
-  --sidebar-accent-foreground: #18212f;
-  --sidebar-border: #e2e5ea;
-  --sidebar-ring: #233d91;
+  --sidebar-accent: #e3e3e3;
+  --sidebar-accent-foreground: #0d0d0d;
+  --sidebar-border: #d8d8d8;
+  --sidebar-ring: #1a54ff;
 }
 
 .dark {
@@ -156,5 +176,52 @@
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* The AI writing effect: purple to pink text that shimmers while it is being written. */
+@keyframes ai-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.ai-ink {
+  background-image: linear-gradient(90deg, #7b5cff, #c04fd8, #ff6fb1, #c04fd8, #7b5cff);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ai-shimmer 3s linear infinite;
+}
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.ai-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background: linear-gradient(#7b5cff, #ff6fb1);
+  animation: caret-blink 1s step-end infinite;
+}
+@keyframes feed-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+.feed-in {
+  animation: feed-in 360ms ease-out both;
+}
+@keyframes node-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(26 84 255 / 0.45); }
+  100% { box-shadow: 0 0 0 10px rgb(26 84 255 / 0); }
+}
+.node-pulse {
+  animation: node-pulse 1.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-ink, .ai-caret, .node-pulse, .feed-in {
+    animation: none !important;
   }
 }

@@ -14,6 +14,30 @@ Source: link or file, if any.
 
 ## Decisions
 
+### 2026-10-04: Landing page and a Zamp-inspired visual language
+What: A landing page at / with the trial CTA, features, a comparison table, the research synthesis, and the Beta and rolling-out list from config/features.json. The app moved to /app. Grey canvas, black ink, black pill buttons with monospace labels, electric blue, generated pixel-dither art. No Zamp logo, wordmark or customer logos, and the footer says it is not affiliated.
+Why it matters: The interviewers see their own design language applied with judgment, not copied.
+Interview line: "I borrowed the grammar of your brand, not the words."
+
+### 2026-10-04: Read websites with a headless browser, not an AI reader
+What: lib/sources/crawler.ts drives Playwright Chromium: up to 8 pages, robots.txt respected, images and fonts skipped, data read straight from the DOM (title, description, headings, dated posts, schema.org facts, links). A plain-HTML fallback runs when the browser isn't installed. It replaced Jina Reader.
+Why it matters: No tokens or rate-limited requests for reading, much more data per page, and it renders JavaScript sites. Intel answers a plain fetch with 403 but loads in the browser (133 links).
+Interview line: "Reading the web costs nothing now; the model only ranks, writes and checks."
+
+### 2026-10-04: Show the working while it runs
+What: A step graph, a live feed of every page and finding, and a compose window that writes itself in a purple-pink gradient, following the latest finding, then the top angle, then the real draft.
+Why it matters: Trust comes from seeing the evidence arrive, and a 30-second wait feels like work being done, not a spinner.
+Interview line: "You can watch it read before you trust what it writes."
+
+### 2026-10-04: Gmail compose link as the send step
+What: Open in Gmail opens compose with the recipient, subject, paragraphs and signature filled in, and records the email in the Outbox. Copy formatted puts an HTML version on the clipboard. Name, organisation, website and recipient email are now required on the New run form.
+Why it matters: The human still presses Send, in their own mailbox, with no OAuth app to build or verify.
+Interview line: "The last click is always the rep's."
+
+### 2026-10-04: Animated replays for demos
+What: /replay/<name>?live=1 plays a recorded run step by step at about half a minute, with no model or network calls. Recorded runs were enriched with a real crawl of each company's site (scripts/enrich-replays.ts); recorded signals, angles and drafts were not touched.
+Why it matters: The live demo survives a missing key, a rate limit or bad Wi-Fi.
+
 ### 2026-10-03: Screens redesigned around one job each
 What: One top bar (New run, Runs, Outbox, Accounts). New run asks only for name and company; the rest is optional and hidden. The run page shows the steps while running, then puts the email first as a letter: sourced sentences underlined and numbered, notes underneath, teal when the source supports the sentence and amber when it doesn't. Reasoning and sources sit on the right; steps fold into one line. Runs page: four numbers, filter tabs with counts, one table, then a short reliability section.
 Why it matters: The rep's decision is "can I send this?", so the draft and its evidence lead. Colour only means something (blue for actions, teal for checked, amber for look at this). Details in docs/10-screens.md.
@@ -75,6 +99,16 @@ Source: docs/04-architecture.md (reliability rules)
 
 ## Things I learned
 
+### 2026-10-04: page.evaluate and bundled functions
+What: Passing a TypeScript function to Playwright's page.evaluate failed with "__name is not defined": the bundler wraps functions in a helper that doesn't exist inside the page. Passing the extraction as plain script text fixed it.
+Why it matters: Anything that runs inside the browser page must be self-contained.
+
+### 2026-10-04: SQLite rows can't go straight to client components
+What: node:sqlite returns rows with a null prototype, and Next refuses to pass them to a client component. A JSON round trip makes them plain objects.
+
+### 2026-10-04: Gmail's compose link is plain text only
+What: The view=cm link takes to, su and body, all URL-encoded. Line breaks survive; HTML does not. For styled paste, write text/html to the clipboard with ClipboardItem. Open the tab inside the click handler, before any await, or the browser blocks it.
+
 ### 2026-10-03: The font never loaded
 What: globals.css had `--font-sans: var(--font-sans)`, a variable pointing at itself, so the browser fell back to its default serif. Fixed by pointing it at the font loaded in layout.tsx (now IBM Plex Sans).
 Why it matters: A CSS variable that refers to itself is invalid and silently ignored; check computed styles when a font looks wrong.
@@ -131,6 +165,10 @@ Source: docs/research/notes/competitor_tools.md
 - SSE (Server-Sent Events): a one-way stream from server to browser; how the run view updates live.
 - Edit distance: how many characters the rep changed before approving; a proxy for draft quality.
 - Fail soft: a failed step degrades the output instead of stopping the run.
+- Headless browser: a real browser with no window, driven by code (here Playwright with Chromium).
+- robots.txt: a site's file listing pages it asks crawlers not to read.
+- Compose deep link: a URL that opens Gmail's new-message window with fields filled in.
+- Replay: a recorded run played back step by step, with no model or network calls.
 
 ## Test results
 

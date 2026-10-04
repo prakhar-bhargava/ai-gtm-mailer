@@ -36,7 +36,7 @@ export function TemplateChooser({
       <div className="grid gap-3">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">Template: {template.label}. Review it before saving.</p>
-          <button type="button" onClick={() => setChosen(null)} className="text-sm text-primary hover:underline">
+          <button type="button" onClick={() => setChosen(null)} className="text-sm text-electric hover:underline">
             Choose another
           </button>
         </div>
@@ -53,7 +53,7 @@ export function TemplateChooser({
             <button
               type="button"
               onClick={() => setChosen(item.id)}
-              className="grid h-full w-full gap-1 rounded-lg border border-border bg-card p-4 text-left transition-colors hover:border-primary/40"
+              className="grid h-full w-full gap-1 rounded-2xl border border-line bg-card p-4 text-left transition-colors hover:border-foreground/30"
             >
               <span className="font-medium">{item.label}</span>
               <span className="text-sm text-muted-foreground">{item.subject}</span>

@@ -27,6 +27,12 @@ export const ProspectInput = z.object({
 });
 export type ProspectInput = z.infer<typeof ProspectInput>;
 
+// What the New run form must collect. Older saved runs may lack website and email, so ProspectInput stays loose.
+export const NewRunInput = ProspectInput.extend({
+  domain: z.string().trim().min(3, "Add the company website"),
+  email: z.string().trim().email("Enter the recipient's email address"),
+});
+
 // A public fact about the prospect or company. Every signal keeps its source, date and fetch time.
 export const Signal = z.object({
   id: z.string(),
@@ -85,6 +91,30 @@ export type Draft = z.infer<typeof Draft>;
 export const Outcome = z.enum(["draft", "flagged", "abstained", "stopped"]);
 export type Outcome = z.infer<typeof Outcome>;
 
+// One page read from the company's own website by the crawler. Shown live in the run's findings feed.
+export const CrawlPage = z.object({
+  url: z.string(),
+  kind: z.enum(["home", "about", "careers", "news", "other"]),
+  title: z.string(),
+  description: z.string().nullable(),
+  headings: z.array(z.string()),
+  excerpt: z.string().nullable(),
+  facts: z.array(z.string()).default([]), // from the site's structured data, e.g. "Founded 2010"
+  tech: z.array(z.string()).default([]), // tools the page loads, e.g. "HubSpot"
+  linkCount: z.number(),
+  ms: z.number(),
+  via: z.enum(["browser", "html"]), // a real browser, or the plain-HTML fallback
+});
+export type CrawlPage = z.infer<typeof CrawlPage>;
+
+// Things found along the way that are worth showing even when they don't become signals.
+export const Finding = z.object({
+  kind: z.enum(["profile", "job_board", "dated_item", "tech", "fact", "page_skipped"]),
+  label: z.string(),
+  url: z.string().nullable().default(null),
+});
+export type Finding = z.infer<typeof Finding>;
+
 // Extra data a stage can attach to its event. The run view and the database both read it.
 export const StagePayload = z.object({
   domain: z.string().optional(),
@@ -92,6 +122,8 @@ export const StagePayload = z.object({
   hooks: z.array(Hook).optional(),
   draft: Draft.optional(),
   outcome: Outcome.optional(),
+  crawl: CrawlPage.optional(), // a page the crawler just read (progress events)
+  findings: z.array(Finding).optional(),
 });
 export type StagePayload = z.infer<typeof StagePayload>;
 

@@ -18,6 +18,7 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
       signature={signatureLines()}
       streamUrl={isNew ? `/api/runs/${id}/stream` : null}
       initialEvents={isNew ? [] : getEvents(id)}
+      replay={Boolean(run.replayOf)}
     />
   );
 }

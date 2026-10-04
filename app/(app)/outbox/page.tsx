@@ -12,18 +12,18 @@ export default function OutboxPage() {
       <PageHeader title="Outbox" description="Emails you approved. They are stored here and have not been delivered." />
 
       {items.length === 0 ? (
-        <div className="grid justify-items-start gap-3 rounded-lg border border-dashed border-border bg-card p-8">
+        <div className="grid justify-items-start gap-3 rounded-2xl border border-dashed border-line bg-card p-8">
           <p className="font-medium">No emails yet</p>
           <p className="text-sm text-muted-foreground">Open a finished run, review the draft, and choose Save to Outbox.</p>
-          <Link href="/dashboard" className="text-sm font-medium text-primary hover:underline">
+          <Link href="/dashboard" className="text-sm font-medium text-electric hover:underline">
             Go to runs
           </Link>
         </div>
       ) : (
-        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+        <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-card">
           {items.map((item) => (
             <li key={item.id}>
-              <Link href={`/outbox/${item.id}`} className="grid gap-0.5 px-5 py-4 hover:bg-secondary/50">
+              <Link href={`/outbox/${item.id}`} className="grid gap-0.5 px-5 py-4 hover:bg-white">
                 <span className="flex items-baseline justify-between gap-4">
                   <span className="truncate font-medium">
                     {item.toName}, {item.toCompany}

@@ -7,10 +7,21 @@ import { listAccounts } from "@/lib/accounts";
 
 export const dynamic = "force-dynamic";
 
+// "facebook.com/stripe" rather than just "facebook.com", so different profiles on one site can be told apart.
+function profileLabel(url: string) {
+  try {
+    const parsed = new URL(url);
+    const first = parsed.pathname.split("/").filter(Boolean)[0];
+    return first ? `${hostOf(url)}/${first}` : hostOf(url);
+  } catch {
+    return url;
+  }
+}
+
 function HostLink({ url }: { url: string }) {
   return (
     <a href={url} target="_blank" rel="noopener noreferrer" className="underline decoration-border underline-offset-2 hover:decoration-foreground">
-      {hostOf(url)}
+      {profileLabel(url)}
     </a>
   );
 }
@@ -40,22 +51,22 @@ export default async function AccountsPage({ searchParams }: { searchParams: Pro
           name="q"
           defaultValue={q}
           placeholder="Search companies, people or websites"
-          className="h-9 w-full rounded-md border border-input bg-card pr-3 pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring"
+          className="h-9 w-full rounded-full border border-line bg-white pr-3 pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-electric"
         />
       </form>
 
       {accounts.length === 0 ? (
-        <div className="grid justify-items-start gap-3 rounded-lg border border-dashed border-border bg-card p-8">
+        <div className="grid justify-items-start gap-3 rounded-2xl border border-dashed border-line bg-card p-8">
           <p className="font-medium">{q ? "No companies match" : "No accounts yet"}</p>
           <p className="text-sm text-muted-foreground">
             {q ? "Try another name." : "Every company you research is added here automatically."}
           </p>
-          <Link href={q ? "/accounts" : "/"} className="text-sm font-medium text-primary hover:underline">
+          <Link href={q ? "/accounts" : "/"} className="text-sm font-medium text-electric hover:underline">
             {q ? "Clear search" : "Start a run"}
           </Link>
         </div>
       ) : (
-        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+        <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-card">
           {accounts.map((company) => {
             const social = company.social.filter((url) => !url.includes("linkedin.com"));
             return (

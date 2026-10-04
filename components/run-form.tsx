@@ -1,130 +1,210 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useRef, useState, type FormEvent } from "react";
+import { PillButton } from "@/components/brand";
+import { StatusPill } from "@/components/status-pill";
+import type { Outcome } from "@/lib/types";
 
-export type SampleProspect = {
+export type CaseCard = {
   id: string;
-  label: string;
-  input: Record<string, string>;
+  group: "happy" | "look";
+  company: string;
+  title: string;
+  why: string;
+  expected: Outcome | null; // null for a case that is planned but not built
+  replay: string | null; // recorded run to watch
+  input: Record<string, string> | null; // details to fill in for a live run
 };
 
-async function startRun(fields: Record<string, string>): Promise<string> {
-  const response = await fetch("/api/runs", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(fields),
-  });
-  const body = (await response.json()) as { id?: string; error?: string };
-  if (!response.ok || !body.id) throw new Error(body.error ?? "Could not start the run. Try again.");
-  return body.id;
-}
+const REQUIRED = [
+  { id: "name", label: "Name", placeholder: "Priya Shah", type: "text", autoComplete: "off" },
+  { id: "company", label: "Organisation", placeholder: "Acme Payments", type: "text", autoComplete: "organization" },
+  { id: "domain", label: "Website", placeholder: "acmepayments.com", type: "text", autoComplete: "url" },
+  { id: "email", label: "Recipient email", placeholder: "priya@acmepayments.com", type: "email", autoComplete: "off" },
+] as const;
 
-export function RunForm({ samples = [] }: { samples?: SampleProspect[] }) {
+export function RunForm({ cases = [] }: { cases?: CaseCard[] }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<string | null>(null); // "form" or a sample id
+  const [busy, setBusy] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [filled, setFilled] = useState<string | null>(null);
 
-  async function run(fields: Record<string, string>, source: string) {
-    setBusy(source);
-    setError(null);
-    try {
-      const id = await startRun(fields);
-      router.push(`/runs/${id}`);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not start the run. Try again.");
-      setBusy(null);
-    }
-  }
-
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const fields: Record<string, string> = {};
     for (const [key, value] of new FormData(event.currentTarget).entries()) {
       if (typeof value === "string" && value.trim()) fields[key] = value.trim();
     }
-    if (!fields.name || !fields.company) {
-      setError("Add the person's name and their company.");
+    const missing = REQUIRED.filter((field) => !fields[field.id]).map((field) => field.label.toLowerCase());
+    if (missing.length) {
+      setError(`Add the ${missing.join(", ")}.`);
       return;
     }
-    void run(fields, "form");
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/runs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fields),
+      });
+      const body = (await response.json()) as { id?: string; error?: string };
+      if (!response.ok || !body.id) throw new Error(body.error ?? "Could not start the run. Try again.");
+      router.push(`/runs/${body.id}`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not start the run. Try again.");
+      setBusy(false);
+    }
   }
 
+  // Fills the form from a case, leaving the recipient email for the rep (sample contacts are placeholders).
+  function fillFrom(card: CaseCard) {
+    const form = formRef.current;
+    if (!form || !card.input) return;
+    for (const [key, value] of Object.entries(card.input)) {
+      const input = form.elements.namedItem(key) as HTMLInputElement | null;
+      if (input) input.value = value;
+    }
+    if (card.input.role) setShowDetails(true);
+    setFilled(card.company);
+    const email = form.elements.namedItem("email") as HTMLInputElement | null;
+    email?.focus();
+    form.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  const groups: { id: CaseCard["group"]; title: string; note: string }[] = [
+    { id: "happy", title: "Happy paths", note: "What a good run looks like." },
+    { id: "look", title: "Cases to look at", note: "Where the system has to behave differently." },
+  ];
+
   return (
-    <div className="grid gap-8">
-      <form onSubmit={onSubmit} className="grid gap-4 rounded-lg border border-border bg-card p-5 sm:p-6">
-        <div className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-          <Field id="name" label="Name" placeholder="Priya Shah" required autoFocus />
-          <Field id="company" label="Company" placeholder="Acme Payments" required />
-          <Button type="submit" size="lg" className="h-10 px-5" disabled={busy !== null}>
-            {busy === "form" ? "Starting..." : "Research"}
-          </Button>
+    <div className="grid gap-10">
+      <form ref={formRef} onSubmit={onSubmit} className="grid gap-5 rounded-2xl border border-line bg-card p-5 sm:p-6" noValidate>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {REQUIRED.map((field, index) => (
+            <Field key={field.id} {...field} required autoFocus={index === 0} />
+          ))}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowDetails((open) => !open)}
-          aria-expanded={showDetails}
-          aria-controls="more-details"
-          className="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ChevronDown className={`size-4 transition-transform ${showDetails ? "rotate-180" : ""}`} aria-hidden />
-          {showDetails ? "Fewer details" : "Add email, role, website or notes"}
-        </button>
-
-        {/* Kept mounted so typed values survive closing the panel. */}
-        <div id="more-details" hidden={!showDetails} className="grid gap-4 border-t border-border pt-4 sm:grid-cols-2">
+        <div id="more-details" hidden={!showDetails} className="grid gap-4 border-t border-line pt-4 sm:grid-cols-3">
           <Field id="role" label="Role" placeholder="Head of Finance" />
-          <Field id="email" type="email" label="Their email" placeholder="name@company.com" hint="Needed before a mail can be saved to the Outbox." />
-          <Field id="domain" label="Company website" placeholder="acme.com" hint="Skips the website search and avoids mix-ups with similar names." />
-          <Field id="linkedinUrl" label="Their LinkedIn" placeholder="linkedin.com/in/..." hint="Saved for reference. Never opened by the app." />
-          <Field id="companyLinkedinUrl" label="Company LinkedIn" placeholder="linkedin.com/company/..." hint="Saved for reference. Never opened by the app." />
-          <div className="grid gap-1.5 sm:col-span-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea id="notes" name="notes" rows={2} placeholder="Anything you already know about them" />
+          <Field id="linkedinUrl" label="Their LinkedIn" placeholder="linkedin.com/in/..." hint="Saved for reference. Never opened." />
+          <Field id="companyLinkedinUrl" label="Company LinkedIn" placeholder="linkedin.com/company/..." hint="Saved for reference. Never opened." />
+          <div className="grid gap-1.5 sm:col-span-3">
+            <label htmlFor="notes" className="text-[12px] text-foreground/70">
+              Notes
+            </label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows={2}
+              placeholder="Anything you already know about them"
+              className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-[14px] outline-none placeholder:text-foreground/35 focus-visible:border-electric"
+            />
           </div>
         </div>
 
-        {error && (
-          <p role="alert" className="text-sm text-caution">
-            {error}
-          </p>
-        )}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => setShowDetails((open) => !open)}
+            aria-expanded={showDetails}
+            aria-controls="more-details"
+            className="flex items-center gap-1 text-[13px] text-foreground/65 hover:text-foreground"
+          >
+            <ChevronDown className={`size-4 transition-transform ${showDetails ? "rotate-180" : ""}`} aria-hidden />
+            {showDetails ? "Fewer details" : "Add role, LinkedIn or notes"}
+          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            {filled && <span className="font-mono text-[11px] text-foreground/60">Filled from {filled}. Add the recipient email.</span>}
+            {error && (
+              <p role="alert" className="text-[13px] text-destructive">
+                {error}
+              </p>
+            )}
+            <PillButton type="submit" disabled={busy}>
+              {busy ? "Starting..." : "Research and draft"}
+              {!busy && <ArrowRight className="size-4" aria-hidden />}
+            </PillButton>
+          </div>
+        </div>
       </form>
 
-      {samples.length > 0 && (
-        <section aria-labelledby="samples-heading" className="grid gap-3">
-          <div className="grid gap-0.5">
-            <h2 id="samples-heading" className="text-[15px] font-semibold">Sample prospects</h2>
-            <p className="text-sm text-muted-foreground">Real companies with a placeholder contact. One click starts a run.</p>
+      {cases.length > 0 && (
+        <section aria-labelledby="cases-heading" className="grid gap-4">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div className="grid gap-1">
+              <h2 id="cases-heading" className="text-[20px] tracking-tight">
+                Try a case
+              </h2>
+              <p className="text-[13px] text-muted-foreground">
+                Recorded runs replay step by step with no model or network calls. Use the details to run one live.
+              </p>
+            </div>
           </div>
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {samples.map((sample) => (
-              <li key={sample.id}>
-                <button
-                  type="button"
-                  onClick={() => void run(sample.input, sample.id)}
-                  disabled={busy !== null}
-                  className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary/40 disabled:opacity-60"
-                >
-                  <span className="grid gap-0.5">
-                    <span className="font-medium">{sample.input.company}</span>
-                    <span className="text-sm text-muted-foreground">{sample.label}</span>
-                  </span>
-                  <span className="text-sm font-medium text-primary">{busy === sample.id ? "Starting..." : "Run"}</span>
-                </button>
-              </li>
+          <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
+            {groups.map((group) => (
+              <div key={group.id} className="grid content-start gap-3">
+                <p className="flex items-baseline gap-2">
+                  <span className="text-[14px] font-medium">{group.title}</span>
+                  <span className="text-[12px] text-muted-foreground">{group.note}</span>
+                </p>
+                <ul className={`grid gap-3 ${group.id === "look" ? "sm:grid-cols-2" : ""}`}>
+                  {cases
+                    .filter((card) => card.group === group.id)
+                    .map((card) => (
+                      <li key={card.id}>
+                        <CaseTile card={card} onUse={() => fillFrom(card)} />
+                      </li>
+                    ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
     </div>
+  );
+}
+
+function CaseTile({ card, onUse }: { card: CaseCard; onUse: () => void }) {
+  const planned = card.expected === null;
+  return (
+    <article
+      className={`grid h-full content-between gap-4 rounded-2xl p-4 ${planned ? "border border-dashed border-foreground/25" : "border border-line bg-card"}`}
+    >
+      <div className="grid gap-2">
+        <div className="flex items-start justify-between gap-3">
+          <span className="font-mono text-[11px] text-foreground/55">{card.company}</span>
+          {planned ? (
+            <span className="rounded-full bg-foreground/[0.07] px-2 py-0.5 font-mono text-[10px] text-foreground/60">Planned</span>
+          ) : (
+            <StatusPill status="finished" outcome={card.expected} />
+          )}
+        </div>
+        <h3 className="text-[15px] leading-snug font-medium">{card.title}</h3>
+        <p className="text-[13px] leading-5 text-muted-foreground">{card.why}</p>
+      </div>
+      {!planned && (
+        <div className="flex flex-wrap items-center gap-2">
+          {card.replay && (
+            <a href={`/replay/${card.replay}?live=1`} className="inline-flex h-8 items-center gap-1.5 rounded-full bg-foreground px-3.5 font-mono text-[11px] text-background hover:bg-foreground/85">
+              <Play className="size-3" aria-hidden />
+              Watch it run
+            </a>
+          )}
+          {card.input && (
+            <button type="button" onClick={onUse} className="inline-flex h-8 items-center rounded-full border border-foreground/15 bg-white px-3.5 font-mono text-[11px] hover:border-foreground/40">
+              Use these details
+            </button>
+          )}
+        </div>
+      )}
+    </article>
   );
 }
 
@@ -133,13 +213,22 @@ function Field({
   label,
   hint,
   ...input
-}: { id: string; label: string; hint?: string } & React.ComponentProps<typeof Input>) {
+}: { id: string; label: string; hint?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <div className="grid gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input id={id} name={id} className="h-10 bg-card" aria-describedby={hint ? `${id}-hint` : undefined} {...input} />
+    <div className="grid content-start gap-1.5">
+      <label htmlFor={id} className="text-[12px] text-foreground/70">
+        {label}
+        {input.required && <span className="sr-only"> (required)</span>}
+      </label>
+      <input
+        id={id}
+        name={id}
+        aria-describedby={hint ? `${id}-hint` : undefined}
+        className="h-11 rounded-xl border border-line bg-white px-3.5 text-[14px] outline-none placeholder:text-foreground/35 focus-visible:border-electric"
+        {...input}
+      />
       {hint && (
-        <p id={`${id}-hint`} className="text-xs text-muted-foreground">
+        <p id={`${id}-hint`} className="text-[11px] text-muted-foreground">
           {hint}
         </p>
       )}

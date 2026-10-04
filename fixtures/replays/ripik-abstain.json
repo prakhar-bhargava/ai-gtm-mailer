@@ -10,7 +10,7 @@
     "companyLinkedinUrl": "https://www.linkedin.com/company/ripik-ai"
   },
   "recordedAt": "2026-10-03T17:58:17.486Z",
-  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls.",
+  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls. Website pages added from a crawl on 2026-10-04.",
   "events": [
     {
       "stage": "identity",
@@ -22,6 +22,37 @@
       "stage": "identity",
       "status": "progress",
       "message": "Using a saved copy from ripik.ai, no request needed",
+      "at": "2026-10-03T17:58:23.699Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Opened ripik.ai: \"Ripik AI: Computer Vision AI Platform - Vision AI Agents\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.ripik.ai/",
+          "kind": "home",
+          "title": "Ripik AI: Computer Vision AI Platform - Vision AI Agents",
+          "description": "Harness the power of vision ai agents for anomaly detection with advanced Visual Anomaly Detection. Streamline operations & ensure quality effortlessly.",
+          "headings": [
+            "Resources",
+            "About Us",
+            "Success Stories",
+            "Industries",
+            "Products",
+            "Vision AI Agents"
+          ],
+          "excerpt": "Real customer experiences and results showcasing the value Ripik.AI brings to industrial operations.",
+          "facts": [],
+          "tech": [
+            "Google Tag Manager",
+            "WordPress"
+          ],
+          "linkCount": 258,
+          "ms": 2920,
+          "via": "browser"
+        }
+      },
       "at": "2026-10-03T17:58:23.699Z"
     },
     {
@@ -45,6 +76,57 @@
       "status": "progress",
       "message": "Using a saved copy from reader for ripik.ai, no request needed",
       "at": "2026-10-03T17:58:23.716Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Read the about page: \"About-us - Ripik AI\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.ripik.ai/about-us/",
+          "kind": "about",
+          "title": "About-us - Ripik AI",
+          "description": "Ripik AI provides computer vision object detection, offering precise visual data analysis & real-time object recognition for various applications.",
+          "headings": [
+            "Resources",
+            "About Us",
+            "Success Stories",
+            "Industries",
+            "Products",
+            "Vision AI Agents"
+          ],
+          "excerpt": "Real customer experiences and results showcasing the value Ripik.AI brings to industrial operations.",
+          "facts": [],
+          "tech": [
+            "Google Tag Manager",
+            "WordPress"
+          ],
+          "linkCount": 202,
+          "ms": 2467,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:58:23.714Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Found 2 facts about the company on its site",
+      "payload": {
+        "findings": [
+          {
+            "kind": "tech",
+            "label": "Site uses Google Tag Manager",
+            "url": null
+          },
+          {
+            "kind": "tech",
+            "label": "Site uses WordPress",
+            "url": null
+          }
+        ]
+      },
+      "at": "2026-10-03T17:58:23.717Z"
     },
     {
       "stage": "company_site",
@@ -120,6 +202,93 @@
       "status": "progress",
       "message": "Found 3 social links and 2 useful pages on https://www.ripik.ai/careers",
       "at": "2026-10-03T17:58:28.502Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /careers/: \"Contribute in Creating Computer Vision AI Solution at Ripik AI\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.ripik.ai/careers/",
+          "kind": "careers",
+          "title": "Contribute in Creating Computer Vision AI Solution at Ripik AI",
+          "description": "Join Ripik AI for top-tier expertise and innovation in the field of computer vision artificial intelligence.",
+          "headings": [
+            "Industries",
+            "Products",
+            "Vision AI Agents",
+            "Industrial AutoPilot",
+            "Curious how Vision AI fits into your operations?",
+            "Success Stories"
+          ],
+          "excerpt": "Real-time camera intelligence to monitor materials, equipment, and processes, driving efficiency and consistency in industrial operations.",
+          "facts": [],
+          "tech": [
+            "Google Tag Manager",
+            "WordPress"
+          ],
+          "linkCount": 249,
+          "ms": 2229,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:58:24.919Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /press/: \"Advanced Computer Vision Object Detection with Ripik AI\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.ripik.ai/press/",
+          "kind": "news",
+          "title": "Advanced Computer Vision Object Detection with Ripik AI",
+          "description": "Explore our advanced computer vision solutions designed to revolutionize your business processes for precise and efficient analysis of visual data.",
+          "headings": [
+            "Resources",
+            "About Us",
+            "Success Stories",
+            "Industries",
+            "Products",
+            "Vision AI Agents"
+          ],
+          "excerpt": "Real customer experiences and results showcasing the value Ripik.AI brings to industrial operations.",
+          "facts": [],
+          "tech": [
+            "Google Tag Manager",
+            "WordPress"
+          ],
+          "linkCount": 338,
+          "ms": 2244,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:58:26.115Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 3 profiles, 0 job boards and 0 dated posts",
+      "payload": {
+        "findings": [
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/company/ripik-ai/"
+          },
+          {
+            "kind": "profile",
+            "label": "youtube.com",
+            "url": "https://www.youtube.com/@ripik8207"
+          },
+          {
+            "kind": "profile",
+            "label": "youtube.com",
+            "url": "https://www.youtube.com/@ripikai"
+          }
+        ]
+      },
+      "at": "2026-10-03T17:58:27.311Z"
     },
     {
       "stage": "discover",

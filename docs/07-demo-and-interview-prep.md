@@ -50,7 +50,7 @@ Keep answers to the decision, the reason, and the trade-off. Assumptions you mad
 | Item | Calls per prospect | Unit cost | Cost |
 |---|---|---|---|
 | Search (Tavily) | | | |
-| Page reads (Jina) | | | |
+| Page reads (Playwright crawler) | up to 8 | free, local | 0 |
 | Firmographics | | | |
 | LLM tokens | | | |
 | Total | | | |

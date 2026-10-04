@@ -58,8 +58,8 @@ export async function runStage(spec: StageSpec, ctx: RunContext, emit: Emit): Pr
   emit({ stage: spec.id, status: "started", message: spec.startMessage, at: new Date().toISOString() });
   try {
     // Notes from inside the step (requests, waits, saved copies) go out as progress events.
-    const note = (message: string) =>
-      emit({ stage: spec.id, status: "progress", message, at: new Date().toISOString() });
+    const note = (message: string, payload?: StagePayload) =>
+      emit({ stage: spec.id, status: "progress", message, payload, at: new Date().toISOString() });
     const output = await withTimeout(withTrail(note, () => spec.run(ctx)), pipeline.stageTimeoutMs);
 
     // Give each new signal the next id, then merge everything into the shared context.

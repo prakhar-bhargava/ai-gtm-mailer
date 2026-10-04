@@ -1,4 +1,5 @@
 import { runPipeline } from "@/lib/pipeline";
+import { playReplay } from "@/lib/replay";
 import { appendEvent, getEvents, getRun, setRunStatus } from "@/lib/runs";
 import type { Outcome, StageEvent } from "@/lib/types";
 
@@ -71,7 +72,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     };
     let outcome: Outcome = "stopped";
     try {
-      outcome = await runPipeline(run.prospect, emit);
+      outcome = run.replayOf ? await playReplay(run.replayOf, emit) : await runPipeline(run.prospect, emit);
     } finally {
       // A run that crashes still ends as "stopped", so the dashboard never shows it as running forever.
       setRunStatus(id, "finished", outcome);

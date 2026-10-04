@@ -12,7 +12,7 @@ Status: as built on 2026-10-03, with the planned pieces marked. Change anything 
 | Database | Local SQLite file `data/app.db` through Node's built-in `node:sqlite` | No install and no hosted account. Git ignores the file. |
 | Live updates | Server-Sent Events from the stream route; events are saved to the DB first | A reload or a second tab replays the saved run and follows it while it runs. |
 | LLM | Gemini through `@google/genai`, model list in `config/llm.json` | Structured output checked by zod. Busy and rate-limited responses retry and switch model. |
-| Company website | The company's own HTML and Jina Reader (`r.jina.ai`) | Keyless. The site's own links (about, news, careers, social) are followed. |
+| Company website | A local headless browser (Playwright, `lib/sources/crawler.ts`), with a plain-HTML fallback when the browser isn't installed | No key and no model tokens. Up to 8 pages per company (home, about, careers, newsroom, blog), robots.txt respected, images and fonts skipped. Each page's title, description, headings, dated posts, structured data and links are read from the DOM and streamed to the run's feed. |
 | News | Google News RSS (keyless) | Matches words, so a model check confirms each headline is about this company. |
 | Hiring | Greenhouse and Ashby public job board APIs (keyless). Board names come from the site's own links first, then guesses. | Finance and ops hiring is a strong signal for Zamp. |
 | Social and LinkedIn | Stored as references only, never fetched | The project rule. LinkedIn is never fetched or scraped. |
@@ -48,7 +48,7 @@ lib/
     score-hooks.ts                  rubric scoring, code side
     sensitivity.ts  lint.ts  links.ts  domain.ts
   sources/                          http.ts (timeout, 429 retry, cache), google-news.ts,
-                                    job-boards.ts, company-page.ts
+                                    job-boards.ts, crawler.ts
   llm.ts                            model client: rate limit, retries, schema check, answer cache
   rate-limit.ts                     the shared request limiter
   trail.ts                          notes from inside a step, without passing a logger

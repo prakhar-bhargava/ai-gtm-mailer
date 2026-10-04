@@ -13,6 +13,7 @@ export type RunRecord = {
   outcome: RunOutcome | null;
   createdAt: string;
   finishedAt: string | null;
+  replayOf: string | null; // set when the run replays a recorded search
 };
 
 type RunRow = {
@@ -22,6 +23,7 @@ type RunRow = {
   outcome: RunOutcome | null;
   created_at: string;
   finished_at: string | null;
+  replay_of?: string | null;
 };
 
 function toRecord(row: RunRow): RunRecord {
@@ -32,14 +34,15 @@ function toRecord(row: RunRow): RunRecord {
     outcome: row.outcome,
     createdAt: row.created_at,
     finishedAt: row.finished_at,
+    replayOf: row.replay_of ?? null,
   };
 }
 
-export function createRun(prospect: ProspectInput): string {
+export function createRun(prospect: ProspectInput, options: { replayOf?: string } = {}): string {
   const id = randomUUID();
   getDb()
-    .prepare("INSERT INTO runs (id, prospect_json, status, created_at) VALUES (?, ?, 'new', ?)")
-    .run(id, JSON.stringify(prospect), new Date().toISOString());
+    .prepare("INSERT INTO runs (id, prospect_json, status, created_at, replay_of) VALUES (?, ?, 'new', ?, ?)")
+    .run(id, JSON.stringify(prospect), new Date().toISOString(), options.replayOf ?? null);
   return id;
 }
 

@@ -18,7 +18,10 @@ Every limit the system works under, where it is enforced, and what happens when 
 
 | Constraint | Value | Where set | Enforced in |
 |---|---|---|---|
-| Outside requests per minute, for every source and the model together | 4 | `config/pipeline.json` `maxRequestsPerMinute` | `lib/rate-limit.ts` |
+| Outside requests per minute, for news, job boards and the model together | 4 | `config/pipeline.json` `maxRequestsPerMinute` | `lib/rate-limit.ts` |
+| Company website pages per run | At most 8, read one at a time with a 0.4 s pause; 15 s per page | `lib/pipeline/stages/discover.ts` (`MAX_PAGES`), `lib/sources/crawler.ts` | `lib/sources/crawler.ts`. The crawler runs locally and is not counted against the 4 a minute limit |
+| robots.txt | Pages a site disallows for all crawlers are skipped and shown as skipped | `lib/sources/crawler.ts` | `lib/sources/crawler.ts` |
+| A page that failed | Not retried for 10 minutes, so one run doesn't wait on it twice | `lib/sources/crawler.ts` (`crawlfail:` cache key) | `lib/cache.ts` |
 | Timeout for one outside request | 8 s | `config/pipeline.json` `sourceTimeoutMs` | `lib/sources/http.ts` |
 | Timeout for one model call | 30 s | `config/pipeline.json` `modelTimeoutMs` | `lib/llm.ts` |
 | Timeout for one step, including any wait for a free request slot | 300 s | `config/pipeline.json` `stageTimeoutMs` | `lib/pipeline/stage.ts` |
@@ -34,7 +37,8 @@ A fresh company takes a few minutes at 4 requests a minute. A repeat search uses
 
 | Constraint | Value | Enforced in |
 |---|---|---|
-| Company pages read when discovering links | At most 4 pages, at most 2 levels deep | `lib/pipeline/stages/discover.ts` (`MAX_PAGES`, `MAX_DEPTH`) |
+| Company pages read | At most 8 including home and about; careers and newsroom first | `lib/pipeline/stages/discover.ts` (`MAX_PAGES`) |
+| Dated posts from the company's own newsroom | Within the 180-day news window; older ones are shown as "not used" | `lib/pipeline/stages/discover.ts` |
 | Which pages are followed | Only the company's own pages whose path contains about, news, newsroom, press, blog, careers, jobs, company, team or leadership | `lib/pipeline/links.ts` (`USEFUL_PATH`) |
 | Headlines checked for the same company | At most 8 candidates | `lib/pipeline/stages/news.ts` |
 | News window | 180 days | `config/sources.json` `newsDays` |
@@ -62,7 +66,7 @@ The full rules are in `docs/09-mail-guardrails.md`. The limits, as enforced:
 |---|---|---|
 | Subject length | 2 to 4 words | Yes |
 | Body length | 40 to 130 words (target 50 to 100) | Yes (the target is a warning) |
-| Recipient | A valid email address | Yes |
+| Recipient | A valid email address, required on the New run form | Yes |
 | Plain text, no links, no emoji, no exclamation marks | Required | Yes |
 | Questions in the body | At most 1 | Yes |
 | Stock phrases, mention of how the information was found, ROI figures | Not allowed | Yes |
@@ -91,11 +95,21 @@ Note on personal data in prompts: the model receives the prospect's name, role, 
 | The key is never printed or stored in a database or an error message | `lib/llm.ts` |
 | Errors shown to the rep say what failed in plain words, not the raw provider response | `lib/llm.ts` (`LlmError`) |
 
+## 7b. Gmail hand-off
+
+| Constraint | Detail | Where |
+|---|---|---|
+| Gmail compose link carries plain text only | Formatting is carried by line breaks; Copy formatted puts HTML on the clipboard | `lib/gmail.ts` |
+| The new tab opens inside the click | Opening after an await gets blocked by browsers | `components/send-panel.tsx` |
+| Nothing is sent by the app | Gmail opens a draft; the rep presses Send there | `lib/gmail.ts` |
+
 ## 8. Platform
 
 | Constraint | Detail |
 |---|---|
 | Runtime | Node 24 LTS. The built-in `node:sqlite` module is used (no native install) |
+| Website crawler | Playwright with Chromium (`npm run setup:browser` once). Without it, the plain-HTML fallback runs; some large sites (Intel, for example) refuse plain requests with 403 |
+| Recorded replays | `/replay/<name>?live=1` plays a recorded run at about half a minute, with no model or network calls |
 | Operating system | Developed and tested on Windows 11. Paths and the build folder are Windows-safe |
 | Serving | Local only (`npm run dev` or `npm start`). No public host. A public link is a later decision |
 | Next.js | 16. `params` and `searchParams` are Promises and must be awaited |

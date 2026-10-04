@@ -10,7 +10,7 @@
     "domain": "stripe.com"
   },
   "recordedAt": "2026-10-03T17:25:38.388Z",
-  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls.",
+  "note": "Recorded from a real search on 2026-10-03. Replaying it makes no model or source calls. Website pages added from a crawl on 2026-10-04.",
   "events": [
     {
       "stage": "identity",
@@ -23,6 +23,36 @@
       "status": "progress",
       "message": "Using a saved copy from stripe.com, no request needed",
       "at": "2026-10-03T17:25:38.563Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Opened stripe.com: \"Stripe | Financial Infrastructure to Grow Your Revenue\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/",
+          "kind": "home",
+          "title": "Stripe | Financial Infrastructure to Grow Your Revenue",
+          "description": "Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models, and manage money movement.",
+          "headings": [
+            "Financial infrastructure to grow your revenue. Accept payments, handle business banking,1 and implement custom revenue models—from your first transaction to your billionth.",
+            "Financial infrastructure to grow your revenue. Accept payments, handle business banking,1 and implement custom revenue models—from your first transaction to your billionth.",
+            "Flexible solutions for every business model.",
+            "Get Stripe product recommendations",
+            "The backbone of global commerce",
+            "Powering businesses of all sizes."
+          ],
+          "excerpt": "Grow your business with a comprehensive set of payments and financial tools⁠—⁠designed to work individually or together.",
+          "facts": [],
+          "tech": [
+            "Next.js"
+          ],
+          "linkCount": 192,
+          "ms": 3590,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:25:38.562Z"
     },
     {
       "stage": "identity",
@@ -45,6 +75,44 @@
       "status": "progress",
       "message": "Using a saved copy from reader for stripe.com, no request needed",
       "at": "2026-10-03T17:25:38.570Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Read the about page: \"About Us | Stripe\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/about",
+          "kind": "about",
+          "title": "About Us | Stripe",
+          "description": "Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models, and manage money movement.",
+          "headings": [],
+          "excerpt": "Stripe is a technology company focused on improving the conditions for economic growth and prosperity.",
+          "facts": [],
+          "tech": [
+            "Next.js"
+          ],
+          "linkCount": 24,
+          "ms": 2072,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:25:38.570Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Found 1 facts about the company on its site",
+      "payload": {
+        "findings": [
+          {
+            "kind": "tech",
+            "label": "Site uses Next.js",
+            "url": null
+          }
+        ]
+      },
+      "at": "2026-10-03T17:25:38.571Z"
     },
     {
       "stage": "company_site",
@@ -138,6 +206,246 @@
       "status": "progress",
       "message": "Found 4 social links and 85 useful pages on https://stripe.com/in/newsroom/news/stripe-ford-agreement",
       "at": "2026-10-03T17:25:40.166Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /careers: \"Stripe Careers | Shape the Future of the Global Economy\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/careers",
+          "kind": "careers",
+          "title": "Stripe Careers | Shape the Future of the Global Economy",
+          "description": "Economic growth doesn't happen on its own—at Stripe, it's yours to shape. Explore Stripe's mission and browse career opportunities.",
+          "headings": [
+            "Implement the conditions for prosperity",
+            "Our mission is to increase economic growth.At Stripe, you can make that happen.",
+            "We’re building the economic infrastructure for AI",
+            "Around 1.7% of global GDP runs on Stripe.Behind every transaction is something someone here built.",
+            "Solve the problems that matter at scale",
+            "Stay curious"
+          ],
+          "excerpt": "We exist to increase economic growth, and we pursue it on every front: by building tools that make it easier and cheaper for ambitious businesses to start and scale, by publishing ideas that advance progress, and by creating the economic infrastructure for AI. Your work will defi",
+          "facts": [],
+          "tech": [
+            "Next.js"
+          ],
+          "linkCount": 142,
+          "ms": 1980,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:25:38.772Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /newsroom/news/stripe-openai-instant-checkout: \"Stripe powers Instant Checkout in ChatGPT and releases Agentic Commerc\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/newsroom/news/stripe-openai-instant-checkout",
+          "kind": "news",
+          "title": "Stripe powers Instant Checkout in ChatGPT and releases Agentic Commerce Protocol codeveloped with OpenAI",
+          "description": "Stripe releases Agentic Commerce Protocol, an open standard codeveloped with OpenAI, to help businesses grow in the era of agentic commerce.",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "SAN FRANCISCO—Stripe, the programmable financial services company, today announced that it is helping OpenAI launch a new commerce experience called Instant Checkout in ChatGPT. Starting today, ChatGPT users in the US can buy goods from US-based Etsy businesses—and, coming soon, ",
+          "facts": [],
+          "tech": [],
+          "linkCount": 357,
+          "ms": 1869,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:25:38.972Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /newsroom/news/nvidia-collaboration-with-stripe: \"Stripe deepens collaboration with NVIDIA to enhance Stripe’s AI-powere\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/newsroom/news/nvidia-collaboration-with-stripe",
+          "kind": "news",
+          "title": "Stripe deepens collaboration with NVIDIA to enhance Stripe’s AI-powered capabilities and expand global access to NVIDIA’s AI platform",
+          "description": "Stripe announced a new collaboration with NVIDIA that will advance AI for Stripe. With Stripe, NVIDIA will expand global access to NVIDIA GPUs and NVIDIA AI software, by enabling developers and enterprises to prepay for select NVIDIA cloud services.",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "Stripe, a financial infrastructure platform for businesses, today announced a new collaboration with NVIDIA that will advance AI for Stripe and improve fraud detection for its customers. With Stripe, NVIDIA will expand global access to NVIDIA GPUs and NVIDIA AI software, by enabl",
+          "facts": [],
+          "tech": [],
+          "linkCount": 358,
+          "ms": 1966,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:25:39.171Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /newsroom/news/stripe-ford-agreement: \"Ford-Stripe agreement to accelerate easy payment experiences for custo\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/newsroom/news/stripe-ford-agreement",
+          "kind": "news",
+          "title": "Ford-Stripe agreement to accelerate easy payment experiences for customers, dealers",
+          "description": "Online payment processing for internet businesses. Stripe is a suite of payment APIs that powers commerce for businesses of all sizes.",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "DEARBORN, Michigan, and SAN FRANCISCO—Ford Motor Company and Stripe have signed a five-year agreement to scale the automaker’s e-commerce capabilities faster and to deliver an always-on experience for Ford and Lincoln customers.",
+          "facts": [],
+          "tech": [],
+          "linkCount": 354,
+          "ms": 2001,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:25:39.371Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /newsroom/news/google-and-stripe: \"Google Workspace integrates Stripe to help businesses accept payments \"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/newsroom/news/google-and-stripe",
+          "kind": "news",
+          "title": "Google Workspace integrates Stripe to help businesses accept payments in Google Calendar",
+          "description": "The new feature enables customers to pay for services directly while making a booking on a Google Calendar booking page.",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "SAN FRANCISCO—Stripe, a financial infrastructure platform for businesses, today announced a partnership with Google Workspace to power paid appointment bookings with Google Calendar. The new feature, which is built on Stripe Connect and Stripe Checkout, enables customers to pay f",
+          "facts": [],
+          "tech": [],
+          "linkCount": 360,
+          "ms": 1905,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:25:39.570Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /newsroom/news/stripe-and-uber: \"Uber partners with Stripe to enhance payments performance and reduce c\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/newsroom/news/stripe-and-uber",
+          "kind": "news",
+          "title": "Uber partners with Stripe to enhance payments performance and reduce costs",
+          "description": "Uber and Stripe sign an expanded global partnership to help Uber reduce payments costs while giving customers more ways to pay.",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "SAN FRANCISCO and DUBLIN—Stripe, a financial infrastructure platform for businesses, today announced an expanded global partnership with Uber Technologies, Inc. Uber will significantly expand its use of Stripe’s payments platform, including in the US, to reduce costs and give cus",
+          "facts": [],
+          "tech": [],
+          "linkCount": 366,
+          "ms": 1703,
+          "via": "browser"
+        }
+      },
+      "at": "2026-10-03T17:25:39.770Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 7 profiles, 0 job boards and 0 dated posts",
+      "payload": {
+        "findings": [
+          {
+            "kind": "profile",
+            "label": "github.com",
+            "url": "https://github.com/stripe"
+          },
+          {
+            "kind": "profile",
+            "label": "github.com",
+            "url": "https://github.com/stripe-samples"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/newsroom/news/stripe-openai-instant-checkout"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/newsroom/news/nvidia-collaboration-with-stripe"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/newsroom/news/stripe-ford-agreement"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/newsroom/news/google-and-stripe"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/newsroom/news/stripe-and-uber"
+          },
+          {
+            "kind": "dated_item",
+            "label": "2025-09-29 (older than 180 days, not used): Stripe logo",
+            "url": "https://stripe.com/newsroom/news/stripe-openai-instant-checkout"
+          },
+          {
+            "kind": "dated_item",
+            "label": "2025-09-29 (older than 180 days, not used): Stripe powers Instant Checkout in ChatGPT and releases Agentic Commerce Protocol",
+            "url": "https://stripe.com/newsroom/news/stripe-openai-instant-checkout"
+          },
+          {
+            "kind": "dated_item",
+            "label": "2024-10-09 (older than 180 days, not used): Stripe deepens collaboration with NVIDIA to enhance Stripe’s AI-powered capabili",
+            "url": "https://stripe.com/newsroom/news/nvidia-collaboration-with-stripe"
+          },
+          {
+            "kind": "dated_item",
+            "label": "2022-01-17 (older than 180 days, not used): Ford-Stripe agreement to accelerate easy payment experiences for customers, deal",
+            "url": "https://stripe.com/newsroom/news/stripe-ford-agreement"
+          },
+          {
+            "kind": "dated_item",
+            "label": "2023-06-22 (older than 180 days, not used): Google Workspace integrates Stripe to help businesses accept payments in Google ",
+            "url": "https://stripe.com/newsroom/news/google-and-stripe"
+          }
+        ]
+      },
+      "at": "2026-10-03T17:25:39.969Z"
     },
     {
       "stage": "discover",

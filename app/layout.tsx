@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
-import { Geist_Mono, IBM_Plex_Sans, IBM_Plex_Serif } from "next/font/google";
-import { AppNav } from "@/components/app-nav";
+import { IBM_Plex_Mono, IBM_Plex_Serif, Inter_Tight } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-// Plex Sans for the interface; Plex Serif only for the email itself, so the draft reads like a letter.
-const plexSans = IBM_Plex_Sans({
-  variable: "--font-plex-sans",
+// Inter Tight for the interface and headlines; Plex Mono for the small "machine voice" labels and buttons;
+// Plex Serif only for the email itself, so the draft reads like a letter.
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500", "600"],
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 const plexSerif = IBM_Plex_Serif({
@@ -17,25 +23,16 @@ const plexSerif = IBM_Plex_Serif({
   weight: ["400", "500"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "GTM Associate",
-  description: "Research a prospect, pick a reason to write, and review a sourced draft before anything is sent.",
+  description: "An AI employee for outbound: it researches a prospect, picks the one reason worth writing about, and drafts an email where every fact links to its source.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${plexSans.variable} ${plexSerif.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${interTight.variable} ${plexMono.variable} ${plexSerif.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-page text-foreground">
-        <AppNav />
-        <div className="mx-auto w-full max-w-6xl flex-1 px-4 pt-8 pb-16 sm:px-6 sm:pt-10">{children}</div>
+        {children}
         <Toaster />
       </body>
     </html>

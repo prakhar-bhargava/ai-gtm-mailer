@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CopyButton } from "@/components/copy-button";
+import { GmailButton } from "@/components/gmail-button";
 import { getOutboxItem } from "@/lib/outbox";
 import { senderCompany, senderName } from "@/lib/signature";
 
@@ -21,15 +22,16 @@ export default async function OutboxItemPage({ params }: { params: Promise<{ id:
           Outbox
         </Link>
         <div className="flex gap-2">
-          <Link href={`/runs/${item.runId}`} className="inline-flex h-8 items-center rounded-lg px-3 text-sm text-primary hover:bg-secondary">
+          <Link href={`/runs/${item.runId}`} className="inline-flex h-8 items-center rounded-full px-3 text-[13px] text-electric hover:bg-black/5">
             Open the run
           </Link>
           <CopyButton text={`Subject: ${item.subject}\n\n${item.body}`} label="Copy email" />
+          <GmailButton to={item.toEmail} subject={item.subject} body={item.body} />
         </div>
       </div>
 
-      <article className="overflow-hidden rounded-lg border border-border bg-card">
-        <dl className="grid grid-cols-[4.5rem_1fr] gap-y-1.5 border-b border-border px-6 py-5 text-sm sm:px-10">
+      <article className="overflow-hidden rounded-2xl border border-line bg-card">
+        <dl className="grid grid-cols-[4.5rem_1fr] gap-y-1.5 border-b border-line px-6 py-5 text-sm sm:px-10">
           <dt className="text-muted-foreground">From</dt>
           <dd>
             {senderName}, {senderCompany}
@@ -37,6 +39,7 @@ export default async function OutboxItemPage({ params }: { params: Promise<{ id:
           <dt className="text-muted-foreground">To</dt>
           <dd>
             {item.toName}, {item.toCompany}
+            {item.toEmail && <span className="ml-2 font-mono text-[12px] text-muted-foreground">{item.toEmail}</span>}
           </dd>
           <dt className="text-muted-foreground">Subject</dt>
           <dd className="font-medium">{item.subject}</dd>

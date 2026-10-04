@@ -2,13 +2,14 @@
 
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { pillClass } from "@/components/brand";
 
 export function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <Button
-      variant="outline"
+    <button
+      type="button"
+      className={pillClass("light", "sm")}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
@@ -19,8 +20,8 @@ export function CopyButton({ text, label = "Copy" }: { text: string; label?: str
         }
       }}
     >
-      {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
+      {copied ? <Check className="size-3.5" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
       <span aria-live="polite">{copied ? "Copied" : label}</span>
-    </Button>
+    </button>
   );
 }

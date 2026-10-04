@@ -15,7 +15,7 @@ export function PageHeader({
   return (
     <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="grid max-w-2xl gap-1.5">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">{title}</h1>
+        <h1 className="text-[34px] leading-tight font-normal tracking-tight text-foreground sm:text-[42px]">{title}</h1>
         {description && <p className="text-[15px] leading-6 text-muted-foreground">{description}</p>}
         {children}
       </div>

@@ -70,6 +70,9 @@ function migrate(db: DatabaseSync) {
   if (!people.includes("email")) db.exec("ALTER TABLE people ADD COLUMN email TEXT");
   const outbox = (db.prepare("PRAGMA table_info(outbox)").all() as { name: string }[]).map((column) => column.name);
   if (!outbox.includes("to_email")) db.exec("ALTER TABLE outbox ADD COLUMN to_email TEXT");
+  // A run that replays a recorded search step by step (for demos without a model key).
+  const runs = (db.prepare("PRAGMA table_info(runs)").all() as { name: string }[]).map((column) => column.name);
+  if (!runs.includes("replay_of")) db.exec("ALTER TABLE runs ADD COLUMN replay_of TEXT");
 }
 
 // Kept on globalThis so Next's hot reload in development doesn't open a second connection.

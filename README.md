@@ -19,8 +19,16 @@ A rep names a prospect. The app confirms who they are, gathers dated public sign
 | docs/06-hook-rubric-and-writing-rules.md | Hook scoring and draft rules |
 | docs/07-demo-and-interview-prep.md | Video script, live run order, likely questions |
 | docs/08-seller-brief-zamp.md | What the seller (Zamp) sells and to whom |
+| docs/10-screens.md | Screens, visual language, charts |
+| docs/11-system-constraints.md | Every limit and where it is enforced |
 | docs/research/ | Research report, source notes, 16-minds review |
 
 ## Running it
 
-To be filled in once scaffolded (see CLAUDE.md, Commands).
+```
+npm install
+npm run setup:browser   # once: downloads the headless Chromium the website crawler uses
+npm run dev             # http://localhost:3000 (landing page), /app (new run)
+```
+
+Copy `.env.example` to `.env.local` and add the Gemini key. Without the browser the crawler falls back to plain HTML, which some large sites block. Without a key, use the recorded cases under "Try a case": they replay step by step with no model or network calls.

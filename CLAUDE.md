@@ -31,7 +31,7 @@ If a task threatens priority 1 late in the week, stop and say so.
 
 - Never fetch or scrape linkedin.com, and never use logged-in scraping actors. A LinkedIn URL is stored as a reference only.
 - Never auto-send email. Drafts only; any "send" path stays behind an explicit human action and is out of scope unless asked.
-- Every external call goes through `lib/sources/*` with a timeout (8 s default), one retry on 429, and the cache.
+- Every external call goes through `lib/sources/*` with a timeout (8 s default), one retry on 429, and the cache. Company websites are read by `lib/sources/crawler.ts` (Playwright), which respects robots.txt and never visits linkedin.com.
 - Every signal stores `source_url`, `published_at` (or null, marked undated) and `fetched_at`.
 - Optional stages fail soft: emit a `failed` event with a readable message and continue.
 - LLM outputs are parsed with zod schemas from `lib/types.ts`; on parse failure retry once with the error, then fail the stage.
@@ -61,7 +61,9 @@ Stack installed: Node 24 LTS, Next.js 16 (App Router, Turbopack), React 19, Tail
 
 ```
 npm install
-npm run dev        # local at http://localhost:3000
+npm run setup:browser   # once: headless Chromium for the website crawler
+npm run dev        # local at http://localhost:3000 (landing), /app (new run)
+npm run replays:enrich  # re-crawl the recorded test flows' websites into their replays
 npm run lint
 npm run build
 npm run test       # not wired yet: will run fixtures/demo-prospects.json through the pipeline
