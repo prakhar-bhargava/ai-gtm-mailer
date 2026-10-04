@@ -4,8 +4,9 @@ import { addToOutbox } from "@/lib/outbox";
 import { getRun } from "@/lib/runs";
 
 const SendInput = z.object({
-  subject: z.string().trim().min(1, "The subject is empty"),
-  body: z.string().trim().min(1, "The message is empty"),
+  toEmail: z.string({ error: "Add the recipient's email address" }).trim().email("Add the recipient's email address"),
+  subject: z.string({ error: "The subject is empty" }).trim().min(1, "The subject is empty"),
+  body: z.string({ error: "The message is empty" }).trim().min(1, "The message is empty"),
 });
 
 // A human pressed Send. The message goes into the Outbox; it is never sent automatically.
@@ -29,6 +30,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     runId: id,
     toName: run.prospect.name,
     toCompany: run.prospect.company,
+    toEmail: parsed.data.toEmail,
     subject: parsed.data.subject,
     body: parsed.data.body,
   });

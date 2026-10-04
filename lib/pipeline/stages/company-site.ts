@@ -21,7 +21,7 @@ export const companySite: StageSpec = {
       flat
         .split(/(?<=[.!?])\s/)
         .map((item) => item.trim())
-        .find((item) => item.length >= 40 && !/cookie|consent|privacy|javascript/i.test(item)) ?? "";
+        .find((item) => item.length >= 40 && !/cookie|consent|privacy|gdpr|javascript/i.test(item)) ?? "";
     if (!sentence) throw new Error("the page had no readable description");
 
     return {

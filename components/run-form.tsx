@@ -75,12 +75,13 @@ export function RunForm({ samples = [] }: { samples?: SampleProspect[] }) {
           className="flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ChevronDown className={`size-4 transition-transform ${showDetails ? "rotate-180" : ""}`} aria-hidden />
-          {showDetails ? "Fewer details" : "Add role, website or notes"}
+          {showDetails ? "Fewer details" : "Add email, role, website or notes"}
         </button>
 
         {/* Kept mounted so typed values survive closing the panel. */}
         <div id="more-details" hidden={!showDetails} className="grid gap-4 border-t border-border pt-4 sm:grid-cols-2">
           <Field id="role" label="Role" placeholder="Head of Finance" />
+          <Field id="email" type="email" label="Their email" placeholder="name@company.com" hint="Needed before a mail can be saved to the Outbox." />
           <Field id="domain" label="Company website" placeholder="acme.com" hint="Skips the website search and avoids mix-ups with similar names." />
           <Field id="linkedinUrl" label="Their LinkedIn" placeholder="linkedin.com/in/..." hint="Saved for reference. Never opened by the app." />
           <Field id="companyLinkedinUrl" label="Company LinkedIn" placeholder="linkedin.com/company/..." hint="Saved for reference. Never opened by the app." />

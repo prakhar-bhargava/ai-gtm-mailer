@@ -8,6 +8,7 @@ export type OutboxItem = {
   runId: string;
   toName: string;
   toCompany: string;
+  toEmail: string | null;
   subject: string;
   body: string;
   sentAt: string;
@@ -18,6 +19,7 @@ type OutboxRow = {
   run_id: string;
   to_name: string;
   to_company: string;
+  to_email: string | null;
   subject: string;
   body: string;
   sent_at: string;
@@ -28,6 +30,7 @@ const toItem = (row: OutboxRow): OutboxItem => ({
   runId: row.run_id,
   toName: row.to_name,
   toCompany: row.to_company,
+  toEmail: row.to_email,
   subject: row.subject,
   body: row.body,
   sentAt: row.sent_at,
@@ -36,8 +39,10 @@ const toItem = (row: OutboxRow): OutboxItem => ({
 export function addToOutbox(item: Omit<OutboxItem, "id" | "sentAt">): string {
   const id = randomUUID();
   getDb()
-    .prepare("INSERT INTO outbox (id, run_id, to_name, to_company, subject, body, sent_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
-    .run(id, item.runId, item.toName, item.toCompany, item.subject, item.body, new Date().toISOString());
+    .prepare(
+      "INSERT INTO outbox (id, run_id, to_name, to_company, to_email, subject, body, sent_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    )
+    .run(id, item.runId, item.toName, item.toCompany, item.toEmail, item.subject, item.body, new Date().toISOString());
   return id;
 }
 

@@ -10,5 +10,6 @@
     "bookkeep", "payables", "receivables", "controller", "billing", "procurement", "treasury",
     "tax", "compliance", "fp&a", "revenue operations", "finance operations"
   ],
+  "excludeTerms": ["cookie", "consent", "privacy notice", "gdpr"],
   "maxSignalsPerSource": 5
 }

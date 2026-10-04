@@ -22,7 +22,8 @@ export const news: StageSpec = {
       .filter((item) => {
         const title = item.title.toLowerCase();
         const dated = item.publishedAt === null || Date.parse(item.publishedAt) >= cutoff;
-        return dated && title.includes(name) && sources.newsMustMention.some((word) => title.includes(word));
+        const excluded = sources.excludeTerms.some((term) => title.includes(term));
+        return dated && !excluded && title.includes(name) && sources.newsMustMention.some((word) => title.includes(word));
       })
       .slice(0, 8);
 

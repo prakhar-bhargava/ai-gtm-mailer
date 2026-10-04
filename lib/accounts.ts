@@ -17,6 +17,7 @@ export type PersonRecord = {
   id: string;
   name: string;
   role: string | null;
+  email: string | null;
   linkedinUrl: string | null;
   updatedAt: string;
 };
@@ -62,27 +63,40 @@ export function upsertCompany(input: {
   return id;
 }
 
-export function upsertPerson(input: { name: string; role?: string; companyName: string; linkedinUrl?: string }): void {
+export function upsertPerson(input: {
+  name: string;
+  role?: string;
+  companyName: string;
+  linkedinUrl?: string;
+  email?: string;
+}): void {
   const companyId = upsertCompany({ name: input.companyName });
   const id = `${accountKey(input.name)}@${companyId}`;
   getDb()
     .prepare(
-      `INSERT INTO people (id, name, role, company_id, linkedin_url, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)
+      `INSERT INTO people (id, name, role, company_id, linkedin_url, email, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(id) DO UPDATE SET
          role = COALESCE(excluded.role, people.role),
          linkedin_url = COALESCE(excluded.linkedin_url, people.linkedin_url),
+         email = COALESCE(excluded.email, people.email),
          updated_at = excluded.updated_at`,
     )
-    .run(id, input.name, input.role ?? null, companyId, input.linkedinUrl ?? null, new Date().toISOString());
+    .run(id, input.name, input.role ?? null, companyId, input.linkedinUrl ?? null, input.email ?? null, new Date().toISOString());
 }
 
 export function listAccounts(q?: string): CompanyRecord[] {
   const db = getDb();
   const term = q ? `%${q.toLowerCase()}%` : "%";
+  // Matches the company name, its website, or the name of anyone saved there.
   const companies = db
-    .prepare("SELECT * FROM companies WHERE lower(name) LIKE ? ORDER BY updated_at DESC")
-    .all(term) as {
+    .prepare(
+      `SELECT * FROM companies
+       WHERE lower(name) LIKE ? OR lower(coalesce(domain, '')) LIKE ?
+          OR id IN (SELECT company_id FROM people WHERE lower(name) LIKE ?)
+       ORDER BY updated_at DESC`,
+    )
+    .all(term, term, term) as {
     id: string;
     name: string;
     domain: string | null;
@@ -95,6 +109,7 @@ export function listAccounts(q?: string): CompanyRecord[] {
     id: string;
     name: string;
     role: string | null;
+    email: string | null;
     company_id: string;
     linkedin_url: string | null;
     updated_at: string;
@@ -114,6 +129,7 @@ export function listAccounts(q?: string): CompanyRecord[] {
         id: person.id,
         name: person.name,
         role: person.role,
+        email: person.email,
         linkedinUrl: person.linkedin_url,
         updatedAt: person.updated_at,
       })),

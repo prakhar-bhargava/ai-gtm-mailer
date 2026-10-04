@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LockedFeatures } from "@/components/locked-features";
 import { RunForm, type SampleProspect } from "@/components/run-form";
 import { StatusPill } from "@/components/status-pill";
 import fixtures from "@/fixtures/demo-prospects.json";
@@ -59,6 +60,8 @@ export default function Home() {
           </ul>
         </section>
       )}
+
+      <LockedFeatures />
     </main>
   );
 }

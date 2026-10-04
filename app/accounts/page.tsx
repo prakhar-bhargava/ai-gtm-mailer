@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import Link from "next/link";
+import { AccountForm } from "@/components/account-form";
 import { PageHeader } from "@/components/page-header";
 import { hostOf } from "@/lib/format";
 import { listAccounts } from "@/lib/accounts";
@@ -24,6 +25,10 @@ export default async function AccountsPage({ searchParams }: { searchParams: Pro
         title="Accounts"
         description="Companies and people you have researched, with the links found on each company's own website. LinkedIn links are saved for reference and never opened by the app."
       />
+
+      <div className="mb-6">
+        <AccountForm />
+      </div>
 
       <form action="/accounts" className="relative mb-4 w-full sm:w-72" role="search">
         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />

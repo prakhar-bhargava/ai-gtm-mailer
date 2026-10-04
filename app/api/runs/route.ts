@@ -8,9 +8,9 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return Response.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
   }
-  const { name, role, company, domain, linkedinUrl, companyLinkedinUrl } = parsed.data;
+  const { name, role, company, domain, email, linkedinUrl, companyLinkedinUrl } = parsed.data;
   // Every search adds the person and company to the accounts list.
-  upsertPerson({ name, role, companyName: company, linkedinUrl });
+  upsertPerson({ name, role, companyName: company, linkedinUrl, email: email || undefined });
   if (companyLinkedinUrl || domain) {
     upsertCompany({ name: company, companyLinkedinUrl: companyLinkedinUrl ?? null, domain: domain ?? null });
   }

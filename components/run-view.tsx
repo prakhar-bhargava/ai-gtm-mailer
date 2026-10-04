@@ -3,6 +3,7 @@
 import { CheckCircle2, ChevronDown, Circle, Loader2, TriangleAlert } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { DraftEditor } from "@/components/send-panel";
+import { TemplateChooser } from "@/components/template-chooser";
 import { StatusPill } from "@/components/status-pill";
 import { formatDate, hostOf } from "@/lib/format";
 import { StageEvent, type Hook, type ProspectInput, type Signal, type StageId } from "@/lib/types";
@@ -129,7 +130,10 @@ export function RunView({
             {draft && (outcome === "draft" || outcome === "flagged") ? (
               <DraftEditor runId={runId} prospect={prospect} draft={draft} signature={signature} />
             ) : outcome === "abstained" ? (
-              <AbstainPanel hooks={hooks} signalCount={signals.length} />
+              <>
+                <AbstainPanel hooks={hooks} signalCount={signals.length} />
+                <TemplateChooser runId={runId} prospect={prospect} signature={signature} />
+              </>
             ) : (
               <StoppedPanel message={runEnd.message} steps={steps} />
             )}

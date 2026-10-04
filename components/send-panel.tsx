@@ -26,6 +26,7 @@ export function DraftEditor({
 }) {
   const [subject, setSubject] = useState(draft.subject);
   const [body, setBody] = useState(draft.body);
+  const [toEmail, setToEmail] = useState(prospect.email ?? "");
   const [editing, setEditing] = useState(false);
   const [state, setState] = useState<"idle" | "saving" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +35,8 @@ export function DraftEditor({
   // Same rules the server enforces on Send (docs/09-mail-guardrails.md).
   const checks = checkMail(subject, fullBody);
   const unsupported = draft.claims.filter((claim) => !claim.supported);
-  const blocked = checks.hard.length > 0 || !subject.trim() || !body.trim();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail.trim());
+  const blocked = checks.hard.length > 0 || !subject.trim() || !body.trim() || !emailValid;
   const edited = subject !== draft.subject || body !== draft.body;
 
   async function send() {
@@ -44,7 +46,7 @@ export function DraftEditor({
       const response = await fetch(`/api/runs/${runId}/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, body: fullBody }),
+        body: JSON.stringify({ subject, body: fullBody, toEmail: toEmail.trim() }),
       });
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "Could not save to the Outbox. Try again.");
@@ -80,6 +82,7 @@ export function DraftEditor({
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-3 sm:px-8">
         <h2 id="draft-heading" className="text-sm text-muted-foreground">
           To <span className="font-medium text-foreground">{prospect.name}</span>, {prospect.company}
+          {toEmail && <span className="text-muted-foreground"> · {toEmail}</span>}
         </h2>
         <Button variant="ghost" size="sm" onClick={() => setEditing((open) => !open)} aria-pressed={editing}>
           {editing ? <Check aria-hidden /> : <Pencil aria-hidden />}
@@ -90,6 +93,19 @@ export function DraftEditor({
       <div className="grid gap-6 px-5 py-6 sm:px-8 sm:py-8">
         {editing ? (
           <div className="grid gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="toEmail">Recipient email</Label>
+              <Input
+                id="toEmail"
+                type="email"
+                value={toEmail}
+                onChange={(event) => setToEmail(event.target.value)}
+                placeholder="name@company.com"
+                aria-invalid={toEmail.length > 0 && !emailValid}
+                className="h-10"
+              />
+              {!emailValid && <p className="text-xs text-destructive">Add the recipient&apos;s email address to save.</p>}
+            </div>
             <div className="grid gap-1.5">
               <Label htmlFor="subject">Subject</Label>
               <Input id="subject" value={subject} onChange={(event) => setSubject(event.target.value)} className="h-10" />
@@ -161,7 +177,7 @@ export function DraftEditor({
               Undo my edits
             </Button>
           )}
-          <span className="text-sm text-muted-foreground">Nothing is emailed. You can copy it from the Outbox.</span>
+          <span className="text-sm text-muted-foreground">Saved here first. Nothing is emailed until you send it from your mailbox.</span>
         </div>
         {error && (
           <p role="alert" className="text-sm text-destructive">

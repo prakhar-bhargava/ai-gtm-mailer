@@ -64,6 +64,11 @@ function migrate(db: DatabaseSync) {
   if (!columns.some((column) => column.name === "payload_json")) {
     db.exec("ALTER TABLE run_events ADD COLUMN payload_json TEXT");
   }
+  // Recipient email, added after the first release.
+  const people = (db.prepare("PRAGMA table_info(people)").all() as { name: string }[]).map((column) => column.name);
+  if (!people.includes("email")) db.exec("ALTER TABLE people ADD COLUMN email TEXT");
+  const outbox = (db.prepare("PRAGMA table_info(outbox)").all() as { name: string }[]).map((column) => column.name);
+  if (!outbox.includes("to_email")) db.exec("ALTER TABLE outbox ADD COLUMN to_email TEXT");
 }
 
 // Kept on globalThis so Next's hot reload in development doesn't open a second connection.

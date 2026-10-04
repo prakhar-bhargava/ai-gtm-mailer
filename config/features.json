@@ -1,0 +1,41 @@
+{
+  "_note": "Features shown as locked. Plan names and prices are placeholders until pricing is decided. 'why' explains the real limit, so it can be checked later.",
+  "plans": ["Pro", "Team"],
+  "locked": [
+    {
+      "id": "bulk-upload",
+      "title": "Bulk upload",
+      "description": "Upload a CSV of prospects and research them in one batch.",
+      "plan": "Pro",
+      "why": "Each prospect costs model and source requests. A batch of 100 would run for hours on the free request limit."
+    },
+    {
+      "id": "send-to-mailbox",
+      "title": "Send from your mailbox",
+      "description": "Create the approved email in your Gmail or Outlook, ready for you to send.",
+      "plan": "Pro",
+      "why": "Needs a connected Google or Microsoft account and a verified app, which costs time and an account of its own."
+    },
+    {
+      "id": "elastic-recommendations",
+      "title": "Recommended companies and people",
+      "description": "Search the accounts list by meaning and get suggested prospects, backed by Elasticsearch.",
+      "plan": "Pro",
+      "why": "Elasticsearch needs a hosted cluster. The free tier has none, so search stays a plain text match for now."
+    },
+    {
+      "id": "crm-sync",
+      "title": "CRM sync",
+      "description": "Push accounts and approved emails to your CRM.",
+      "plan": "Team",
+      "why": "Needs a paid CRM connection for each customer."
+    },
+    {
+      "id": "team-sharing",
+      "title": "Team sharing",
+      "description": "Share runs, templates and the Outbox with your team.",
+      "plan": "Team",
+      "why": "Needs accounts and access control. The app has one user today."
+    }
+  ]
+}

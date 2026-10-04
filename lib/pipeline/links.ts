@@ -34,6 +34,9 @@ export type SortedLinks = {
   pages: string[]; // the company's own useful pages, for the next level of reading
 };
 
+// Cookie, consent and privacy pages are never followed or recorded: they say nothing about the company.
+const EXCLUDED_PATH = /cookie|consent|privacy|gdpr/i;
+
 export function sortLinks(urls: string[], domain: string): SortedLinks {
   const social = new Set<string>();
   const jobBoardSlugs = new Set<string>();
@@ -42,7 +45,7 @@ export function sortLinks(urls: string[], domain: string): SortedLinks {
 
   for (const url of urls) {
     const host = hostOf(url);
-    if (!host) continue;
+    if (!host || EXCLUDED_PATH.test(url)) continue;
 
     if (SOCIAL_HOSTS.some((social) => host === social || host.endsWith(`.${social}`))) {
       // Profile links only: skip individual videos, posts and share buttons.

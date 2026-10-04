@@ -1,0 +1,23 @@
+{
+  "_note": "Generic emails for when a search finds nothing usable. They make no claim about the company, so they need no source. Placeholders: {first_name}, {company}. The rep reviews and edits before saving. Checked against docs/09-mail-guardrails.md.",
+  "templates": [
+    {
+      "id": "value-intro",
+      "label": "Value introduction",
+      "subject": "finance ops at scale",
+      "body": "Hi {first_name},\n\nMost finance teams reach a point where invoice and accounts payable work grows faster than the team that handles it. Work that is routine gets the same attention as work that needs a decision.\n\nZamp provides AI employees that take the repetitive accounts payable queue, so your team can spend its time on the exceptions.\n\nWorth a look?"
+    },
+    {
+      "id": "month-end",
+      "label": "Month-end close",
+      "subject": "month-end close",
+      "body": "Hi {first_name},\n\nMonth-end close is usually the point where manual invoice matching and approvals slow everyone down. The work is repetitive, and it lands on the same few people every month.\n\nWe help finance teams hand that routine queue to an AI employee that is briefed once, so the close depends less on overtime.\n\nIs this a priority for {company} this quarter?"
+    },
+    {
+      "id": "brief-once",
+      "label": "Briefed once, owns the job",
+      "subject": "a finance hire that starts day one",
+      "body": "Hi {first_name},\n\nHiring for accounts payable takes months, and the first few months are spent training. A routine queue can wait while that happens.\n\nZamp's AI employees are briefed once and then own the job end to end, with your team reviewing the exceptions.\n\nOpen to comparing notes?"
+    }
+  ]
+}
