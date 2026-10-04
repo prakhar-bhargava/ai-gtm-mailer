@@ -61,9 +61,18 @@ Type: Inter Tight for interface and headlines (light weights for large headings)
 
 Built in `components/charts.tsx`, no chart library. Tiles with a sparkline; runs per day stacked by result; results ring; funnel from runs started to approved by a rep, with big drops in amber; best-angle score histogram with the 50 and 70 thresholds; signals by source; median time per step; source reliability. Every chart has a hover tooltip, a legend when it has more than one series, and values in text colours.
 
-## Patterns (dashboard, second half)
+## Dashboard layout
 
-`components/patterns.tsx` and `components/fun-charts.tsx`, data from `lib/fun-analytics.ts`: streak, busiest hour, tokens saved and companies tiles; a waffle of the last 100 runs (click a square to open it); a token gauge against the old four-call pipeline; a source → angle type → result flow; a radar of the six score parts for drafted against abstained runs; a weekday-by-hour heatmap; subject-line words; a most-researched leaderboard. Above them, "Bring runs up to date" appears while any run is flagged.
+One 12-column grid, desktop first (`components/dashboard-charts.tsx`, shared pieces in `components/dash-ui.tsx`). Every card uses the same shell: 16px padding, title 14px medium, note 12px, small print 11px mono. SVG charts measure their card and draw at 1:1, so chart text matches the page instead of scaling with the card.
+
+1. Header, then a one-line "runs to check" bar with Re-check and Re-run while any run is flagged.
+2. Six tiles in one row: runs, produced a draft, abstained, claims backed, median run, tokens per draft.
+3. Runs per day by result (8 columns) and the results donut (4).
+4. The funnel (5) beside a stack of "How runs end" (one square per run, click to open) and "Where facts come from" (7).
+5. Patterns: source → angle type → result flow (8) and most researched (4); score radar (3), weekday-by-hour heatmap with streak and busiest hour (6), subject line words (3).
+6. All runs: filters, search, 20 compact rows and "Show all".
+
+Data for the patterns comes from `lib/fun-analytics.ts`.
 
 ## Shared pieces
 

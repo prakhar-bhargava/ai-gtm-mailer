@@ -14,6 +14,10 @@ Source: link or file, if any.
 
 ## Decisions
 
+### 2026-10-04: A denser, balanced dashboard
+What: One 12-column grid with a shared card shell and one type scale, rows whose cards share a height, six tiles in a single row, the run table capped at 20 compact rows, and SVG charts drawn at 1:1 so their labels match the page. The page went from about 8,500 px tall to about 3,000. Desktop only, at the user's request.
+Why it matters: Scaled SVGs had made chart text anywhere from 9 to 17 px; now every label is 10 to 11 px.
+
 ### 2026-10-04: "Ready to review" from 50, not 70
 What: At the user's request, an angle of 50 or more can now be ready to review when every claim is backed and the check finds no issues. The dashboard's "Bring runs up to date" card re-checks flagged runs against the new rule (only runs that pass every check move) and can re-run flagged prospects with the current pipeline. Old runs whose claims weren't backed stay flagged: changing their result would misreport them.
 Why it matters: The claim check and guardrails now carry the weight the higher score used to.

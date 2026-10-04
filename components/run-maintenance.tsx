@@ -39,29 +39,27 @@ export function RunMaintenance({ flagged }: { flagged: number }) {
   }
 
   return (
-    <section className="grid gap-3 rounded-2xl border border-line bg-card p-5">
-      <div className="grid gap-0.5">
-        <h2 className="text-[14px] font-medium">Bring runs up to date</h2>
-        <p className="text-[12px] text-muted-foreground">
-          The rules changed: an angle of 50 or more can now be ready to review, and the research reads more sources. {flagged} run{flagged === 1 ? " is" : "s are"} marked
-          &quot;check before sending&quot;.
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-2">
+    <section className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-card px-4 py-2.5">
+      <p role="status" className="min-w-0 truncate text-[13px] text-foreground/80">
+        {note ?? (
+          <>
+            <span className="font-medium text-foreground">
+              {flagged} run{flagged === 1 ? "" : "s"} to check.
+            </span>{" "}
+            The rules changed (ready from 50, more sources). Bring them up to date:
+          </>
+        )}
+      </p>
+      <div className="flex shrink-0 gap-2">
         <button type="button" disabled={busy !== null} onClick={() => void call("recheck")} className={pillClass("light", "sm")}>
           <RefreshCw className={`size-3.5 ${busy === "recheck" ? "animate-spin" : ""}`} aria-hidden />
-          Re-check flagged runs
+          Re-check
         </button>
         <button type="button" disabled={busy !== null} onClick={() => void call("rerun")} className={pillClass("dark", "sm")}>
           <RotateCcw className={`size-3.5 ${busy === "rerun" ? "animate-spin" : ""}`} aria-hidden />
-          Re-run flagged prospects
+          Re-run prospects
         </button>
       </div>
-      {note && (
-        <p role="status" className="text-[12px] text-foreground/75">
-          {note}
-        </p>
-      )}
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { FunData } from "@/lib/fun-analytics";
 
 // The dashboard's "Patterns" charts: playful, but each one answers a real question about how the
@@ -49,6 +49,23 @@ const CATEGORY_LABEL: Record<string, string> = {
   background: "Background",
 };
 
+// The container's width in pixels, so SVG charts draw at 1:1 and their text stays the same size as the
+// rest of the page instead of scaling with the card.
+function useWidth<T extends HTMLElement>(fallback: number) {
+  const ref = useRef<T>(null);
+  const [width, setWidth] = useState(fallback);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const update = () => setWidth(Math.max(200, Math.floor(element.getBoundingClientRect().width)));
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width] as const;
+}
+
 function Tip({ left, top, children }: { left: number | string; top: number | string; children: ReactNode }) {
   return (
     <div
@@ -81,27 +98,28 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function ActivityHeatmap({ heat }: { heat: number[][] }) {
   const [hover, setHover] = useState<{ day: number; hour: number } | null>(null);
+  const [ref, available] = useWidth<HTMLDivElement>(480);
   const max = Math.max(1, ...heat.flat());
-  const cell = 22;
-  const gap = 3;
-  const left = 34;
-  const top = 18;
+  const gap = 2;
+  const left = 30;
+  const top = 16;
+  const cell = Math.max(9, Math.min(24, Math.floor((available - left) / 24) - gap));
   const width = left + 24 * (cell + gap);
   const height = top + 7 * (cell + gap);
   const shade = (count: number) => (count === 0 ? "#e9e9e9" : `color-mix(in oklab, var(--electric) ${Math.round(22 + (count / max) * 78)}%, white)`);
 
   return (
     <div className="grid gap-3">
-      <div className="relative overflow-x-auto">
-        <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full min-w-[520px]" role="img" aria-label="Runs by weekday and hour">
+      <div ref={ref} className="relative">
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="block" role="img" aria-label="Runs by weekday and hour">
           {[0, 6, 12, 18].map((hour) => (
-            <text key={hour} x={left + hour * (cell + gap)} y={11} className="fill-foreground/45 font-mono text-[9px]">
+            <text key={hour} x={left + hour * (cell + gap)} y={10} className="fill-foreground/50 font-mono text-[10px]">
               {String(hour).padStart(2, "0")}:00
             </text>
           ))}
           {heat.map((row, day) => (
             <g key={day}>
-              <text x={0} y={top + day * (cell + gap) + cell * 0.68} className="fill-foreground/55 font-mono text-[9.5px]">
+              <text x={0} y={top + day * (cell + gap) + cell * 0.68} className="fill-foreground/55 font-mono text-[10px]">
                 {DAYS[day]}
               </text>
               {row.map((count, hour) => (
@@ -111,7 +129,7 @@ export function ActivityHeatmap({ heat }: { heat: number[][] }) {
                   y={top + day * (cell + gap)}
                   width={cell}
                   height={cell}
-                  rx={4}
+                  rx={3}
                   fill={shade(count)}
                   stroke={hover?.day === day && hover.hour === hour ? "var(--foreground)" : "none"}
                   strokeWidth={1.5}
@@ -123,7 +141,7 @@ export function ActivityHeatmap({ heat }: { heat: number[][] }) {
           ))}
         </svg>
         {hover && (
-          <Tip left={`${((left + hover.hour * (cell + gap) + cell / 2) / width) * 100}%`} top={`${((top + hover.day * (cell + gap)) / height) * 100}%`}>
+          <Tip left={left + hover.hour * (cell + gap) + cell / 2} top={top + hover.day * (cell + gap)}>
             <span className="font-medium">
               {DAYS[hover.day]} {String(hover.hour).padStart(2, "0")}:00
             </span>
@@ -149,9 +167,9 @@ export function ActivityHeatmap({ heat }: { heat: number[][] }) {
 
 export function ScoreRadar({ radar }: { radar: FunData["radar"] }) {
   const [hover, setHover] = useState<number | null>(null);
-  const size = 340;
+  const size = 280;
   const center = size / 2;
-  const radius = 104;
+  const radius = 72;
   const angle = (index: number) => (Math.PI * 2 * index) / radar.length - Math.PI / 2;
   const point = (index: number, share: number) => [center + Math.cos(angle(index)) * radius * share, center + Math.sin(angle(index)) * radius * share];
   const series = [
@@ -162,8 +180,8 @@ export function ScoreRadar({ radar }: { radar: FunData["radar"] }) {
   return (
     <div className="grid gap-3">
       <Key items={series} />
-      <div className="relative mx-auto w-full max-w-[380px]">
-        <svg viewBox={`0 0 ${size} ${size}`} className="h-auto w-full" role="img" aria-label="Average angle score parts">
+      <div className="relative mx-auto" style={{ width: size }}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block" role="img" aria-label="Average angle score parts">
           {[0.25, 0.5, 0.75, 1].map((ring) => (
             <polygon
               key={ring}
@@ -184,7 +202,7 @@ export function ScoreRadar({ radar }: { radar: FunData["radar"] }) {
                   y={ly}
                   textAnchor={Math.abs(lx - center) < 8 ? "middle" : lx > center ? "start" : "end"}
                   dominantBaseline="middle"
-                  className="fill-foreground/65 text-[10.5px]"
+                  className="fill-foreground/65 text-[11px]"
                   onMouseEnter={() => setHover(index)}
                   onMouseLeave={() => setHover(null)}
                 >
@@ -244,11 +262,10 @@ export function ScoreRadar({ radar }: { radar: FunData["radar"] }) {
 
 export function OutcomeWaffle({ waffle }: { waffle: FunData["waffle"] }) {
   const present = Object.keys(OUTCOME_LABEL).filter((key) => waffle.some((item) => item.outcome === key));
-  const ready = waffle.filter((item) => item.outcome === "draft").length;
   return (
     <div className="grid gap-3">
       <Key items={present.map((key) => ({ label: OUTCOME_LABEL[key], color: OUTCOME_COLOR[key] }))} />
-      <div className="grid gap-[3px]" style={{ gridTemplateColumns: "repeat(20, minmax(0, 1fr))" }} role="list" aria-label="Last runs by result">
+      <div className="grid gap-[3px]" style={{ gridTemplateColumns: "repeat(25, minmax(0, 1fr))" }} role="list" aria-label="Last runs by result">
         {Array.from({ length: 100 }, (_, index) => {
           const item = waffle[index];
           if (!item) return <span key={index} aria-hidden className="aspect-square rounded-[4px] border border-dashed border-line" />;
@@ -265,9 +282,7 @@ export function OutcomeWaffle({ waffle }: { waffle: FunData["waffle"] }) {
           );
         })}
       </div>
-      <p className="font-mono text-[10.5px] text-foreground/55">
-        {waffle.length ? `${ready} of the last ${waffle.length} runs are ready to review. Newest first, from the top left.` : "No runs yet."}
-      </p>
+
     </div>
   );
 }
@@ -291,11 +306,12 @@ function layoutColumn(entries: [string, number][], scale: number, pad: number, l
 
 export function AngleFlow({ flow }: { flow: FunData["flow"] }) {
   const [hover, setHover] = useState<string | null>(null);
+  const [ref, W] = useWidth<HTMLDivElement>(720);
   if (!flow.length) return <p className="text-[12px] text-muted-foreground">Finished runs will show up here.</p>;
-  const H = 240;
-  const W = 720;
-  const nodeW = 10;
-  const xs = [150, 360, 570];
+  const H = 220;
+  const nodeW = 8;
+  // Room for labels: source names on the left, results on the right, angle types beside the middle column.
+  const xs = [128, Math.round(W * 0.47), W - 168];
   const sum = (pick: (row: FunData["flow"][number]) => string) => {
     const map = new Map<string, number>();
     for (const row of flow) map.set(pick(row), (map.get(pick(row)) ?? 0) + row.count);
@@ -342,14 +358,18 @@ export function AngleFlow({ flow }: { flow: FunData["flow"] }) {
   const active = [...bandsLeft, ...bandsRight].find((item) => item.key === hover);
 
   return (
-    <div className="grid gap-3">
-      <div className="flex justify-between font-mono text-[10px] tracking-wide text-foreground/50 uppercase">
-        <span>Source of the angle</span>
-        <span>Kind of angle</span>
-        <span>Result</span>
-      </div>
-      <div className="relative overflow-x-auto">
-        <svg viewBox={`0 0 ${W} ${H + 8}`} className="h-auto w-full min-w-[560px]" role="img" aria-label="Source to angle to result">
+    <div ref={ref} className="relative">
+        <svg width={W} height={H + 30} viewBox={`0 0 ${W} ${H + 30}`} className="block" role="img" aria-label="Source to angle to result">
+          {[
+            { x: xs[0] + nodeW, anchor: "end" as const, text: "SOURCE" },
+            { x: xs[1], anchor: "start" as const, text: "KIND OF ANGLE" },
+            { x: xs[2], anchor: "start" as const, text: "RESULT" },
+          ].map((head) => (
+            <text key={head.text} x={head.x} y={10} textAnchor={head.anchor} className="fill-foreground/50 font-mono text-[10px] tracking-wide">
+              {head.text}
+            </text>
+          ))}
+          <g transform="translate(0 22)">
           {[...bandsLeft, ...bandsRight].map((item) => (
             <path
               key={item.key}
@@ -375,7 +395,7 @@ export function AngleFlow({ flow }: { flow: FunData["flow"] }) {
                 x={xs[1] + nodeW + 6}
                 y={node.y + node.h / 2}
                 dominantBaseline="middle"
-                className="fill-foreground text-[10.5px]"
+                className="fill-foreground text-[11px]"
                 style={{ paintOrder: "stroke", stroke: "var(--card)", strokeWidth: 4 }}
               >
                 {node.label}
@@ -390,16 +410,16 @@ export function AngleFlow({ flow }: { flow: FunData["flow"] }) {
               </text>
             </g>
           ))}
+          </g>
         </svg>
         {active && (
-          <Tip left="50%" top={16}>
+          <Tip left="50%" top={28}>
             <span className="font-medium">{active.label}</span>
             <span className="text-foreground/65">
               {active.value} run{active.value === 1 ? "" : "s"}
             </span>
           </Tip>
         )}
-      </div>
     </div>
   );
 }

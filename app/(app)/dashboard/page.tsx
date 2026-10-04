@@ -2,7 +2,6 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { PillLink } from "@/components/brand";
 import { DashboardCharts } from "@/components/dashboard-charts";
-import { Patterns } from "@/components/patterns";
 import { RunMaintenance } from "@/components/run-maintenance";
 import { getFunData } from "@/lib/fun-analytics";
 import { StatusPill } from "@/components/status-pill";
@@ -29,11 +28,14 @@ function duration(run: RunRecord): string {
   return formatSeconds((Date.parse(run.finishedAt) - Date.parse(run.createdAt)) / 1000);
 }
 
-export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ q?: string; outcome?: string }> }) {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ q?: string; outcome?: string; all?: string }> }) {
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
   const outcome: Filter = FILTERS.find((filter) => filter.value === params.outcome)?.value ?? "all";
-  const runs = searchRuns({ q, outcome });
+  const allRuns = searchRuns({ q, outcome });
+  const PAGE = 20;
+  const showAll = params.all === "1";
+  const runs = showAll ? allRuns : allRuns.slice(0, PAGE);
   const counts = countRuns();
   const flaggedCount = counts.byOutcome.flagged ?? 0;
   const analytics = getAnalytics();
@@ -53,26 +55,26 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   };
 
   return (
-    <main className="grid gap-10">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="grid gap-2">
-          <h1 className="text-[34px] leading-tight font-normal tracking-tight sm:text-[42px]">Dashboard</h1>
-          <p className="max-w-2xl text-[15px] leading-6 text-muted-foreground">
-            How the research is going: what each run produced, where runs drop off, how confident the angles are, and how reliable each source is.
-          </p>
+    <main className="grid gap-6">
+      <header className="flex items-end justify-between gap-4">
+        <div className="grid gap-1">
+          <h1 className="text-[32px] leading-tight font-normal tracking-tight">Dashboard</h1>
+          <p className="text-[14px] text-muted-foreground">What each run produced, where runs drop off, and what makes a good angle.</p>
         </div>
         <PillLink href="/app">New run</PillLink>
       </header>
 
-      {/* Database rows have no prototype; a JSON round trip makes them plain objects for the client charts. */}
-      <DashboardCharts analytics={JSON.parse(JSON.stringify(analytics))} charts={JSON.parse(JSON.stringify(getChartData()))} />
-
       {flaggedCount > 0 && <RunMaintenance flagged={flaggedCount} />}
 
-      <Patterns data={JSON.parse(JSON.stringify(getFunData()))} />
+      {/* Database rows have no prototype; a JSON round trip makes them plain objects for the client charts. */}
+      <DashboardCharts
+        analytics={JSON.parse(JSON.stringify(analytics))}
+        charts={JSON.parse(JSON.stringify(getChartData()))}
+        fun={JSON.parse(JSON.stringify(getFunData()))}
+      />
 
-      <section aria-labelledby="runs-heading" className="grid gap-4">
-        <h2 id="runs-heading" className="text-[20px] tracking-tight">
+      <section aria-labelledby="runs-heading" className="grid gap-3 pt-2">
+        <h2 id="runs-heading" className="font-mono text-[11px] tracking-[0.08em] text-foreground/55 uppercase">
           All runs
         </h2>
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -125,33 +127,39 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-line text-left font-mono text-[11px] text-foreground/55">
-                  <th scope="col" className="px-4 py-3 font-medium">Prospect</th>
-                  <th scope="col" className="px-4 py-3 font-medium">Result</th>
-                  <th scope="col" className="hidden px-4 py-3 text-right font-medium sm:table-cell">Took</th>
-                  <th scope="col" className="px-4 py-3 text-right font-medium">When</th>
+                  <th scope="col" className="px-4 py-2.5 font-medium">Prospect</th>
+                  <th scope="col" className="px-4 py-2.5 font-medium">Result</th>
+                  <th scope="col" className="px-4 py-2.5 text-right font-medium">Took</th>
+                  <th scope="col" className="px-4 py-2.5 text-right font-medium">When</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {runs.map((run) => (
                   <tr key={run.id} className="group relative hover:bg-white">
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2 text-[13px]">
                       {/* The link covers the whole row, so any part of it opens the run. */}
                       <Link href={`/runs/${run.id}`} className="font-medium after:absolute after:inset-0 group-hover:underline">
                         {run.prospect.name}
                       </Link>
-                      <span className="block text-muted-foreground">
-                        {[run.prospect.role, run.prospect.company].filter(Boolean).join(", ")}
-                      </span>
+                      <span className="text-muted-foreground"> · {[run.prospect.role, run.prospect.company].filter(Boolean).join(", ")}</span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2">
                       <StatusPill status={run.status} outcome={run.outcome} createdAt={run.createdAt} />
                     </td>
-                    <td className="hidden px-4 py-3 text-right text-muted-foreground tabular-nums sm:table-cell">{duration(run)}</td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap text-muted-foreground">{timeAgo(run.createdAt)}</td>
+                    <td className="px-4 py-2 text-right text-[13px] text-muted-foreground tabular-nums">{duration(run)}</td>
+                    <td className="px-4 py-2 text-right text-[13px] whitespace-nowrap text-muted-foreground">{timeAgo(run.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {allRuns.length > runs.length && (
+              <Link
+                href={`${filterHref(outcome)}${filterHref(outcome).includes("?") ? "&" : "?"}all=1`}
+                className="block border-t border-line px-4 py-2.5 text-center text-[13px] text-electric hover:bg-white"
+              >
+                Show all {allRuns.length} runs
+              </Link>
+            )}
           </div>
         )}
       </section>

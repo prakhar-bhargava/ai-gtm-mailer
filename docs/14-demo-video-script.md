@@ -1,6 +1,6 @@
 # Demo video script
 
-AI-narrated walkthrough of the PS-3 outreach build. Length 5:09. Voice: Piper (open-source text to speech), voice en_US ryan, slowed to about 145 words a minute. Captions are burned into the video and also provided as captions.srt.
+AI-narrated walkthrough of the PS-3 outreach build. Length 5:11. Voice: Piper (open-source text to speech), voice en_US ryan, slowed to about 145 words a minute. Captions are burned into the video and also provided as captions.srt.
 
 | Time | Section | On screen |
 |---|---|---|
@@ -15,9 +15,9 @@ AI-narrated walkthrough of the PS-3 outreach build. Length 5:09. Voice: Piper (o
 | 3:14 | Design and hand-off | Mail design: Card and Quote previews; the Open in Gmail button. |
 | 3:32 | Edge case: only mentioned | Edge case (recorded Intel case): headlines only mention Intel, so the run abstains and offers templates. |
 | 3:54 | Dashboard | Dashboard: results, funnel and score charts, then the Patterns section. |
-| 4:12 | How it was optimised | Architecture and logic diagrams. |
-| 4:54 | What's next | Back to the top of the diagrams page, then the end card. |
-| 5:04 | End card | "Research in code. One call to write." |
+| 4:13 | How it was optimised | Architecture and logic diagrams. |
+| 4:56 | What's next | Back to the top of the diagrams page, then the end card. |
+| 5:06 | End card | "Research in code. One call to write." |
 
 ## Narration
 
@@ -79,15 +79,15 @@ Now an edge case. Intel has many headlines, but in each one, Intel is only menti
 
 *On screen: Dashboard: results, funnel and score charts, then the Patterns section.*
 
-The dashboard shows results over time, where runs drop off, and how strong the angles are. Below that are patterns: every recent run as a square, the cost per draft against the first version, a flow from source to result, and what a winning angle is made of.
+The dashboard keeps only what a rep needs: results over time, where runs drop off, and where the facts come from. Below that are patterns: every recent run as a square, the cost per draft against the first version, a flow from source to result, and what a winning angle is made of.
 
-### 4:12 How it was optimised
+### 4:13 How it was optimised
 
 *On screen: Architecture and logic diagrams.*
 
 Under the hood, it's one Next js app with a local SQLite database. Every step is saved, then streamed to the browser, so a reload replays the run exactly. Pages, feeds and answers are cached for a day, so a repeat run costs almost nothing. The biggest optimisation was cutting model calls. The first version used four Gemini calls per run: to check the news, rank the angles, write, and verify. Now everything except writing happens in code, and thinking tokens are switched off. A draft went from about thirty six hundred tokens to under two thousand, and the ranking is now the same every time.
 
-### 4:54 What's next
+### 4:56 What's next
 
 *On screen: Back to the top of the diagrams page, then the end card.*
 
