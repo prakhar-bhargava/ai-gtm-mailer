@@ -122,30 +122,122 @@ export function RunView({
         </p>
       )}
 
-      {!finished ? (
-        <InProgress steps={steps} signalCount={signals.length} />
-      ) : (
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-          <div className="grid gap-4">
-            {draft && (outcome === "draft" || outcome === "flagged") ? (
-              <DraftEditor runId={runId} prospect={prospect} draft={draft} signature={signature} />
-            ) : outcome === "abstained" ? (
-              <>
-                <AbstainPanel hooks={hooks} signalCount={signals.length} />
-                <TemplateChooser runId={runId} prospect={prospect} signature={signature} />
-              </>
-            ) : (
-              <StoppedPanel message={runEnd.message} steps={steps} />
-            )}
-          </div>
-          <aside className="grid gap-4" aria-label="How this draft was made">
-            {hooks.length > 0 && <WhyThisHook hooks={hooks} outcome={outcome} />}
-            <SourcesPanel signals={signals} />
-            <StepsSummary steps={steps} stopped={outcome !== "draft" && outcome !== "flagged" && outcome !== "abstained"} />
-          </aside>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-4">
+          {!finished ? (
+            <InProgress steps={steps} signalCount={signals.length} />
+          ) : draft && (outcome === "draft" || outcome === "flagged") ? (
+            <DraftEditor runId={runId} prospect={prospect} draft={draft} signature={signature} />
+          ) : outcome === "abstained" ? (
+            <>
+              <AbstainPanel hooks={hooks} signalCount={signals.length} />
+              <TemplateChooser runId={runId} prospect={prospect} signature={signature} />
+            </>
+          ) : (
+            <StoppedPanel message={runEnd.message} steps={steps} />
+          )}
         </div>
-      )}
+        <aside className="grid gap-4" aria-label={finished ? "How this draft was made" : "Findings so far"}>
+          {!finished ? (
+            <LiveFindings events={events} signals={signals} hooks={hooks} steps={steps} />
+          ) : (
+            <>
+              {hooks.length > 0 && <WhyThisHook hooks={hooks} outcome={outcome} />}
+              <SourcesPanel signals={signals} />
+              <StepsSummary steps={steps} stopped={outcome !== "draft" && outcome !== "flagged" && outcome !== "abstained"} />
+            </>
+          )}
+        </aside>
+      </div>
     </main>
+  );
+}
+
+// Everything found so far, shown while the run is still going, so the rep can follow it and check it.
+function LiveFindings({
+  events,
+  signals,
+  hooks,
+  steps,
+}: {
+  events: StageEvent[];
+  signals: Signal[];
+  hooks: Hook[];
+  steps: Record<string, StepState>;
+}) {
+  const label = Object.fromEntries(STEPS.map((step) => [step.id, step.label]));
+  const failed = Object.entries(steps).filter(([, state]) => state.status === "failed");
+  const activity = events
+    .filter((event) => event.stage !== "run")
+    .slice(-14)
+    .reverse();
+
+  return (
+    <>
+      <Panel title={`Sources found (${signals.length})`}>
+        {signals.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nothing yet. Sources appear here as each step finds them.</p>
+        ) : (
+          <SourcesPanel signals={signals} />
+        )}
+      </Panel>
+
+      <Panel title={hooks.length ? `Hooks scored (${hooks.length})` : "Hooks"}>
+        {hooks.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Scored after the sources are read.</p>
+        ) : (
+          <ul className="grid gap-3">
+            {[...hooks]
+              .sort((a, b) => b.scores.total - a.scores.total)
+              .map((hook) => (
+                <li key={hook.id} className="grid gap-1 text-sm">
+                  <span className={hook.blockedReason ? "text-muted-foreground line-through" : "text-foreground"}>{hook.text}</span>
+                  {hook.blockedReason ? (
+                    <span className="text-xs text-caution">Blocked: {hook.blockedReason}</span>
+                  ) : (
+                    <ScoreBar total={hook.scores.total} />
+                  )}
+                </li>
+              ))}
+          </ul>
+        )}
+      </Panel>
+
+      <Panel title={failed.length ? `Skipped or failed (${failed.length})` : "Skipped or failed"}>
+        {failed.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nothing skipped so far.</p>
+        ) : (
+          <ul className="grid gap-2 text-sm">
+            {failed.map(([stage, state]) => (
+              <li key={stage} className="grid gap-0.5">
+                <span className="font-medium">{label[stage] ?? stage}</span>
+                <span className="text-xs text-caution">{state.message}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+
+      <Panel title="Activity">
+        {activity.length === 0 ? (
+          <p className="text-sm text-muted-foreground">The first step is starting.</p>
+        ) : (
+          <ol className="grid gap-2 text-xs">
+            {activity.map((event, index) => (
+              <li key={`${event.at}-${event.stage}-${index}`} className="grid grid-cols-[3.25rem_1fr] gap-x-2">
+                <span className="tabular-nums text-muted-foreground">
+                  {new Date(event.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                </span>
+                <span className="text-foreground">
+                  <span className="font-medium">{label[event.stage] ?? event.stage}: </span>
+                  <span className={event.status === "failed" ? "text-caution" : "text-muted-foreground"}>{event.message}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </Panel>
+    </>
   );
 }
 
