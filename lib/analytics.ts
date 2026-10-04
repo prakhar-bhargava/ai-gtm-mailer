@@ -242,7 +242,7 @@ export function getChartData(): ChartData {
   const order = ["identity", "company_site", "discover", "news", "jobs", "hooks", "draft", "verify"];
   const stageMedians = order.filter((stage) => durations.get(stage)?.length).map((stage) => ({ stage, ms: median(durations.get(stage) ?? []) }));
 
-  const typeOrder = ["news", "job", "company_site"];
+  const typeOrder = ["news", "job", "company_site", "profile"];
   const signalsByType = typeOrder.map((type) => ({ type, count: signalTypes.get(type) ?? 0 }));
 
   return { perDayByOutcome, funnel, hookScores, signalsByType, stageMedians, claims, pages, outboxCount, usage };

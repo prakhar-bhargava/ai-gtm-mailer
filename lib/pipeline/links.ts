@@ -30,7 +30,7 @@ function hostOf(url: string): string | null {
 
 export type SortedLinks = {
   social: string[]; // profile references, stored and never fetched (LinkedIn included)
-  jobBoardSlugs: string[]; // Greenhouse or Ashby board names read straight from a link
+  jobBoardSlugs: string[]; // job-board names read straight from a link (Greenhouse, Ashby, Lever, SmartRecruiters, Workable)
   pages: string[]; // the company's own useful pages, for the next level of reading
 };
 
@@ -59,6 +59,12 @@ export function sortLinks(urls: string[], domain: string): SortedLinks {
     if (board) jobBoardSlugs.add(board[1].toLowerCase());
     const ashby = url.match(/^https?:\/\/jobs\.ashbyhq\.com\/([a-z0-9-]+)/i);
     if (ashby) jobBoardSlugs.add(ashby[1].toLowerCase());
+    const lever = url.match(/^https?:\/\/jobs\.(?:eu\.)?lever\.co\/([a-z0-9-]+)/i);
+    if (lever) jobBoardSlugs.add(lever[1].toLowerCase());
+    const smart = url.match(/^https?:\/\/(?:jobs|careers)\.smartrecruiters\.com\/([A-Za-z0-9-]+)/);
+    if (smart) jobBoardSlugs.add(smart[1]);
+    const workable = url.match(/^https?:\/\/apply\.workable\.com\/([a-z0-9-]+)/i);
+    if (workable && workable[1] !== "api") jobBoardSlugs.add(workable[1].toLowerCase());
 
     // Only the company's own pages are followed.
     if ((host === companyHost || host.endsWith(`.${companyHost}`)) && USEFUL_PATH.test(new URL(url).pathname)) {

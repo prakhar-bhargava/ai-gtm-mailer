@@ -4,6 +4,23 @@ Case study build for Zamp's AI Solutions Associate role (PS-3, personalised outr
 
 A rep names a prospect. The app confirms who they are, gathers dated public signals (news, hiring, company pages, the person's own interviews), ranks candidate hooks against a rubric, and writes a short draft where every claim links to its source. It pauses when it isn't sure who the person is, blocks sensitive news as a hook, and says so when there is nothing worth personalising on. A human approves, edits or rejects every draft. Nothing sends.
 
+## How it works
+
+```mermaid
+flowchart LR
+    A([Prospect]) --> B[Find website] --> C[Read site and follow links]
+    C --> D[News: Google x2, Bing] & E[Job boards x5]
+    D --> F[Rank angles in code]
+    E --> F
+    F --> G{50 or more?}
+    G -- no --> H[/Abstain/]
+    G -- yes --> I[Write: one Gemini call] --> J[Check claims in code] --> K([Rep reviews, opens in Gmail])
+    classDef model fill:#e6edff,stroke:#1a54ff,stroke-width:2px
+    class I model
+```
+
+Full logic and architecture diagrams: [docs/12-diagrams.md](docs/12-diagrams.md).
+
 ## Where things are
 
 | File | What's in it |
@@ -21,6 +38,8 @@ A rep names a prospect. The app confirms who they are, gathers dated public sign
 | docs/08-seller-brief-zamp.md | What the seller (Zamp) sells and to whom |
 | docs/10-screens.md | Screens, visual language, charts |
 | docs/11-system-constraints.md | Every limit and where it is enforced |
+| docs/12-diagrams.md | Logic and architecture diagrams (Mermaid, rendered by GitHub) |
+| docs/13-product-review.md | What's worth improving, and features to add next |
 | docs/research/ | Research report, source notes, 16-minds review |
 
 ## Running it

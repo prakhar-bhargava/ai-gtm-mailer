@@ -13,6 +13,7 @@ const FIELDS: { key: keyof Sender; label: string; placeholder: string }[] = [
   { key: "company", label: "Company", placeholder: "Zamp" },
   { key: "website", label: "Website", placeholder: "zamp.ai" },
   { key: "logoUrl", label: "Logo link (https)", placeholder: "https://..." },
+  { key: "bookingUrl", label: "Booking link (https, for the Card design)", placeholder: "https://cal.com/..." },
 ];
 
 // The signature under every draft, with the company logo. "Edit signature" changes it for every
@@ -56,7 +57,7 @@ export function SignatureBlock({ sender, onSaved }: { sender: Sender; onSaved: (
         <p className="text-[13px] text-muted-foreground">Your signature, used on every draft and in the Outbox.</p>
         <div className="grid gap-3 sm:grid-cols-2">
           {FIELDS.map((field) => (
-            <label key={field.key} className={`grid gap-1 text-[12px] text-foreground/70 ${field.key === "logoUrl" ? "sm:col-span-2" : ""}`}>
+            <label key={field.key} className={`grid gap-1 text-[12px] text-foreground/70 ${field.key === "logoUrl" || field.key === "bookingUrl" ? "sm:col-span-2" : ""}`}>
               {field.label}
               <input
                 value={form[field.key]}

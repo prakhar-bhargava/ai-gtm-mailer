@@ -2,10 +2,11 @@
 
 import { Check, Copy, Mail, Pencil, TriangleAlert, Undo2 } from "lucide-react";
 import Link from "next/link";
-import { Fragment, useMemo, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { pillClass } from "@/components/brand";
 import { formatDate, hostOf } from "@/lib/format";
 import { SignatureBlock } from "@/components/signature-block";
+import { MAIL_DESIGNS, renderMail, type MailDesign } from "@/lib/email/templates";
 import { copyFormatted, openGmailDraft } from "@/lib/gmail";
 import { checkMail } from "@/lib/mail-check";
 import { signatureLines, type Sender } from "@/lib/sender";
@@ -37,6 +38,20 @@ export function DraftEditor({
   const [via, setVia] = useState<"gmail" | "outbox">("outbox");
   const [copied, setCopied] = useState(false);
   const [logoCopied, setLogoCopied] = useState(false);
+  const [design, setDesign] = useState<MailDesign>("letter");
+  const [previewHtml, setPreviewHtml] = useState("");
+
+  // The chosen design, rendered as a real email for the preview frame. Re-rendered as the rep edits.
+  useEffect(() => {
+    let live = true;
+    renderMail(design, body, sender, { document: true }).then(
+      (html) => live && setPreviewHtml(html),
+      () => live && setPreviewHtml(""),
+    );
+    return () => {
+      live = false;
+    };
+  }, [design, body, sender]);
   const [error, setError] = useState<string | null>(null);
 
   const fullBody = `${body.trimEnd()}\n\n${signature.join("\n")}`;
@@ -72,7 +87,7 @@ export function DraftEditor({
   // ready to paste over the plain body.
   function openInGmail() {
     openGmailDraft({ to: toEmail, subject, body: fullBody });
-    copyFormatted(subject, body, sender).then(
+    copyFormatted(subject, body, sender, renderMail(design, body, sender)).then(
       () => setLogoCopied(true),
       () => setLogoCopied(false),
     );
@@ -81,7 +96,7 @@ export function DraftEditor({
 
   async function copy() {
     try {
-      await copyFormatted(subject, body, sender);
+      await copyFormatted(subject, body, sender, renderMail(design, body, sender));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -189,6 +204,8 @@ export function DraftEditor({
           </ol>
         )}
       </div>
+
+      <MailDesignPicker design={design} onChange={setDesign} html={previewHtml} />
 
       <div className="grid gap-4 border-t border-line bg-card px-5 py-5 sm:px-8">
         <Checks
@@ -341,4 +358,52 @@ function Annotated({ body, claims }: { body: string; claims: Claim[] }) {
     return out;
   }, [body, claims]);
   return <>{parts}</>;
+}
+
+// Choose how the email is laid out when it is copied or opened in Gmail, with a live preview of the
+// real email HTML (what Gmail shows after pasting). The words are the same in every design.
+function MailDesignPicker({ design, onChange, html }: { design: MailDesign; onChange: (design: MailDesign) => void; html: string }) {
+  const [open, setOpen] = useState(false);
+  const current = MAIL_DESIGNS.find((item) => item.id === design) ?? MAIL_DESIGNS[0];
+  return (
+    <div className="grid gap-4 border-t border-line px-5 py-5 sm:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="grid gap-0.5">
+          <p className="text-[15px] font-medium">Mail design</p>
+          <p className="text-[13px] text-muted-foreground">{current.note}</p>
+        </div>
+        <div role="radiogroup" aria-label="Mail design" className="flex flex-wrap gap-1 rounded-full border border-line bg-card p-1">
+          {MAIL_DESIGNS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              role="radio"
+              aria-checked={design === item.id}
+              onClick={() => {
+                onChange(item.id);
+                setOpen(true);
+              }}
+              className={`rounded-full px-3.5 py-1.5 font-mono text-[12px] transition-colors ${
+                design === item.id ? "bg-foreground text-background" : "text-foreground/70 hover:bg-white"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} className="w-fit text-[13px] text-electric hover:underline">
+        {open ? "Hide the email preview" : "Preview the email as it will look in Gmail"}
+      </button>
+      {open && (
+        <iframe
+          key={`${design}-${html.length}`}
+          title={`${current.label} design preview`}
+          srcDoc={html}
+          sandbox="allow-same-origin"
+          className="h-[620px] w-full rounded-xl border border-line bg-white"
+        />
+      )}
+    </div>
+  );
 }

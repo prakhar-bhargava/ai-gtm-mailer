@@ -13,9 +13,11 @@ Status: as built on 2026-10-03, with the planned pieces marked. Change anything 
 | Live updates | Server-Sent Events from the stream route; events are saved to the DB first | A reload or a second tab replays the saved run and follows it while it runs. |
 | LLM | Gemini through `@google/genai`, model list in `config/llm.json` | Structured output checked by zod. Busy and rate-limited responses retry and switch model. |
 | Company website | A local headless browser (Playwright, `lib/sources/crawler.ts`), with a plain-HTML fallback when the browser isn't installed | No key and no model tokens. Up to 8 pages per company (home, about, careers, newsroom, blog), robots.txt respected, images and fonts skipped. Each page's title, description, headings, dated posts, structured data and links are read from the DOM and streamed to the run's feed. |
-| News | Google News RSS (keyless) | Matches words, so a code check (name capitalised, not inside another name, not a twin story) confirms each headline is about this company. |
-| Hiring | Greenhouse and Ashby public job board APIs (keyless). Board names come from the site's own links first, then guesses. | Finance and ops hiring is a strong signal for Zamp. |
-| Social and LinkedIn | Stored as references only, never fetched | The project rule. LinkedIn is never fetched or scraped. |
+| News | Google News RSS, searched twice (the name; the name plus business-event words), and Bing News RSS, merged (keyless) | Matches words, so a code check (name capitalised, not inside another name, not a twin story) confirms each headline is about this company. |
+| Hiring | Greenhouse, Ashby, Lever, SmartRecruiters and Workable public job board APIs (keyless). Board names come from the site's own links first, then guesses. | Finance and ops hiring is a strong signal for Zamp. |
+| Company feed | The site's own RSS or Atom feed (`lib/sources/feeds.ts`), found from its links or common paths | Exact dates and posts the crawled pages didn't reach. |
+| Mail designs | React Email (`lib/email/templates.tsx`) | Letter, Card and Quote layouts as table-based, inline-styled HTML that Gmail and Outlook render. |
+| Social and LinkedIn | Stored as references only, never fetched. Text the rep pastes from LinkedIn becomes cited signals | The project rule. LinkedIn is never fetched or scraped. |
 | Rate limit | 4 model calls per minute (`config/pipeline.json`) | One Gemini call per run, so this rarely bites. Free sources have their own timeout and 429 retry, not this limiter. |
 
 Not used: LinkedIn scraping of any kind, Proxycurl (shut down July 2025), paid search tiers, Supabase (see Decisions).

@@ -6,7 +6,8 @@ import { isFinanceRole } from "@/lib/pipeline/hook-candidates";
 
 const roleMatchers = sources.roleKeywords.map((word) => new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"));
 
-// Open finance and ops roles from the company's public Greenhouse or Ashby board.
+// Open finance and ops roles from the company's public job board (Greenhouse, Ashby, Lever,
+// SmartRecruiters or Workable).
 export const jobs: StageSpec = {
   id: "jobs",
   required: false,
@@ -16,7 +17,7 @@ export const jobs: StageSpec = {
     const slugs = [...new Set([...ctx.jobSlugs, ...boardSlugs(ctx.prospect.company, ctx.domain)])];
     const board = await findJobBoard(slugs);
     if (!board) {
-      return { summary: `No public job board found for ${ctx.prospect.company} (checked Greenhouse and Ashby)` };
+      return { summary: `No public job board found for ${ctx.prospect.company} (checked Greenhouse, Ashby, Lever, SmartRecruiters and Workable)` };
     }
 
     const relevant = board.jobs.filter((job) => {

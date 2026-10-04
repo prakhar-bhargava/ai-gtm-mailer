@@ -105,19 +105,17 @@ export function DashboardCharts({ analytics, charts }: { analytics: Analytics; c
         <ChartCard title="From prospect to approved email" note="How many runs reached each step. Big drops are marked in amber.">
           <Funnel steps={charts.funnel} />
         </ChartCard>
-        <ChartCard title="Best angle score per run" note="Below 50 the app abstains; 70 and above is a confident draft.">
+        <ChartCard title="Best angle score per run" note="Below 50 the app abstains; 50 and above can be ready to review if every check passes.">
           <ScoreHistogram
             bins={charts.hookScores}
             thresholds={[
               { at: 50, label: "Draft from 50" },
-              { at: 70, label: "Confident 70+" },
             ]}
           />
           <Legend
             series={[
               { key: "low", label: "Abstain", color: "#9a9a9a" },
-              { key: "mid", label: "Draft, flagged", color: "var(--series-4)" },
-              { key: "high", label: "Confident", color: "var(--verified)" },
+              { key: "high", label: "Writes a draft", color: "var(--verified)" },
             ]}
           />
         </ChartCard>

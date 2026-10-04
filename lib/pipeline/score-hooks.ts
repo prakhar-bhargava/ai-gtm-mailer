@@ -27,12 +27,12 @@ function recencyPoints(publishedAt: string | null, now: number): number {
 function verifiabilityPoints(signal: Signal): number {
   if (!signal.publishedAt) return rubric.verifiabilityPoints.undated;
   const points = rubric.verifiabilityPoints as Record<string, number>;
-  return points[signal.type === "news" ? "news" : signal.type === "job" ? "job" : "company_site"];
+  return points[signal.type] ?? points.company_site;
 }
 
 function authorshipPoints(signal: Signal): number {
   const points = rubric.authorshipPoints as Record<string, number>;
-  return points[signal.type === "company_site" ? "company_site" : signal.type === "news" ? "news" : "job"];
+  return points[signal.type] ?? points.job;
 }
 
 const clamp = (value: number, max: number) => Math.min(Math.max(Math.round(value), 0), max);

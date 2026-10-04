@@ -40,7 +40,8 @@
       "types": [
         "news",
         "company_site",
-        "job"
+        "job",
+        "profile"
       ],
       "patterns": [
         "\\berp\\b",
@@ -63,7 +64,8 @@
       "pain": 2,
       "types": [
         "news",
-        "company_site"
+        "company_site",
+        "profile"
       ],
       "patterns": [
         "expan(d|ds|ded|ding|sion)s? (in|into|to|across)\\b",
@@ -88,7 +90,8 @@
       "pain": 3,
       "types": [
         "news",
-        "company_site"
+        "company_site",
+        "profile"
       ],
       "patterns": [
         "rais(es|ed|ing)",
@@ -107,7 +110,8 @@
       "pain": 4,
       "types": [
         "news",
-        "company_site"
+        "company_site",
+        "profile"
       ],
       "patterns": [
         "complian",
@@ -126,7 +130,8 @@
       "pain": 3,
       "types": [
         "news",
-        "company_site"
+        "company_site",
+        "profile"
       ],
       "patterns": [
         "revenue",
@@ -147,7 +152,8 @@
       "pain": 3,
       "types": [
         "news",
-        "company_site"
+        "company_site",
+        "profile"
       ],
       "patterns": [
         "partner",
@@ -176,7 +182,8 @@
       "pain": 3,
       "types": [
         "news",
-        "company_site"
+        "company_site",
+        "profile"
       ],
       "patterns": [
         ".*"

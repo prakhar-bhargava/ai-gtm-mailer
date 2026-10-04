@@ -1,5 +1,5 @@
 {
-  "_note": "Hypotheses, not facts. Weights and thresholds come from docs/06 and are meant to be tuned from reviewer feedback.",
+  "_note": "Hypotheses, not facts. Weights and thresholds come from docs/06 and are meant to be tuned from reviewer feedback. 2026-10-04: personalised lowered from 70 to 50, so any angle that clears the abstain bar and passes every check is ready to review.",
   "weights": {
     "relevance": 35,
     "recency": 20,
@@ -9,15 +9,44 @@
     "authorship": 10
   },
   "recencyBands": [
-    { "maxDays": 14, "points": 20 },
-    { "maxDays": 45, "points": 14 },
-    { "maxDays": 90, "points": 8 },
-    { "maxDays": 180, "points": 3 }
+    {
+      "maxDays": 14,
+      "points": 20
+    },
+    {
+      "maxDays": 45,
+      "points": 14
+    },
+    {
+      "maxDays": 90,
+      "points": 8
+    },
+    {
+      "maxDays": 180,
+      "points": 3
+    }
   ],
-  "verifiabilityPoints": { "company_site": 10, "news": 8, "job": 8, "undated": 2 },
-  "authorshipPoints": { "company_site": 7, "news": 5, "job": 3 },
-  "seniorityPoints": { "senior": 10, "other": 6 },
-  "thresholds": { "personalised": 70, "flagged": 50 },
+  "verifiabilityPoints": {
+    "company_site": 10,
+    "news": 8,
+    "job": 8,
+    "undated": 2,
+    "profile": 6
+  },
+  "authorshipPoints": {
+    "company_site": 7,
+    "news": 5,
+    "job": 3,
+    "profile": 10
+  },
+  "seniorityPoints": {
+    "senior": 10,
+    "other": 6
+  },
+  "thresholds": {
+    "personalised": 50,
+    "flagged": 50
+  },
   "bannedPhrases": [
     "i noticed you recently",
     "i came across your profile",

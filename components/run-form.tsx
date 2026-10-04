@@ -92,8 +92,21 @@ export function RunForm({ cases = [] }: { cases?: CaseCard[] }) {
 
         <div id="more-details" hidden={!showDetails} className="grid gap-4 border-t border-line pt-4 sm:grid-cols-3">
           <Field id="role" label="Role" placeholder="Head of Finance" />
-          <Field id="linkedinUrl" label="Their LinkedIn" placeholder="linkedin.com/in/..." hint="Saved for reference. Never opened." />
+          <Field id="linkedinUrl" label="Their LinkedIn" placeholder="linkedin.com/in/..." hint="Cited as the source of what you paste below." />
           <Field id="companyLinkedinUrl" label="Company LinkedIn" placeholder="linkedin.com/company/..." hint="Saved for reference. Never opened." />
+          <div className="grid gap-1.5 sm:col-span-3">
+            <label htmlFor="linkedinText" className="text-[12px] text-foreground/70">
+              Paste from their LinkedIn
+            </label>
+            <textarea
+              id="linkedinText"
+              name="linkedinText"
+              rows={4}
+              maxLength={4000}
+              placeholder={"Their headline, About section or a recent post. Leave a blank line between pieces.\n\nThe app never opens LinkedIn itself: what you paste is ranked and checked like any other source."}
+              className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-[14px] outline-none placeholder:text-foreground/35 focus-visible:border-electric"
+            />
+          </div>
           <div className="grid gap-1.5 sm:col-span-3">
             <label htmlFor="notes" className="text-[12px] text-foreground/70">
               Notes
@@ -117,7 +130,7 @@ export function RunForm({ cases = [] }: { cases?: CaseCard[] }) {
             className="flex items-center gap-1 text-[13px] text-foreground/65 hover:text-foreground"
           >
             <ChevronDown className={`size-4 transition-transform ${showDetails ? "rotate-180" : ""}`} aria-hidden />
-            {showDetails ? "Fewer details" : "Add role, LinkedIn or notes"}
+            {showDetails ? "Fewer details" : "Add role, LinkedIn text or notes"}
           </button>
           <div className="flex flex-wrap items-center gap-3">
             {filled && <span className="font-mono text-[11px] text-foreground/60">Filled from {filled}. Add the recipient email.</span>}

@@ -17,8 +17,7 @@ Weights and thresholds live in `config/rubric.json` so they can be tuned without
 Until 2026-10-04 the model proposed hooks and scored relevance and specificity. It is now all code, for three reasons: it saves two model calls per run, the same signals always rank the same way, and the scores can't be talked up (the model had given a revenue estimate 30 of 35 for relevance although the prompt said growth figures alone earn 0 to 15). The trade-off: the lexicon only knows the words it lists, so an unusual phrasing falls into "other news" until the lexicon is extended. The writer still sees the top three angles and can pick the second or third if it is clearly more specific; it says why.
 
 Thresholds:
-- 70 and above: personalised draft.
-- 50 to 69: draft with a "check this hook" flag.
+- 50 and above: a personalised draft. It is "Ready to review" when every claim is backed and every guardrail passes, otherwise "Check before sending". (Until 2026-10-04 a draft also needed 70 to count as ready; lowered at the user's request, since the claim check and guardrails now carry that weight.)
 - Below 50, or no hook passes the safety gate: abstain.
 
 The UI shows the breakdown bar for every candidate and one sentence on why the winner beat the runner-up.

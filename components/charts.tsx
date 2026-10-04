@@ -212,7 +212,7 @@ export function ScoreHistogram({ bins, thresholds }: { bins: { bin: number; coun
   const [hover, setHover] = useState<number | null>(null);
   const max = Math.max(1, ...bins.map((item) => item.count));
   const height = 150;
-  const zone = (bin: number) => (bin >= 70 ? "var(--verified)" : bin >= 50 ? "var(--series-4)" : "#9a9a9a");
+  const zone = (bin: number) => (bin >= 50 ? "var(--verified)" : "#9a9a9a");
   return (
     <div className="grid gap-2 pt-5">
       <div className="relative" style={{ height }} onMouseLeave={() => setHover(null)}>

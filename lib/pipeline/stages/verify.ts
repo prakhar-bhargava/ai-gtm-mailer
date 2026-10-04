@@ -27,7 +27,7 @@ export const verify: StageSpec = {
     const problems = [
       unsupported ? `${unsupported} claim${unsupported === 1 ? "" : "s"} not supported by the source` : "",
       lintIssues.length ? `${lintIssues.length} guardrail issue${lintIssues.length === 1 ? "" : "s"}` : "",
-      strong ? "" : "the angle scored below the personalised threshold",
+      strong ? "" : `the angle scored below ${rubric.thresholds.personalised}`,
     ].filter(Boolean);
 
     return {

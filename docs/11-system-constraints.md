@@ -54,7 +54,7 @@ A fresh company takes about a minute, most of it the crawler. A repeat search us
 | Constraint | Value | Where set |
 |---|---|---|
 | Hook score, out of 100 | Relevance 35, recency 20, specificity 15, seniority 10, verifiability 10, source type 10 | `config/rubric.json` |
-| Hook is "personalised" (no warning) | 70 or more | `config/rubric.json` `thresholds.personalised` |
+| Hook is "personalised" (no warning) | 50 or more (was 70 until 2026-10-04) | `config/rubric.json` `thresholds.personalised` |
 | Hook is "flagged" (draft with a check warning) | 50 to 69 | `config/rubric.json` `thresholds.flagged` |
 | Hook abstains | Below 50, or no hook passes the sensitivity check | `lib/pipeline/index.ts` |
 | Recency points | 20 up to 14 days, 14 up to 45, 8 up to 90, 3 up to 180, 0 after or undated | `config/rubric.json` `recencyBands` |

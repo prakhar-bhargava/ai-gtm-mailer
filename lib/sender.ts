@@ -11,6 +11,13 @@ export const Sender = z.object({
   phone: z.string().trim().max(40).default(""),
   company: z.string().trim().max(80).default(""),
   website: z.string().trim().max(80).default(""),
+  // A calendar link (Calendly, Cal.com, Google appointment page). The "Card" mail design shows it as a button.
+  bookingUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .refine((value) => value === "" || /^https:\/\//.test(value), "The booking link must be an https:// link")
+    .default(""),
   logoUrl: z
     .string()
     .trim()

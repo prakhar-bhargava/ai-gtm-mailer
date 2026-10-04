@@ -1,10 +1,42 @@
 import sources from "@/config/sources.json";
 import { sameCompany } from "@/lib/pipeline/same-company";
 import type { StageSpec } from "@/lib/pipeline/stage";
-import { searchNews } from "@/lib/sources/google-news";
+import { searchBingNews } from "@/lib/sources/bing-news";
+import { searchNews, type NewsItem } from "@/lib/sources/google-news";
 import { report } from "@/lib/trail";
 
-// Recent news about the company, from Google News (free, no key). Three filters, in order:
+// The same story from two feeds, or with a different publisher suffix, counts once.
+function storyKey(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(" ").slice(0, 9).join(" ");
+}
+
+// Three free searches in parallel: Google News for the name, Google News for the name plus business-event
+// words, and Bing News. A feed that fails is skipped; the others still count.
+async function gather(company: string): Promise<{ items: NewsItem[]; feeds: string[] }> {
+  const results = await Promise.allSettled([
+    searchNews(company),
+    searchNews(company, { focus: true }),
+    searchBingNews(company),
+  ]);
+  const names = ["Google News", "Google News (business events)", "Bing News"];
+  const seen = new Set<string>();
+  const items: NewsItem[] = [];
+  const feeds: string[] = [];
+  results.forEach((result, index) => {
+    if (result.status !== "fulfilled") return;
+    feeds.push(`${names[index]} (${result.value.length})`);
+    for (const item of result.value) {
+      const key = storyKey(item.title);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      items.push(item);
+    }
+  });
+  if (!feeds.length) throw new Error("none of the news feeds answered");
+  return { items, feeds };
+}
+
+// Recent news about the company, from Google News and Bing News (free, no key). Three filters, in order:
 // 1. it is recent and reads like business news,
 // 2. it names this company, not another with the same name (same-company.ts, checked against the
 //    words on the company's own website), and
@@ -16,7 +48,8 @@ export const news: StageSpec = {
   startMessage: "Checking recent news about the company",
   run: async (ctx) => {
     const cutoff = Date.now() - sources.newsDays * 86_400_000;
-    const items = await searchNews(ctx.prospect.company);
+    const { items, feeds } = await gather(ctx.prospect.company);
+    report(`Searched ${feeds.join(", ")}: ${items.length} different headlines`, {});
     const recent = items.filter((item) => {
       const title = item.title.toLowerCase();
       const dated = item.publishedAt === null || Date.parse(item.publishedAt) >= cutoff;

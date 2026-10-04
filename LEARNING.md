@@ -14,6 +14,21 @@ Source: link or file, if any.
 
 ## Decisions
 
+### 2026-10-04: "Ready to review" from 50, not 70
+What: At the user's request, an angle of 50 or more can now be ready to review when every claim is backed and the check finds no issues. The dashboard's "Bring runs up to date" card re-checks flagged runs against the new rule (only runs that pass every check move) and can re-run flagged prospects with the current pipeline. Old runs whose claims weren't backed stay flagged: changing their result would misreport them.
+Why it matters: The claim check and guardrails now carry the weight the higher score used to.
+Interview line: "The score decides whether to write; the checks decide whether it's ready."
+
+### 2026-10-04: Wider free search
+What: Google News is searched twice (the name, and the name plus business-event words) and Bing News once, merged and de-duplicated. Job boards now include Lever, SmartRecruiters and Workable next to Greenhouse and Ashby. The links step reads the company's own RSS or Atom feed. Rep-pasted LinkedIn text becomes cited "profile" signals (authorship 10 of 10).
+Why it matters: More real, dated facts for the one writing call, still with no keys and no tokens. Palantir drafted from 12 finance roles found on Lever.
+Interview line: "More sources, same cost: every new source is free and keyless."
+
+### 2026-10-04: Designed mails with React Email
+What: Each draft can be laid out as Letter, Card (logo header, customer story as a callout, booking button) or Quote (story as a pull quote), rendered with React Email to table-based, inline-styled HTML and previewed live. Gmail's compose link is plain text, so the design reaches Gmail through the clipboard. Letter stays the default: heavy HTML on a first cold email can hurt inbox placement.
+Why it matters: A well-designed mail without hand-written email HTML.
+Source: lib/email/templates.tsx, docs/13-product-review.md
+
 ### 2026-10-04: One Gemini call per run
 What: The run used 4 model calls (same-company news check, rank hooks, write, verify): about 3,200 tokens in and 430 out, plus thinking tokens, and up to 8 calls with format retries. All non-writing calls moved to code: a same-company check on headlines (lib/pipeline/same-company.ts), angle ranking from a lexicon built on the seller brief (config/hook-lexicon.json), and a claim check by numbers and word overlap (lib/pipeline/claim-check.ts). The one remaining call gets the top 3 angles and writes. Thinking is off. The 4-a-minute limiter now applies to the model only, and every run records its usage (lib/usage.ts), shown on the run page and the dashboard.
 Why it matters: 75% fewer calls, a run is no longer stuck behind its own rate limiter, the ranking is the same every time, and the model can't overrate a weak signal (it had scored a revenue estimate 30 of 35 for relevance against its own instructions).

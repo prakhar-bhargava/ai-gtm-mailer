@@ -1,6 +1,6 @@
 # Process map
 
-Guidance step 1 in the brief: map every step on paper before touching tools. This is that map. Each stage lists its input, what it does, its decision point, and its output. Every stage writes a step event (status, timing, output summary) so the live run view can show it.
+Guidance step 1 in the brief: map every step on paper before touching tools. This is that map, as first drawn on 2026-10-03; the current pipeline is drawn in [12-diagrams.md](12-diagrams.md). Each stage lists its input, what it does, its decision point, and its output. Every stage writes a step event (status, timing, output summary) so the live run view can show it.
 
 ```
  [0 Input] -> [1 Resolve identity] --ambiguous--> PAUSE: rep picks the right entity

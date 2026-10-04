@@ -141,6 +141,7 @@ export function candidateHooks(signals: Signal[], company: string): Candidate[] 
         : signal.type === "news"
           ? `${signal.claim} (${signal.sourceName})`
           : signal.claim;
+    // Pasted LinkedIn text has no date, but it is the person's own words: it ranks on what it says.
     const topic = sensitiveTopicIn(`${signal.claim} ${signal.snippet}`);
     out.push({
       category: background ? "background" : category.id,

@@ -24,6 +24,8 @@ export const ProspectInput = z.object({
   linkedinUrl: z.string().trim().optional(), // the person's profile: stored as a reference, never fetched
   companyLinkedinUrl: z.string().trim().optional(), // the company page: stored as a reference, never fetched
   notes: z.string().trim().optional(),
+  // The person's headline, About section or a recent post, copied from LinkedIn by the rep.
+  linkedinText: z.string().trim().max(4000, "Keep the pasted LinkedIn text under 4,000 characters").optional(),
 });
 export type ProspectInput = z.infer<typeof ProspectInput>;
 
@@ -36,7 +38,8 @@ export const NewRunInput = ProspectInput.extend({
 // A public fact about the prospect or company. Every signal keeps its source, date and fetch time.
 export const Signal = z.object({
   id: z.string(),
-  type: z.enum(["news", "job", "company_site"]),
+  // profile: text the rep pasted from the person's LinkedIn (the app never opens LinkedIn itself)
+  type: z.enum(["news", "job", "company_site", "profile"]),
   claim: z.string(),
   snippet: z.string(),
   sourceName: z.string(),

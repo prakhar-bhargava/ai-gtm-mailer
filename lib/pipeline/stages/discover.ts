@@ -3,6 +3,7 @@ import { upsertCompany } from "@/lib/accounts";
 import { sortLinks } from "@/lib/pipeline/links";
 import type { NewSignal, StageSpec } from "@/lib/pipeline/stage";
 import { crawlPage, forFeed, type RawPage } from "@/lib/sources/crawler";
+import { readCompanyFeed } from "@/lib/sources/feeds";
 import { report, trail } from "@/lib/trail";
 import type { Finding } from "@/lib/types";
 
@@ -72,28 +73,55 @@ export const discover: StageSpec = {
       }
     }
 
-    // Dated items on the company's own newsroom, press or blog pages, within the news window.
-    const dated = read
-      .filter((page) => page.kind === "news" || page.kind === "home")
-      .flatMap((page) => page.dated.map((item) => ({ ...item, page })))
+    // The company's own RSS or Atom feed, if it has one: exact dates, and posts the pages didn't reach.
+    const allLinks = read.flatMap((page) => page.links);
+    let feed: Awaited<ReturnType<typeof readCompanyFeed>> = null;
+    try {
+      feed = await readCompanyFeed(domain, allLinks);
+      if (feed) trail(`Read the company's feed at ${new URL(feed.url).pathname}: ${feed.items.length} posts`);
+    } catch (error) {
+      trail(`No company feed (${error instanceof Error ? error.message : "no answer"})`);
+    }
+
+    type DatedItem = { title: string; date: string; url: string; sourceName: string };
+    const fromPages: DatedItem[] = read.flatMap((page) =>
+      page.dated
+        .filter(() => page.kind === "news" || page.kind === "home")
+        .map((item) => ({
+          title: item.title,
+          date: item.date,
+          url: item.url ?? page.url,
+          sourceName: `${domain} (${page.kind === "news" ? "newsroom" : "website"})`,
+        })),
+    );
+    const fromFeed: DatedItem[] = (feed?.items ?? []).map((item) => ({
+      title: item.title,
+      date: item.date,
+      url: item.url ?? feed!.url,
+      sourceName: `${domain} (feed)`,
+    }));
+    const unique = (item: DatedItem, index: number, all: DatedItem[]) =>
+      all.findIndex((other) => other.title.toLowerCase() === item.title.toLowerCase()) === index;
+
+    // Dated items on the company's own newsroom, press or blog pages and its feed, within the news window.
+    const dated = [...fromPages, ...fromFeed]
       .filter((item) => isRecent(item.date) && !EXCLUDED.test(item.title))
-      .filter((item, index, all) => all.findIndex((other) => other.title === item.title) === index)
+      .filter(unique)
       .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
       .slice(0, sources.maxSignalsPerSource);
 
     // Older posts are shown in the feed so the rep can see they were found, but they can't be a reason to write now.
-    const older = read
-      .flatMap((page) => page.dated.map((item) => ({ ...item, page })))
+    const older = [...read.flatMap((page) => page.dated.map((item) => ({ title: item.title, date: item.date, url: item.url ?? page.url, sourceName: domain }))), ...fromFeed]
       .filter((item) => Number.isFinite(Date.parse(item.date)) && !isRecent(item.date))
-      .filter((item, index, all) => all.findIndex((other) => other.title === item.title) === index)
+      .filter(unique)
       .slice(0, 5);
 
     const newSignals: NewSignal[] = dated.map((item) => ({
       type: "company_site",
       claim: `${ctx.prospect.company} published: "${item.title.slice(0, 160)}"`,
       snippet: item.title.slice(0, 300),
-      sourceName: `${domain} (${item.page.kind === "news" ? "newsroom" : "website"})`,
-      sourceUrl: item.url ?? item.page.url,
+      sourceName: item.sourceName,
+      sourceUrl: item.url,
       publishedAt: new Date(Date.parse(item.date)).toISOString(),
       fetchedAt: new Date().toISOString(),
     }));
@@ -102,11 +130,11 @@ export const discover: StageSpec = {
     const findings: Finding[] = [
       ...socialList.map((url) => ({ kind: "profile" as const, label: new URL(url).host.replace(/^www\./, ""), url })),
       ...[...jobSlugs].map((slug) => ({ kind: "job_board" as const, label: `Job board: ${slug}`, url: null })),
-      ...dated.map((item) => ({ kind: "dated_item" as const, label: `${item.date.slice(0, 10)}: ${item.title.slice(0, 90)}`, url: item.url ?? item.page.url })),
+      ...dated.map((item) => ({ kind: "dated_item" as const, label: `${item.date.slice(0, 10)}: ${item.title.slice(0, 90)}`, url: item.url })),
       ...older.map((item) => ({
         kind: "dated_item" as const,
         label: `${item.date.slice(0, 10)} (older than ${sources.newsDays} days, not used): ${item.title.slice(0, 80)}`,
-        url: item.url ?? item.page.url,
+        url: item.url,
       })),
     ];
     if (findings.length) report(`Found ${socialList.length} profiles, ${jobSlugs.size} job boards and ${dated.length} dated posts`, { findings });
@@ -125,6 +153,7 @@ export const discover: StageSpec = {
       `Read ${read.length} page${read.length === 1 ? "" : "s"} on ${domain}`,
       `${socialList.length} social profile${socialList.length === 1 ? "" : "s"}`,
       dated.length ? `${dated.length} dated post${dated.length === 1 ? "" : "s"}` : "",
+      feed ? "its news feed" : "",
       jobSlugs.size ? "a job board link" : "",
     ].filter(Boolean);
     const siteText = read.flatMap((page) => [page.description ?? "", ...page.headings, ...page.paragraphs]).filter(Boolean);

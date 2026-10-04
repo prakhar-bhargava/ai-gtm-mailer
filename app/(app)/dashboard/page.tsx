@@ -2,6 +2,9 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { PillLink } from "@/components/brand";
 import { DashboardCharts } from "@/components/dashboard-charts";
+import { Patterns } from "@/components/patterns";
+import { RunMaintenance } from "@/components/run-maintenance";
+import { getFunData } from "@/lib/fun-analytics";
 import { StatusPill } from "@/components/status-pill";
 import { getAnalytics, getChartData } from "@/lib/analytics";
 import { formatSeconds, timeAgo } from "@/lib/format";
@@ -32,6 +35,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const outcome: Filter = FILTERS.find((filter) => filter.value === params.outcome)?.value ?? "all";
   const runs = searchRuns({ q, outcome });
   const counts = countRuns();
+  const flaggedCount = counts.byOutcome.flagged ?? 0;
   const analytics = getAnalytics();
   const countFor = (value: Filter) =>
     value === "all"
@@ -62,6 +66,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
       {/* Database rows have no prototype; a JSON round trip makes them plain objects for the client charts. */}
       <DashboardCharts analytics={JSON.parse(JSON.stringify(analytics))} charts={JSON.parse(JSON.stringify(getChartData()))} />
+
+      {flaggedCount > 0 && <RunMaintenance flagged={flaggedCount} />}
+
+      <Patterns data={JSON.parse(JSON.stringify(getFunData()))} />
 
       <section aria-labelledby="runs-heading" className="grid gap-4">
         <h2 id="runs-heading" className="text-[20px] tracking-tight">

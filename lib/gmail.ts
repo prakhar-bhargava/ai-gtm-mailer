@@ -71,13 +71,15 @@ export function plainMail(body: string, sender: Sender): string {
 }
 
 // Copies the email with formatting (HTML, with the logo) and as plain text, so it pastes well anywhere.
-export async function copyFormatted(subject: string, body: string, sender: Sender): Promise<void> {
+// designed: the HTML of a chosen mail design (lib/email/templates.tsx). It may still be rendering: a
+// promise is handed to the clipboard as is, so the copy stays inside the click that asked for it.
+export async function copyFormatted(subject: string, body: string, sender: Sender, designed?: Promise<string> | string): Promise<void> {
   const plain = plainMail(body, sender);
-  const html = mailHtml(body, sender);
+  const html = designed ?? mailHtml(body, sender);
   if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
     await navigator.clipboard.write([
       new ClipboardItem({
-        "text/html": new Blob([html], { type: "text/html" }),
+        "text/html": Promise.resolve(html).then((value) => new Blob([value], { type: "text/html" })),
         "text/plain": new Blob([plain], { type: "text/plain" }),
       }),
     ]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Briefcase, FileText, Globe, Link2, Newspaper, Sparkles, TriangleAlert } from "lucide-react";
+import { ArrowUpRight, Briefcase, FileText, Globe, Link2, Newspaper, Sparkles, TriangleAlert, UserRound } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { STEP_LABEL } from "@/components/run/steps";
 import { formatDate, hostOf } from "@/lib/format";
@@ -43,7 +43,7 @@ export function latestLines(events: StageEvent[], count = 3): { key: string; at:
       item.kind === "page"
         ? `Read ${new URL(item.page.url).pathname === "/" ? new URL(item.page.url).host : new URL(item.page.url).pathname}: ${item.page.title}`
         : item.kind === "signal"
-          ? `${item.signal.type === "news" ? "News" : item.signal.type === "job" ? "Open role" : "Website"}: ${item.signal.claim}`
+          ? `${item.signal.type === "news" ? "News" : item.signal.type === "job" ? "Open role" : item.signal.type === "profile" ? "LinkedIn (pasted)" : "Website"}: ${item.signal.claim}`
           : item.kind === "hooks"
             ? `Scored ${item.hooks.length} angles; best ${Math.max(...item.hooks.filter((hook) => !hook.blockedReason).map((hook) => hook.scores.total), 0)} of 100`
             : item.kind === "findings"
@@ -166,8 +166,8 @@ function FeedItem({ item }: { item: Item }) {
     }
     case "signal": {
       const { signal } = item;
-      const icon = signal.type === "news" ? <Newspaper className="size-3.5" /> : signal.type === "job" ? <Briefcase className="size-3.5" /> : <FileText className="size-3.5" />;
-      const label = signal.type === "news" ? "News" : signal.type === "job" ? "Open role" : "Company website";
+      const icon = signal.type === "news" ? <Newspaper className="size-3.5" /> : signal.type === "job" ? <Briefcase className="size-3.5" /> : signal.type === "profile" ? <UserRound className="size-3.5" /> : <FileText className="size-3.5" />;
+      const label = signal.type === "news" ? "News" : signal.type === "job" ? "Open role" : signal.type === "profile" ? "LinkedIn, pasted by you" : "Company website";
       return (
         <Card icon={icon} at={item.at} meta={`${label}, ${formatDate(signal.publishedAt)}`}>
           <p className="text-[13px] leading-5">{signal.claim}</p>

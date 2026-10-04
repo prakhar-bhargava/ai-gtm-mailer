@@ -32,6 +32,7 @@ Each case can be watched as a recorded replay ("Watch it run") or used to fill t
 
 - Step graph: eight nodes in pipeline order. Done is black with a tick, running pulses blue, failed is amber. The running step's latest note sits underneath in monospace.
 - While running, two columns. Left: "What I'm finding", newest first: each page the crawler read (title, path, description, headings, browser time), links and posts found on the site, news and job signals, scored angles, failed steps. Request notes are hidden behind a toggle. Right: a compose window whose text writes itself in a purple-to-pink gradient. It follows the latest finding, switches to the top angle once angles are scored, then types the real draft. Changed text is backspaced and retyped.
+- Under the letter, "Mail design" picks Letter, Card or Quote (React Email, `lib/email/templates.tsx`) with a live preview of the real email HTML. The chosen design is what Copy formatted and Open in Gmail put on the clipboard.
 - When the draft has finished typing, the letter view replaces the preview: sourced sentences underlined and numbered, notes underneath (teal: supported; amber: check). Actions: Open in Gmail (blue, primary), Copy formatted, Save to Outbox only, Edit.
 - Right column after the run: why this angle, sources, website pages read, steps summary. The full feed stays available under "Research log".
 - Abstained: no email, the reason, what to do, and three templates. Stopped: names the failed step and its error.
@@ -59,6 +60,10 @@ Type: Inter Tight for interface and headlines (light weights for large headings)
 ## Charts (dashboard)
 
 Built in `components/charts.tsx`, no chart library. Tiles with a sparkline; runs per day stacked by result; results ring; funnel from runs started to approved by a rep, with big drops in amber; best-angle score histogram with the 50 and 70 thresholds; signals by source; median time per step; source reliability. Every chart has a hover tooltip, a legend when it has more than one series, and values in text colours.
+
+## Patterns (dashboard, second half)
+
+`components/patterns.tsx` and `components/fun-charts.tsx`, data from `lib/fun-analytics.ts`: streak, busiest hour, tokens saved and companies tiles; a waffle of the last 100 runs (click a square to open it); a token gauge against the old four-call pipeline; a source → angle type → result flow; a radar of the six score parts for drafted against abstained runs; a weekday-by-hour heatmap; subject-line words; a most-researched leaderboard. Above them, "Bring runs up to date" appears while any run is flagged.
 
 ## Shared pieces
 
