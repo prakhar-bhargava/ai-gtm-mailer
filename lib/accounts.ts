@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db";
+import { indexCompany, reindexAll, searchAccountIds } from "@/lib/search";
 
 // The accounts list: companies with their websites, job boards and social links,
 // and the people searched for at each. LinkedIn URLs are stored as references only, never fetched.
@@ -60,6 +61,7 @@ export function upsertCompany(input: {
     input.companyLinkedinUrl ?? existing?.company_linkedin_url ?? null,
     now,
   );
+  indexCompany(id);
   return id;
 }
 
@@ -83,20 +85,12 @@ export function upsertPerson(input: {
          updated_at = excluded.updated_at`,
     )
     .run(id, input.name, input.role ?? null, companyId, input.linkedinUrl ?? null, input.email ?? null, new Date().toISOString());
+  indexCompany(companyId);
 }
 
 export function listAccounts(q?: string): CompanyRecord[] {
   const db = getDb();
-  const term = q ? `%${q.toLowerCase()}%` : "%";
-  // Matches the company name, its website, or the name of anyone saved there.
-  const companies = db
-    .prepare(
-      `SELECT * FROM companies
-       WHERE lower(name) LIKE ? OR lower(coalesce(domain, '')) LIKE ?
-          OR id IN (SELECT company_id FROM people WHERE lower(name) LIKE ?)
-       ORDER BY updated_at DESC`,
-    )
-    .all(term, term, term) as {
+  let companies: {
     id: string;
     name: string;
     domain: string | null;
@@ -114,6 +108,20 @@ export function listAccounts(q?: string): CompanyRecord[] {
     linkedin_url: string | null;
     updated_at: string;
   }[];
+
+  // A search ranks the matches (see lib/search.ts). An empty search lists everything, newest first.
+  const term = q?.trim() ?? "";
+  if (term) {
+    const count = db.prepare("SELECT COUNT(*) AS n FROM account_index").get() as { n: number };
+    if (count.n === 0) reindexAll();
+    const ranked = searchAccountIds(term);
+    const all = db.prepare("SELECT * FROM companies").all() as typeof companies;
+    companies = ranked
+      .map((id) => all.find((company) => company.id === id))
+      .filter((company): company is (typeof all)[number] => Boolean(company));
+  } else {
+    companies = db.prepare("SELECT * FROM companies ORDER BY updated_at DESC").all() as typeof companies;
+  }
 
   return companies.map((company) => ({
     id: company.id,

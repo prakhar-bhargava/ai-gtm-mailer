@@ -39,7 +39,7 @@ export default async function AccountsPage({ searchParams }: { searchParams: Pro
           id="q"
           name="q"
           defaultValue={q}
-          placeholder="Search companies"
+          placeholder="Search companies, people or websites"
           className="h-9 w-full rounded-md border border-input bg-card pr-3 pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring"
         />
       </form>

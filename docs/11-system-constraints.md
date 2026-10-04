@@ -127,6 +127,6 @@ Note on personal data in prompts: the model receives the prospect's name, role, 
 | Decision | Options | Needed from |
 |---|---|---|
 | Send from the user's real mailbox | Gmail or Outlook. Creating a draft in the mailbox keeps the human send step. Direct sending is the other option | Owner: which account, and an OAuth app set up for it |
-| Search by meaning across accounts | Elasticsearch (needs a hosted cluster) or keep text matching | Owner: budget for a cluster |
+| Search by meaning across accounts | Resolved for now: a free local full-text index (SQLite FTS5, `lib/search.ts`) with word-prefix matching and relevance ranking. Elasticsearch would need a hosted cluster | Owner: only if the accounts list grows beyond what one machine handles |
 | Pricing and plans | Names and prices in `config/features.json` are placeholders | Owner |
 | Public link for the interview | Tunnel or hosted deploy | Owner |

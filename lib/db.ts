@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS people (
   linkedin_url TEXT,
   updated_at TEXT NOT NULL
 );
+CREATE VIRTUAL TABLE IF NOT EXISTS account_index USING fts5(company_id UNINDEXED, text);
 CREATE TABLE IF NOT EXISTS cache (
   key TEXT PRIMARY KEY,
   body TEXT NOT NULL,

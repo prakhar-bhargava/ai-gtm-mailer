@@ -17,11 +17,11 @@
       "why": "Needs a connected Google or Microsoft account and a verified app, which costs time and an account of its own."
     },
     {
-      "id": "elastic-recommendations",
-      "title": "Recommended companies and people",
-      "description": "Search the accounts list by meaning and get suggested prospects, backed by Elasticsearch.",
+      "id": "suggested-prospects",
+      "title": "Suggested prospects",
+      "description": "Get suggestions for companies similar to the ones you research, drawn from the accounts list.",
       "plan": "Pro",
-      "why": "Elasticsearch needs a hosted cluster. The free tier has none, so search stays a plain text match for now."
+      "why": "Search across accounts is free and local (lib/search.ts). Suggestions need a larger accounts list and a ranking step that has not been built."
     },
     {
       "id": "crm-sync",
