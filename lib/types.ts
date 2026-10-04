@@ -65,6 +65,7 @@ export const Hook = z.object({
   whyNow: z.string(),
   scores: HookScores,
   blockedReason: z.string().nullable(), // set when the sensitivity gate removes the hook
+  category: z.string().optional(), // the angle type from config/hook-lexicon.json, e.g. finance_hiring
 });
 export type Hook = z.infer<typeof Hook>;
 
@@ -85,6 +86,9 @@ export const Draft = z.object({
   body: z.string(),
   claims: z.array(Claim),
   lintIssues: z.array(z.string()).default([]),
+  hookId: z.string().optional(), // the angle the writer chose
+  reason: z.string().optional(), // why it chose it
+  caseletId: z.string().optional(), // the customer story it retold
 });
 export type Draft = z.infer<typeof Draft>;
 
@@ -109,11 +113,26 @@ export type CrawlPage = z.infer<typeof CrawlPage>;
 
 // Things found along the way that are worth showing even when they don't become signals.
 export const Finding = z.object({
-  kind: z.enum(["profile", "job_board", "dated_item", "tech", "fact", "page_skipped"]),
+  kind: z.enum(["profile", "job_board", "dated_item", "tech", "fact", "page_skipped", "headline_dropped"]),
   label: z.string(),
   url: z.string().nullable().default(null),
 });
 export type Finding = z.infer<typeof Finding>;
+
+// What a run cost. Only model calls use quota; everything else is free.
+export const Usage = z.object({
+  modelCalls: z.number(),
+  modelCallsSaved: z.number(), // answers reused from the cache
+  inputTokens: z.number(),
+  outputTokens: z.number(),
+  thinkingTokens: z.number(),
+  pagesRead: z.number(),
+  pagesFromCache: z.number(),
+  freeRequests: z.number(),
+  freeRequestsFromCache: z.number(),
+  hosts: z.record(z.string(), z.number()),
+});
+export type Usage = z.infer<typeof Usage>;
 
 // Extra data a stage can attach to its event. The run view and the database both read it.
 export const StagePayload = z.object({
@@ -124,6 +143,8 @@ export const StagePayload = z.object({
   outcome: Outcome.optional(),
   crawl: CrawlPage.optional(), // a page the crawler just read (progress events)
   findings: z.array(Finding).optional(),
+  usage: Usage.optional(), // on the end-of-run event
+  chosenReason: z.string().optional(), // why the writer picked the angle it used
 });
 export type StagePayload = z.infer<typeof StagePayload>;
 
@@ -142,52 +163,31 @@ export type StageEvent = z.infer<typeof StageEvent>;
 const TAG = /\[s:[^\]]+\]/g;
 export const wordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
 
-export const hookAnswerSchema = (signalIds: [string, ...string[]]) =>
+// The one model answer per run: which angle, why, and the email. Checked by generateJson before use.
+export const writerAnswerSchema = (options: {
+  hookIds: [string, ...string[]];
+  signalIds: [string, ...string[]];
+  caseletIds: [string, ...string[]];
+  company: string;
+  subjectWords: [number, number];
+  bodyWords: [number, number];
+}) =>
   z.object({
-    hooks: z
-      .array(
-        z.object({
-          text: z.string().min(1),
-          signalIds: z.array(z.enum(signalIds)).min(1),
-          pain: z.string().min(1),
-          whyNow: z.string().min(1),
-          relevance: z.number().int().min(0).max(35),
-          specificity: z.number().int().min(0).max(15),
-          sensitiveReason: z.string().nullable(),
-        }),
-      )
-      .min(1)
-      .max(5),
-  });
-
-export const draftAnswerSchema = (signalIds: [string, ...string[]]) =>
-  z.object({
+    chosenHookId: z.enum(options.hookIds),
+    reason: z.string().min(1),
+    caseletId: z.enum(options.caseletIds),
     subject: z
       .string()
-      .refine((subject) => wordCount(subject) >= 2 && wordCount(subject) <= 4, "must be 2 to 4 words"),
-    body: z
-      .string()
-      // Hard limits only. The 50 to 100 target is checked by the style lint, so the rep sees it flagged
-      // instead of the run failing over a few words.
-      .refine((body) => {
-        const words = wordCount(body.replace(TAG, ""));
-        return words >= 35 && words <= 130;
-      }, "must be about 50 to 100 words"),
+      .refine(
+        (subject) => wordCount(subject) >= options.subjectWords[0] && wordCount(subject) <= options.subjectWords[1],
+        `must be ${options.subjectWords[0]} to ${options.subjectWords[1]} words`,
+      )
+      .refine((subject) => subject.toLowerCase().includes(options.company.toLowerCase()), `must name ${options.company}`),
+    body: z.string().refine((body) => {
+      const words = wordCount(body.replace(TAG, ""));
+      return words >= options.bodyWords[0] && words <= options.bodyWords[1];
+    }, `must be ${options.bodyWords[0]} to ${options.bodyWords[1]} words`),
     claims: z
-      .array(z.object({ text: z.string().min(1), signalId: z.enum(signalIds) }))
+      .array(z.object({ text: z.string().min(1), signalId: z.enum(options.signalIds) }))
       .min(1, "must cite at least one signal"),
-  });
-
-// Which headlines are about this company and not one with the same name.
-export const entityAnswerSchema = (count: number) =>
-  z.object({
-    sameCompany: z.array(z.number().int().min(0).max(count - 1)),
-  });
-
-export const verifyAnswerSchema = (count: number) =>
-  z.object({
-    results: z
-      .array(z.object({ index: z.number().int().min(0).max(count - 1), supported: z.boolean(), evidence: z.string() }))
-      .length(count),
-    uncitedFacts: z.array(z.string()),
   });

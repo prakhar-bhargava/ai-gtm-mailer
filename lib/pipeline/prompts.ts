@@ -1,95 +1,69 @@
 import seller from "@/config/seller-brief.zamp.json";
 import mailRules from "@/config/mail-rules.json";
-import type { Claim, Draft, Hook, ProspectInput, Signal } from "@/lib/types";
+import { approvedFigures, caseletFor } from "@/lib/proof";
+import { categoryLabel } from "@/lib/pipeline/hook-candidates";
+import type { Hook, ProspectInput, Signal } from "@/lib/types";
 
-const sellerSummary = [
-  `${seller.seller} sells: ${seller.offer}`,
-  `Strongest proof point: ${seller.strongest_proof_point}.`,
-  `Ideal customer: ${seller.ideal_customer}`,
-  "Pains and the angle for each:",
-  ...seller.pains.map((pain) => `- When a company shows "${pain.signal}", the pain is "${pain.pain}". Zamp's angle: ${pain.zamp_angle}.`),
-].join("\n");
+// The one model call in a run. Research, ranking and checking are done in code before and after it;
+// the model only chooses among the top angles and writes the email.
 
-function signalList(signals: Signal[]): string {
-  return signals
-    .map(
-      (signal) =>
-        `- id ${signal.id} (${signal.type}): ${signal.claim}. Detail: ${signal.snippet}. Source: ${signal.sourceName}, published ${signal.publishedAt ?? "date unknown"}.`,
-    )
-    .join("\n");
+function signalLine(signal: Signal): string {
+  return `  - id ${signal.id} (${signal.type}, ${signal.sourceName}, ${signal.publishedAt ? signal.publishedAt.slice(0, 10) : "undated"}): ${signal.claim}${signal.snippet !== signal.claim ? `. Detail: ${signal.snippet}` : ""}`;
 }
 
-export function hookSystemPrompt(): string {
+export function writerSystemPrompt(): string {
+  const body = mailRules.body;
   return [
-    "You find reasons to contact a prospect, using only the public signals you are given.",
-    sellerSummary,
+    `You write one cold outreach email for ${seller.seller}. Tone: ${seller.tone}`,
+    `${seller.seller} sells: ${seller.offer}`,
+    `Approved value line: "${seller.value_line}"`,
+    `Approved figures (the only numbers about ${seller.seller} you may use): ${approvedFigures().join("; ")}.`,
     "",
-    "For each hook: write one short factual sentence, name the signal ids it rests on, state the pain it implies, and say why it matters now.",
-    "Score relevance from 0 to 35: how strongly the signal implies a finance or operations pain that Zamp addresses.",
-    "Anchors: hiring for accounts payable, accounting, finance or billing roles, an ERP or finance-system change, expansion into new countries or entities, or a funding round to scale finance: 25 to 35.",
-    "Sales, marketing or engineering hiring, product launches, partnerships, and growth or revenue figures on their own: 0 to 15. Sales hiring does not imply a finance pain.",
-    "Score specificity from 0 to 15: how specific the hook is to this company rather than the industry.",
-    "Set sensitiveReason to a short reason if the hook touches layoffs, lawsuits, investigations, executive departures, health, family, politics, rumours or personal life. Otherwise null.",
-    "Give 3 to 5 hooks. Only cite ids that appear in the signal list.",
-    "Every hook must state a fact from a cited signal. Never write a hook about what is missing, absent or unknown (for example 'no hiring signals found'). If no signal supports a pain, give the hooks anyway with relevance 0 and say so in the pain field.",
-  ].join("\n");
-}
-
-export function hookUserPrompt(prospect: ProspectInput, signals: Signal[]): string {
-  return [
-    `Prospect: ${prospect.name}${prospect.role ? `, ${prospect.role}` : ""} at ${prospect.company}.`,
+    "You get up to three ranked angles about the prospect's company, each with its source signals and a customer story.",
+    "Choose the angle that gives the most concrete, recent reason for a finance leader to reply. Prefer the first unless another is clearly more specific. Return its id and a reason under 25 words.",
     "",
-    "Signals:",
-    signalList(signals),
-  ].join("\n");
-}
-
-export function draftSystemPrompt(): string {
-  return [
-    `You write a cold outreach email for ${seller.seller}. Tone: ${seller.tone}`,
+    `Subject: ${mailRules.subject.minWords} to ${mailRules.subject.maxWords} words, actionable. Name the company and the fact or problem you saw, then what ${seller.seller} changes, using an approved figure.`,
+    `Pattern: "<Company> is <the fact>: <outcome>". Examples: "Acme is hiring three AP roles: an AI employee live in four days", "Acme is expanding to Brazil: scale AP without adding headcount".`,
     "",
-    "Structure: a premise (one factual sentence about the prospect's company, from the hook), then value (one or two sentences on the pain and what the seller does about it), then a call to action that is an interest question such as 'Worth a look?'.",
-    "Rules (full list in docs/09-mail-guardrails.md):",
-    `- Subject: ${mailRules.subject.minWords} to ${mailRules.subject.maxWords} words, lowercase is fine.`,
-    `- Body: aim for about 70 words, between ${mailRules.body.targetMinWords} and ${mailRules.body.targetMaxWords}. Use ${mailRules.body.minParagraphs} to ${mailRules.body.maxParagraphs} short paragraphs.`,
-    "- Plain text only. No markdown, no bullet points, no links, no emoji.",
-    `- Open with a greeting such as "Hi ${"Name"},". Keep every sentence under ${mailRules.body.maxSentenceWords} words.`,
-    "- Use only the signals you are given. Each factual sentence goes in claims with the id of the signal that supports it.",
-    "- No ROI numbers or multipliers, no stock openers such as 'I noticed you recently' or 'I hope this finds you well', no flattery, no exclamation marks, no emoji.",
-    "- At most one question: the final call to action.",
-    "- Never say how the information was found (do not mention LinkedIn or searching).",
-    "- Do not invent facts, and do not name customers.",
-    `- For the value sentence, use this approved line (you may shorten it): "${seller.value_line}" Do not add any other product features.`,
-    "- Every sentence about the prospect's company must be a claim with a signal id. Do not describe the prospect's volumes, growth, pressures or workload unless a signal says so. Sentences about Zamp need no claim.",
-  ].join("\n");
-}
-
-export function draftUserPrompt(prospect: ProspectInput, hook: Hook, signals: Signal[]): string {
-  return [
-    `Prospect: ${prospect.name}${prospect.role ? `, ${prospect.role}` : ""} at ${prospect.company}.`,
-    `Chosen hook: ${hook.text}`,
-    `Pain it implies: ${hook.pain}`,
-    `Why now: ${hook.whyNow}`,
+    "Body, in this order, paragraphs separated by one blank line:",
+    "1. The greeting on its own line: \"Hi <first name>,\"",
+    "2. The premise: one or two sentences stating the fact from the chosen angle, then the pain such a change usually brings a finance team. Say \"usually\" or \"often\": the pain is typical, not a known fact about them.",
+    "3. The customer story for that angle, retold in one or two sentences close to its wording. Add no numbers, names or details to it.",
+    `4. How ${seller.seller} helps: one or two sentences built on the value line, with at most the approved figures.`,
+    "5. The call to action: one short interest question, such as \"Worth a short call next week?\"",
+    `Length: ${body.targetMinWords} to ${body.targetMaxWords} words, never under ${body.hardMinWords}. Every sentence under ${body.maxSentenceWords} words. No sign-off or name at the end: the signature is added for you.`,
+    "Plain text only: no markdown, bullets, links, emoji or exclamation marks. At most one question mark, in the call to action.",
     "",
-    "Signals (use only these):",
-    signalList(signals),
+    "Claims: every sentence that states a fact about the prospect's company goes in claims, with the id of the signal it comes from. Keep its wording close to the signal.",
+    `Never: invent facts or numbers, name customers other than in the story given, give ROI multipliers, describe their volumes or workload as fact, open with stock phrases ("I hope this finds you well", "I noticed"), say how you found the information, or flatter.`,
   ].join("\n");
 }
 
-export function verifySystemPrompt(): string {
-  return [
-    "You check whether each claim in an email is supported by the source snippet it cites.",
-    "A claim is supported only if the snippet states it or directly implies it. A claim that adds a fact, number or cause the snippet does not contain is not supported.",
-    "For each claim, return its index, supported true or false, and the short quote from the snippet that supports it (or an empty string).",
-    "Also list in uncitedFacts every sentence of the email that states a fact about the prospect's company (its growth, volumes, pressures, plans or events) and is not one of the claims. Do not list sentences about the seller, and do not list the call to action.",
-  ].join("\n");
-}
-
-export function verifyUserPrompt(draft: Draft, signals: Signal[]): string {
-  const byId = new Map(signals.map((signal) => [signal.id, signal]));
-  const lines = draft.claims.map((claim: Claim, index) => {
-    const signal = byId.get(claim.signalId);
-    return `Claim ${index}: "${claim.text}"\n  Cited signal ${claim.signalId}: "${signal?.snippet ?? ""}"`;
+export function writerUserPrompt(prospect: ProspectInput, angles: Hook[], signals: Signal[], background: string[]): string {
+  const firstName = prospect.name.trim().split(/\s+/)[0];
+  const blocks = angles.map((hook, index) => {
+    const cited = signals.filter((signal) => hook.signalIds.includes(signal.id));
+    const story = caseletFor(hook.category);
+    return [
+      `Angle ${hook.id} (rank ${index + 1}, ${categoryLabel(hook.category ?? "other").toLowerCase()}, score ${hook.scores.total} of 100)`,
+      `  Fact: ${hook.text}`,
+      `  Typical pain: ${hook.pain}`,
+      `  Why now: ${hook.whyNow}`,
+      `  Customer story [${story.id}]: ${story.text}`,
+      "  Signals:",
+      ...cited.map(signalLine),
+    ].join("\n");
   });
-  return [...lines, "", `Email body:\n${draft.body}`].join("\n");
+  return [
+    `Prospect: ${prospect.name} (first name ${firstName})${prospect.role ? `, ${prospect.role}` : ""} at ${prospect.company}.`,
+    prospect.notes ? `Rep's note: ${prospect.notes}` : "",
+    "",
+    ...blocks,
+    "",
+    background.length
+      ? `What the company's own website says (for understanding only; do not state these as facts unless they are a signal above):\n${background.map((line) => `  - ${line}`).join("\n")}`
+      : "",
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
 }

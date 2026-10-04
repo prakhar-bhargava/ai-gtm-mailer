@@ -18,7 +18,9 @@ Every limit the system works under, where it is enforced, and what happens when 
 
 | Constraint | Value | Where set | Enforced in |
 |---|---|---|---|
-| Outside requests per minute, for news, job boards and the model together | 4 | `config/pipeline.json` `maxRequestsPerMinute` | `lib/rate-limit.ts` |
+| Gemini calls per run | 1 (the writer). A second only if the first answer fails the format check | `lib/pipeline/stages/draft.ts` | Research, same-company check, ranking and claim check are code (since 2026-10-04) |
+| Model calls per minute | 4 | `config/pipeline.json` `maxRequestsPerMinute` | `lib/rate-limit.ts`. Free sources (news, job boards) no longer wait for this limit |
+| Model thinking | Off (budget 0), unless `thinkingBudget` is set in `config/llm.json`; if a model refuses 0, the call is repeated without the setting | `config/llm.json` | `lib/llm.ts` |
 | Company website pages per run | At most 8, read one at a time with a 0.4 s pause; 15 s per page | `lib/pipeline/stages/discover.ts` (`MAX_PAGES`), `lib/sources/crawler.ts` | `lib/sources/crawler.ts`. The crawler runs locally and is not counted against the 4 a minute limit |
 | robots.txt | Pages a site disallows for all crawlers are skipped and shown as skipped | `lib/sources/crawler.ts` | `lib/sources/crawler.ts` |
 | A page that failed | Not retried for 10 minutes, so one run doesn't wait on it twice | `lib/sources/crawler.ts` (`crawlfail:` cache key) | `lib/cache.ts` |
@@ -31,7 +33,7 @@ Every limit the system works under, where it is enforced, and what happens when 
 | Source and model answers cached | 24 hours | `config/pipeline.json` `cacheHours` | `lib/cache.ts` |
 | A live connection with no new events | Gives up after 120 s | `app/api/runs/[id]/stream/route.ts` (`STALL_MS`) | Stops waiting; the run page shows it as interrupted |
 
-A fresh company takes a few minutes at 4 requests a minute. A repeat search uses saved answers and finishes quickly.
+A fresh company takes about a minute, most of it the crawler. A repeat search uses saved pages and answers and finishes in seconds. Every run records what it used (model calls, tokens, pages, free requests) on its end event; the run page and dashboard show it (`lib/usage.ts`).
 
 ## 3. Research depth and volume
 
@@ -40,10 +42,11 @@ A fresh company takes a few minutes at 4 requests a minute. A repeat search uses
 | Company pages read | At most 8 including home and about; careers and newsroom first | `lib/pipeline/stages/discover.ts` (`MAX_PAGES`) |
 | Dated posts from the company's own newsroom | Within the 180-day news window; older ones are shown as "not used" | `lib/pipeline/stages/discover.ts` |
 | Which pages are followed | Only the company's own pages whose path contains about, news, newsroom, press, blog, careers, jobs, company, team or leadership | `lib/pipeline/links.ts` (`USEFUL_PATH`) |
-| Headlines checked for the same company | At most 8 candidates | `lib/pipeline/stages/news.ts` |
+| Same-company check on headlines | Every recent headline; the name must appear capitalised, not inside another name ("Basecamp Research", "Ford Bronco Basecamp"), and not as the same story as one that is. Dropped headlines are shown with the reason | `lib/pipeline/same-company.ts` |
 | News window | 180 days | `config/sources.json` `newsDays` |
 | Signals kept per source | 5 | `config/sources.json` `maxSignalsPerSource` |
-| Hooks per run | 3 to 5 | `lib/types.ts` (`hookAnswerSchema`) |
+| Angles per run | One per news item or dated post, one per group of job roles, one for the company description | `lib/pipeline/hook-candidates.ts`, `config/hook-lexicon.json` |
+| Angles sent to the writer | The top 3 that are not blocked and score 50 or more (the best is always sent) | `lib/pipeline/stages/draft.ts` |
 | Social profile links kept per company | Profiles only; video, post and share links are dropped | `lib/pipeline/links.ts` |
 
 ## 4. Scoring and thresholds
@@ -64,13 +67,16 @@ The full rules are in `docs/09-mail-guardrails.md`. The limits, as enforced:
 
 | Constraint | Value | Blocks Send? |
 |---|---|---|
-| Subject length | 2 to 4 words | Yes |
-| Body length | 40 to 130 words (target 50 to 100) | Yes (the target is a warning) |
+| Subject | 5 to 14 words, names the company; states an outcome (warning) | Yes |
+| Body length | 50 to 170 words (target 70 to 130) | Yes (the target is a warning) |
+| Greeting first, on its own line | Required | Yes |
+| Figures | Only the approved, sourced figures in `config/seller-brief.zamp.json` `proof` | Yes |
 | Recipient | A valid email address, required on the New run form | Yes |
 | Plain text, no links, no emoji, no exclamation marks | Required | Yes |
 | Questions in the body | At most 1 | Yes |
-| Stock phrases, mention of how the information was found, ROI figures | Not allowed | Yes |
-| Paragraphs, sentence length, flattering words, greeting | Warnings | No |
+| Stock phrases, mention of how the information was found | Not allowed | Yes |
+| Paragraphs, sentence length, flattering words | Warnings | No |
+| Signature | The rep's saved signature (default Prakhar, +91 9899326396, Zamp, with logo). Edited under any draft; stored in the `settings` table | No |
 
 Enforced in `config/mail-rules.json`, `lib/mail-check.ts`, the Send panel, and the Send endpoint.
 
@@ -99,7 +105,7 @@ Note on personal data in prompts: the model receives the prospect's name, role, 
 
 | Constraint | Detail | Where |
 |---|---|---|
-| Gmail compose link carries plain text only | Formatting is carried by line breaks; Copy formatted puts HTML on the clipboard | `lib/gmail.ts` |
+| Gmail compose link carries plain text only | Formatting is carried by line breaks, and the logo can't travel in the link; Copy formatted puts HTML (styled signature with logo) on the clipboard | `lib/gmail.ts` |
 | The new tab opens inside the click | Opening after an await gets blocked by browsers | `components/send-panel.tsx` |
 | Nothing is sent by the app | Gmail opens a draft; the rep presses Send there | `lib/gmail.ts` |
 

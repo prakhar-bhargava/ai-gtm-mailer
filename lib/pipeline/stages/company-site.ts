@@ -56,6 +56,7 @@ export const companySite: StageSpec = {
     return {
       summary: `Read ${ctx.domain}'s ${about ? "home and about pages" : "home page"}`,
       companyDescription: sentence.slice(0, 300),
+      siteText: [home, about].flatMap((page) => (page ? [page.description ?? "", ...page.headings, ...page.paragraphs] : [])).filter(Boolean),
       newSignals: [
         {
           type: "company_site",

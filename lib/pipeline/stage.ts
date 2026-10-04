@@ -13,6 +13,7 @@ export type RunContext = {
   domain: string | null;
   companyDescription: string | null; // the company's own one-line description, used to tell same-name companies apart
   jobSlugs: string[]; // job-board names found on the company's own site
+  siteText: string[]; // headings and paragraphs the crawler read: context for the writer and the news check
   signals: Signal[];
   hooks: Hook[];
   draft: Draft | null;
@@ -23,6 +24,8 @@ export type StageOutput = {
   domain?: string;
   companyDescription?: string;
   jobSlugs?: string[];
+  siteText?: string[];
+  chosenReason?: string;
   newSignals?: NewSignal[];
   hooks?: Hook[];
   draft?: Draft;
@@ -40,7 +43,7 @@ export type StageSpec = {
 };
 
 export function newContext(prospect: ProspectInput): RunContext {
-  return { prospect, domain: null, companyDescription: null, jobSlugs: [], signals: [], hooks: [], draft: null };
+  return { prospect, domain: null, companyDescription: null, jobSlugs: [], siteText: [], signals: [], hooks: [], draft: null };
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -63,14 +66,15 @@ export async function runStage(spec: StageSpec, ctx: RunContext, emit: Emit): Pr
     const output = await withTimeout(withTrail(note, () => spec.run(ctx)), pipeline.stageTimeoutMs);
 
     // Give each new signal the next id, then merge everything into the shared context.
-    const assigned: Signal[] = (output.newSignals ?? []).map((signal) => ({
+    const assigned: Signal[] = (output.newSignals ?? []).map((signal, index) => ({
       ...signal,
-      id: `s${ctx.signals.length + 1}`,
+      id: `s${ctx.signals.length + index + 1}`,
     }));
     ctx.signals.push(...assigned);
     if (output.domain) ctx.domain = output.domain;
     if (output.companyDescription) ctx.companyDescription = output.companyDescription;
     if (output.jobSlugs) ctx.jobSlugs = [...new Set([...ctx.jobSlugs, ...output.jobSlugs])];
+    if (output.siteText) ctx.siteText = [...new Set([...ctx.siteText, ...output.siteText])];
     if (output.hooks) ctx.hooks = output.hooks;
     if (output.draft) ctx.draft = output.draft;
 
@@ -80,6 +84,7 @@ export async function runStage(spec: StageSpec, ctx: RunContext, emit: Emit): Pr
       hooks: output.hooks,
       draft: output.draft,
       outcome: output.outcome,
+      chosenReason: output.chosenReason,
     };
     emit({
       stage: spec.id,

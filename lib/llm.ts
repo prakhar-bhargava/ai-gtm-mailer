@@ -6,6 +6,7 @@ import pipeline from "@/config/pipeline.json";
 import { cacheGet, cacheSet } from "@/lib/cache";
 import { takeSlot } from "@/lib/rate-limit";
 import { trail } from "@/lib/trail";
+import { recordModelCacheHit, recordModelCall } from "@/lib/usage";
 
 // Readable message for the run view. Never includes the API key or the raw provider response.
 export class LlmError extends Error {}
@@ -22,24 +23,52 @@ function getClient(): GoogleGenAI {
   return client;
 }
 
+// Thinking tokens are billed as output but add nothing to a short, well-specified email. Off by default;
+// set "thinkingBudget" in config/llm.json to turn it back on. Some models refuse a budget of 0 (flash-lite
+// answers 400 INVALID_ARGUMENT), so on that error the call is repeated once without it, and that model is
+// remembered for the rest of the process.
+const THINKING_BUDGET = (llm as { thinkingBudget?: number }).thinkingBudget ?? 0;
+const noThinkingRefused = new Set<string>();
+
 // One model call. It waits for a rate-limit slot first, then gets its own timeout.
 async function send(model: string, system: string, contents: string, schema: z.ZodType): Promise<string> {
   await takeSlot();
   trail(`Asking the model (${model})`);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), pipeline.modelTimeoutMs);
-  try {
-    const response = await getClient().models.generateContent({
+  const call = (withBudget: boolean) =>
+    getClient().models.generateContent({
       model,
       contents,
       config: {
         systemInstruction: system,
         responseMimeType: "application/json",
         responseJsonSchema: z.toJSONSchema(schema),
-        temperature: 0.3,
+        temperature: 0.4,
         abortSignal: controller.signal,
+        ...(withBudget ? { thinkingConfig: { thinkingBudget: THINKING_BUDGET } } : {}),
       },
     });
+  try {
+    let response;
+    try {
+      response = await call(!noThinkingRefused.has(model));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      // gemini-flash-lite-latest answers a plain 400 INVALID_ARGUMENT, without naming the setting.
+      if (!/thinking|INVALID_ARGUMENT|\b400\b/i.test(message) || noThinkingRefused.has(model)) throw error;
+      noThinkingRefused.add(model);
+      response = await call(false);
+    }
+    const meta = response.usageMetadata;
+    recordModelCall({
+      input: meta?.promptTokenCount,
+      output: meta?.candidatesTokenCount,
+      thinking: meta?.thoughtsTokenCount,
+    });
+    trail(
+      `The model answered: ${meta?.promptTokenCount ?? "?"} tokens in, ${meta?.candidatesTokenCount ?? "?"} out${meta?.thoughtsTokenCount ? `, ${meta.thoughtsTokenCount} thinking` : ""}`,
+    );
     return response.text ?? "";
   } catch (error) {
     if (controller.signal.aborted) {
@@ -83,6 +112,7 @@ export async function generateJson<T extends z.ZodType>(options: {
   if (cached !== null) {
     const hit = options.schema.safeParse(JSON.parse(cached));
     if (hit.success) {
+      recordModelCacheHit();
       trail("Using an answer saved from an earlier run, no model call needed");
       return hit.data as z.output<T>;
     }
@@ -116,6 +146,8 @@ export async function generateJson<T extends z.ZodType>(options: {
     if (error instanceof LlmError) throw error;
     const message = error instanceof Error ? error.message : "";
     if (TRANSIENT.test(message)) throw new LlmError("Gemini is busy right now (high demand). Try again in a minute");
-    throw new LlmError("the model service returned an error");
+    // Keep a short, key-free reason so a failed run says what went wrong.
+    const reason = message.replace(/key=[^&\s]+/gi, "key=…").replace(/\s+/g, " ").slice(0, 160);
+    throw new LlmError(`the model service returned an error${reason ? ` (${reason})` : ""}`);
   }
 }

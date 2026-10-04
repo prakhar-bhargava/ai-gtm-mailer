@@ -3,7 +3,13 @@
   "offer": "AI employees for finance and operations roles. A company briefs each one once, and it owns the job end to end.",
   "strongest_proof_point": "Invoice processing and accounts payable",
   "ideal_customer": "Enterprises and large mid-market companies with heavy accounts payable, procurement or compliance volume.",
-  "personas": ["CFO", "VP Finance", "Controller", "Head of AP or Finance Ops", "Head of Procurement"],
+  "personas": [
+    "CFO",
+    "VP Finance",
+    "Controller",
+    "Head of AP or Finance Ops",
+    "Head of Procurement"
+  ],
   "pains": [
     {
       "signal": "Hiring several AP, AR, accounting or finance ops roles",
@@ -24,13 +30,75 @@
       "signal": "Funding round or growth news",
       "pain": "Finance operations must scale for the next stage",
       "zamp_angle": "Same as above"
+    },
+    {
+      "signal": "Compliance, audit or regulatory work in the news or on the site",
+      "pain": "Checks and evidence work grow with every market and product",
+      "zamp_angle": "An AI employee runs the checks and keeps the audit trail, so reviewers only look at exceptions"
     }
   ],
   "value_line": "An AI employee takes the repetitive accounts payable queue, so the team's own people can work on the exceptions.",
-  "tone": "Plain, peer to peer, short. No hype words. One interest question as the call to action.",
+  "tone": "Plain, peer to peer, specific. No hype words. One interest question as the call to action.",
   "do_not": [
     "Do not name customers in a draft",
     "Do not put ROI multipliers in a draft",
     "Do not mention how the prospect's information was found"
-  ]
+  ],
+  "proof": {
+    "_note": "Only these figures and stories may appear in a draft. Each has a public source. Add a sourced effort or hours figure under impact to use it in subjects and bodies; until then drafts use only the published figures.",
+    "approved_figures": [
+      {
+        "text": "99%+ accuracy",
+        "match": [
+          "99%+",
+          "99%"
+        ],
+        "source": "https://zamp.ai"
+      },
+      {
+        "text": "live in four days",
+        "match": [
+          "four days",
+          "4 days",
+          "four-day",
+          "4-day"
+        ],
+        "source": "https://zamp.ai"
+      }
+    ],
+    "impact": {
+      "effortReduction": null,
+      "source": null,
+      "example": "Set effortReduction to a sourced figure such as \"60% fewer manual hours on invoice entry\" and source to its URL."
+    },
+    "use_customer_names": false,
+    "caselets": [
+      {
+        "id": "mindbody",
+        "fits": [
+          "finance_hiring",
+          "erp",
+          "growth",
+          "funding",
+          "expansion",
+          "other"
+        ],
+        "anonymous": "A finance team at a fitness and wellness software company now has Zamp handle most of its invoice processing end to end. The team only steps in when Zamp asks a question.",
+        "named": "Mindbody's finance team now has Zamp handle most of its invoice processing end to end. They only step in when Zamp asks a question.",
+        "source": "https://zamp.ai (quote from Mindbody finance)"
+      },
+      {
+        "id": "wio",
+        "fits": [
+          "compliance",
+          "expansion",
+          "funding",
+          "partnership"
+        ],
+        "anonymous": "A digital bank in the UAE uses Zamp to automate complex operations with full compliance, so its teams can focus on the work that needs judgement.",
+        "named": "Wio Bank uses Zamp to automate complex operations with full compliance, so its teams can focus on the work that needs judgement.",
+        "source": "https://zamp.ai (quote from Wio Bank's CPO)"
+      }
+    ]
+  }
 }

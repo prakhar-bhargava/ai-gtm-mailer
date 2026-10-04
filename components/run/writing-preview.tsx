@@ -114,7 +114,7 @@ export function WritingPreview(props: Props) {
         <span className="font-mono text-[11px] text-foreground/60">New message</span>
         <span className="w-10" />
       </div>
-      <dl className="grid grid-cols-[4.5rem_1fr] border-b border-line text-[13px]">
+      <dl className="grid grid-cols-[4.5rem_1fr] border-b border-line text-[15px]">
         <dt className="px-4 py-2 text-foreground/50">To</dt>
         <dd className="truncate py-2 pr-4">
           {prospect.name}
@@ -125,7 +125,7 @@ export function WritingPreview(props: Props) {
           {subject ? <span className={done ? "" : "ai-ink"}>{subject}</span> : <span className="text-foreground/30">Waiting for the angle</span>}
         </dd>
       </dl>
-      <div className="min-h-[300px] px-5 py-5 font-serif text-[16px] leading-[1.75] whitespace-pre-wrap" aria-live="off">
+      <div className="min-h-[360px] px-6 py-6 font-serif text-[19px] leading-[1.7] whitespace-pre-wrap sm:px-8 sm:text-[20px]" aria-live="off">
         <span className={done ? "text-foreground transition-colors duration-700" : "ai-ink"}>{body}</span>
         {!done && <span className="ai-caret" aria-hidden />}
       </div>

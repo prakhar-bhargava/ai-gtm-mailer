@@ -115,6 +115,8 @@ export type ChartData = {
   claims: { backed: number; notBacked: number };
   pages: { total: number; browser: number; html: number };
   outboxCount: number;
+  // From runs that recorded usage (runs made after the one-model-call change).
+  usage: { runs: number; modelCalls: number; tokens: number; freeRequests: number; pages: number };
 };
 
 type EventRow = { run_id: string; stage: string; status: string; duration_ms: number | null; payload_json: string | null };
@@ -156,6 +158,7 @@ export function getChartData(): ChartData {
   const signalTypes = new Map<string, number>();
   const durations = new Map<string, number[]>();
   const pages = { total: 0, browser: 0, html: 0 };
+  const usage = { runs: 0, modelCalls: 0, tokens: 0, freeRequests: 0, pages: 0 };
 
   for (const event of events) {
     const runFact = fact(event.run_id);
@@ -171,6 +174,7 @@ export function getChartData(): ChartData {
       hooks?: { blockedReason: string | null; scores: { total: number } }[];
       draft?: { claims?: { supported?: boolean }[] };
       crawl?: { via: string };
+      usage?: { modelCalls: number; inputTokens: number; outputTokens: number; thinkingTokens: number; freeRequests: number; freeRequestsFromCache: number; pagesRead: number; pagesFromCache: number };
     };
     try {
       payload = JSON.parse(event.payload_json);
@@ -188,6 +192,14 @@ export function getChartData(): ChartData {
     if (payload.draft) {
       runFact.draft = true;
       runFact.claims = (payload.draft.claims ?? []).map((claim) => ({ supported: Boolean(claim.supported) }));
+    }
+    if (payload.usage) {
+      const used = payload.usage;
+      usage.runs++;
+      usage.modelCalls += used.modelCalls;
+      usage.tokens += used.inputTokens + used.outputTokens + used.thinkingTokens;
+      usage.freeRequests += used.freeRequests + used.freeRequestsFromCache;
+      usage.pages += used.pagesRead + used.pagesFromCache;
     }
     if (payload.crawl) {
       pages.total++;
@@ -233,5 +245,5 @@ export function getChartData(): ChartData {
   const typeOrder = ["news", "job", "company_site"];
   const signalsByType = typeOrder.map((type) => ({ type, count: signalTypes.get(type) ?? 0 }));
 
-  return { perDayByOutcome, funnel, hookScores, signalsByType, stageMedians, claims, pages, outboxCount };
+  return { perDayByOutcome, funnel, hookScores, signalsByType, stageMedians, claims, pages, outboxCount, usage };
 }

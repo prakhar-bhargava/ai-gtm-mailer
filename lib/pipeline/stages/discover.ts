@@ -127,6 +127,7 @@ export const discover: StageSpec = {
       dated.length ? `${dated.length} dated post${dated.length === 1 ? "" : "s"}` : "",
       jobSlugs.size ? "a job board link" : "",
     ].filter(Boolean);
-    return { summary: parts.join(", "), jobSlugs: [...jobSlugs], newSignals };
+    const siteText = read.flatMap((page) => [page.description ?? "", ...page.headings, ...page.paragraphs]).filter(Boolean);
+    return { summary: parts.join(", "), jobSlugs: [...jobSlugs], newSignals, siteText };
   },
 };

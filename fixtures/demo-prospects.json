@@ -5,10 +5,10 @@
       "id": "stripe-happy",
       "case": "Happy path: many hiring and news signals",
       "input": {
-        "name": "Test Contact",
+        "name": "Alex Sample",
         "company": "Stripe",
         "domain": "stripe.com",
-        "role": "Head of Finance"
+        "role": "CFO"
       },
       "observed": {
         "outcome": "flagged",
@@ -21,7 +21,7 @@
       "id": "intel-leadership",
       "case": "Leadership news, no job board",
       "input": {
-        "name": "Test Contact",
+        "name": "Alex Sample",
         "company": "Intel",
         "domain": "intel.com",
         "role": "CFO"
@@ -63,6 +63,15 @@
         "note": "Earlier run scored 30 with only a cookie banner as its source. Re-run to confirm the abstain panel appears."
       },
       "mailTest": "Should not produce a draft. Confirm the abstain panel and the two options are shown."
+    },
+    {
+      "id": "notion-hiring",
+      "input": {
+        "name": "Alex Sample",
+        "company": "Notion",
+        "domain": "notion.com",
+        "role": "VP Finance"
+      }
     }
   ]
 }

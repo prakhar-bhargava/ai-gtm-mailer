@@ -65,18 +65,20 @@ A signal without a URL or a date is dropped or marked "undated" (scored down).
 - Sensitivity classifier: layoffs, lawsuits, investigations, health, death, family, politics, personal life posts, exec departures, missed earnings. Blocked from being a hook; shown in the UI with a "blocked: sensitive" label. Edge case 3.
 - Role change detection: a signal saying the person has left or a successor was named stops the run with "contact may be outdated". Edge case 4.
 
-### 5. Candidate hooks
-LLM proposes 3 to 5 hooks. Each hook must cite one or more signal ids and fill in: the signal, the inferred pain or priority for this person, why Zamp is relevant to that pain, and why now.
+Since 2026-10-04 every step up to the draft is code: the crawler, free sources, and rules a person can read. The run makes **one** Gemini call, in step 7.
 
-### 6. Score
-Rubric in docs/06-hook-rubric-and-writing-rules.md. Part deterministic (recency, verifiability, sensitivity gate), part LLM-judged (relevance to Zamp's offer, specificity, seniority fit). Show the score breakdown for every candidate and say why the winner won.
+### 5. Candidate hooks (code)
+One angle per news item or dated post, one per group of job roles (three AP roles are one stronger angle), one for the company description. `config/hook-lexicon.json` matches each to a category (finance hiring, finance system change, expansion, funding, compliance, growth, partnership, other) that sets its relevance and the seller pain.
 
-### 7. Draft
-Premise, value, CTA. 50 to 100 words. Subject 2 to 4 words. Interest CTA ("worth a look?"), not a meeting ask. No ROI numbers. Every factual phrase carries a citation tag back to a signal id.
+### 6. Score (code)
+Rubric in docs/06-hook-rubric-and-writing-rules.md, all in code: relevance from the lexicon, specificity from concrete detail (numbers, names, several roles), recency, verifiability, source type and seniority from the signals. The same signals always give the same order. Show the score breakdown for every candidate and say why the winner won.
 
-### 8. Verify
-- Claim check: each factual sentence must map to a cited signal and be supported by its snippet. Unsupported claims trigger one rewrite; if still unsupported, the sentence is highlighted for the reviewer.
-- Style lint: word count, banned openers ("I noticed you recently", "I hope this finds you well"), ROI numbers, exclamation marks.
+### 7. Draft (the one model call)
+The top 3 angles go to the writer with their signals, a customer story each, and the approved figures. It picks one, says why in a sentence, and writes: an actionable subject (company, fact, outcome), then greeting, premise, customer story, how Zamp helps, one interest question. 70 to 130 words, never under 50. Every fact about the company is a cited claim. Full rules: docs/09-mail-guardrails.md.
+
+### 8. Verify (code)
+- Claim check: a claim is supported when its numbers appear in the cited source and at least 60% of its content words do. Sentences about the company that aren't claims, and numbers with no source, are listed for the reviewer.
+- Mail guardrails: subject, structure, length, figures, banned phrases, formatting.
 
 ### 9. Review
 The rep sees the draft with highlighted claims linked to sources, the chosen hook and the rejected ones, and can approve, edit or reject with a reason code (wrong person, weak hook, tone, factual error, sensitive, other). Approved drafts can be copied (stretch: saved as a Gmail draft). Nothing sends automatically.

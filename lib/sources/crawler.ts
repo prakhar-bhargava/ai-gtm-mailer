@@ -1,5 +1,6 @@
 import pipeline from "@/config/pipeline.json";
 import { cacheGet, cacheSet } from "@/lib/cache";
+import { recordPage } from "@/lib/usage";
 import { trail } from "@/lib/trail";
 import type { CrawlPage } from "@/lib/types";
 
@@ -62,7 +63,9 @@ function scheduleClose() {
 // ---------------------------------------------------------------------------------------------
 // robots.txt: pages the site asks crawlers not to read are skipped.
 
-async function disallowedPaths(origin: string): Promise<string[]> {
+type RobotsRule = { allow: boolean; pattern: string };
+
+async function disallowedPaths(origin: string): Promise<RobotsRule[]> {
   const key = `robots:${origin}`;
   const cached = cacheGet(key);
   let text = cached;
@@ -78,22 +81,54 @@ async function disallowedPaths(origin: string): Promise<string[]> {
     }
     cacheSet(key, text);
   }
-  // Rules for "User-agent: *" only. Good enough for public marketing pages.
-  const rules: string[] = [];
-  let applies = false;
+  return parseRobots(text);
+}
+
+// The rules in the "User-agent: *" group. Consecutive User-agent lines share one group, and both
+// Allow and Disallow are kept, so "Disallow: /*?" doesn't read as "Disallow: /".
+export function parseRobots(text: string): RobotsRule[] {
+  const rules: RobotsRule[] = [];
+  let agents: string[] = [];
+  let inRules = false;
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.replace(/#.*/, "").trim();
+    if (!line) continue;
     const [field, ...rest] = line.split(":");
+    const name = field.trim().toLowerCase();
     const value = rest.join(":").trim();
-    if (/^user-agent$/i.test(field)) applies = value === "*";
-    else if (applies && /^disallow$/i.test(field) && value) rules.push(value);
+    if (name === "user-agent") {
+      if (inRules) {
+        agents = [];
+        inRules = false;
+      }
+      agents.push(value);
+    } else if (name === "allow" || name === "disallow") {
+      inRules = true;
+      if (agents.includes("*") && value) rules.push({ allow: name === "allow", pattern: value });
+    }
   }
   return rules;
 }
 
-function allowed(url: string, rules: string[]): boolean {
-  const path = new URL(url).pathname;
-  return !rules.some((rule) => path.startsWith(rule.replace(/\*.*$/, "")));
+function robotsRegex(pattern: string): RegExp {
+  const anchored = pattern.endsWith("$");
+  const body = (anchored ? pattern.slice(0, -1) : pattern)
+    .split("*")
+    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+    .join(".*");
+  return new RegExp(`^${body}${anchored ? "$" : ""}`);
+}
+
+// The longest matching rule wins; on a tie, Allow wins (as Google reads robots.txt).
+export function allowedByRobots(url: string, rules: RobotsRule[]): boolean {
+  const parsed = new URL(url);
+  const target = `${parsed.pathname}${parsed.search}`;
+  let best: RobotsRule | null = null;
+  for (const rule of rules) {
+    if (!robotsRegex(rule.pattern).test(target)) continue;
+    if (!best || rule.pattern.length > best.pattern.length || (rule.pattern.length === best.pattern.length && rule.allow)) best = rule;
+  }
+  return !best || best.allow;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -278,6 +313,7 @@ export async function crawlPage(url: string): Promise<RawPage> {
   const key = `crawl:${url}`;
   const cached = cacheGet(key);
   if (cached) {
+    recordPage(true);
     trail(`Using a saved copy of ${new URL(url).pathname || "/"}, no request needed`);
     return JSON.parse(cached) as RawPage;
   }
@@ -290,7 +326,9 @@ export async function crawlPage(url: string): Promise<RawPage> {
     if (Date.now() - Number(at) < FAILURE_MEMORY_MS) throw new Error(message.join("|"));
   }
   try {
-    return await crawlFresh(url, key);
+    const page = await crawlFresh(url, key);
+    recordPage(false);
+    return page;
   } catch (error) {
     cacheSet(`crawlfail:${url}`, `${Date.now()}|${error instanceof Error ? error.message : "no answer"}`);
     throw error;
@@ -300,7 +338,7 @@ export async function crawlPage(url: string): Promise<RawPage> {
 async function crawlFresh(url: string, key: string): Promise<RawPage> {
   const origin = new URL(url).origin;
   const rules = await disallowedPaths(origin);
-  if (!allowed(url, rules)) throw new Error(`robots.txt asks crawlers not to read ${new URL(url).pathname}`);
+  if (!allowedByRobots(url, rules)) throw new Error(`robots.txt asks crawlers not to read ${new URL(url).pathname}`);
 
   const started = Date.now();
   const browser = await getBrowser();

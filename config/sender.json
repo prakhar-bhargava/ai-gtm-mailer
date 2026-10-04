@@ -1,8 +1,10 @@
 {
-  "_note": "Who the email is from. Fill these in before using the Outbox. Placeholders are shown until then.",
-  "name": "[Your name]",
-  "title": "[Your title]",
+  "_note": "Default signature. Each rep can change theirs in the app (Edit signature under any draft); that copy is saved in the local database and wins over these defaults.",
+  "signoff": "Best,",
+  "name": "Prakhar",
+  "title": "",
+  "phone": "+91 9899326396",
   "company": "Zamp",
   "website": "zamp.ai",
-  "signoff": "Best,"
+  "logoUrl": "https://www.google.com/s2/favicons?domain=zamp.ai&sz=128"
 }

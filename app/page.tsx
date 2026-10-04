@@ -17,7 +17,7 @@ const NAV = [
 ];
 
 const TRIAL_HREF = "/app?welcome=1";
-const DEMO_HREF = "/replay/basecamp-clean-draft?live=1";
+const DEMO_HREF = "/replay/stripe-clean-draft?live=1";
 
 export default function Landing() {
   return (
@@ -197,7 +197,7 @@ function SampleFeed() {
           </li>
         ))}
       </ul>
-      <p className="rounded-lg bg-white/80 p-3 font-serif text-[14px] leading-6">
+      <p className="rounded-lg bg-white/80 p-3 font-serif text-[16px] leading-7">
         <span className="ai-ink">Hi Dana, Northwind opened four accounts payable roles this month, so</span>
         <span className="ai-caret" />
       </p>
@@ -244,7 +244,7 @@ function SampleCompose() {
 // A small illustration of the letter view: a sourced sentence, its number, and the note beneath.
 function SampleLetter() {
   return (
-    <div aria-hidden className="relative grid gap-2 rounded-xl border border-line bg-[#fbfbfb] p-4 font-serif text-[14px] leading-7">
+    <div aria-hidden className="relative grid gap-2 rounded-xl border border-line bg-[#fbfbfb] p-5 font-serif text-[17px] leading-8">
       <p>
         Hi Dana,{" "}
         <span className="underline decoration-verified/50 decoration-2 underline-offset-4">
@@ -392,9 +392,10 @@ const STATS: { value: string; label: string; source: string; href: string }[] = 
 ];
 
 const PRIMARY = [
-  ["Stripe", "Read 8 pages, found 70 open finance and ops roles. The claim check caught an overstated \"multiple roles\" sentence.", "Draft flagged"],
-  ["Basecamp", "A headline about a biotech with the same name was removed before it could become a hook.", "Draft passes"],
-  ["Intel", "No public job board; leadership news only. The premise was flagged as not fully backed.", "Draft flagged"],
+  ["Stripe", "Read 8 pages and found 14 open finance roles on its own job board. One model call wrote a 93-word email; every claim and guardrail passed.", "Draft passes"],
+  ["Notion", "Five finance roles on the Ashby board linked from its site. Same result: one call, every check passed.", "Draft passes"],
+  ["Basecamp", "34 headlines carried the name, none about the company (one was a clinical trial called Basecamp). Nothing left to write about.", "No email"],
+  ["Intel", "Headlines only mentioned Intel or predicted; one was a startup raising $85M with Intel's CEO as adviser. Not used as an Intel event.", "No email"],
   ["Ripik AI", "Only a cookie banner and a thin footprint. The best angle scored 30, so it abstained.", "No email"],
 ];
 
@@ -528,7 +529,7 @@ function Footer() {
   const columns: [string, [string, string][]][] = [
     ["Product", [["Open the app", "/app"], ["Runs", "/dashboard"], ["Outbox", "/outbox"], ["Accounts", "/accounts"]]],
     ["Learn", [["How it works", "#how"], ["Research", "#research"], ["Beta", "#beta"]]],
-    ["Try", [["Watch a live run", DEMO_HREF], ["A case with no email", "/replay/ripik-abstain?live=1"], ["A flagged draft", "/replay/stripe-flagged?live=1"]]],
+    ["Try", [["Watch a live run", DEMO_HREF], ["A case with no email", "/replay/ripik-abstain?live=1"], ["Only mentioned in the news", "/replay/intel-mentions-only?live=1"]]],
   ];
   return (
     <footer className="bg-navy px-2 pb-2 sm:px-4 sm:pb-4">

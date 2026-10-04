@@ -1,23 +1,23 @@
 {
-  "_note": "Generic emails for when a search finds nothing usable. They make no claim about the company, so they need no source. Placeholders: {first_name}, {company}. The rep reviews and edits before saving. Checked against docs/09-mail-guardrails.md.",
+  "_note": "Generic emails for when a search finds nothing usable. They make no claim about the company, so they need no source. Placeholders: {first_name}, {company}. Same structure as a researched draft: greeting, premise, customer story, how Zamp helps, one question. Only approved figures (lib/proof.ts). Checked against docs/09-mail-guardrails.md.",
   "templates": [
     {
       "id": "value-intro",
       "label": "Value introduction",
-      "subject": "finance ops at scale",
-      "body": "Hi {first_name},\n\nMost finance teams reach a point where invoice and accounts payable work grows faster than the team that handles it. Work that is routine gets the same attention as work that needs a decision.\n\nZamp provides AI employees that take the repetitive accounts payable queue, so your team can spend its time on the exceptions.\n\nWorth a look?"
+      "subject": "{company} finance ops: AP handled without adding headcount",
+      "body": "Hi {first_name},\n\nMost finance teams reach a point where invoice and accounts payable work grows faster than the team that handles it. Routine work then gets the same attention as work that needs a decision.\n\nA finance team at a fitness and wellness software company now has Zamp handle most of its invoice processing end to end. The team only steps in when Zamp asks a question.\n\nZamp's AI employee takes the repetitive accounts payable queue at 99%+ accuracy, so your own people work on the exceptions.\n\nWorth a short call next week?"
     },
     {
       "id": "month-end",
       "label": "Month-end close",
-      "subject": "month-end close",
-      "body": "Hi {first_name},\n\nMonth-end close is usually the point where manual invoice matching and approvals slow everyone down. The work is repetitive, and it lands on the same few people every month.\n\nWe help finance teams hand that routine queue to an AI employee that is briefed once, so the close depends less on overtime.\n\nIs this a priority for {company} this quarter?"
+      "subject": "{company} month-end close: an AI employee live in four days",
+      "body": "Hi {first_name},\n\nMonth-end close is usually where manual invoice matching and approvals slow everyone down. The work is repetitive, and it lands on the same few people every month.\n\nA finance team at a fitness and wellness software company now has Zamp handle most of its invoice processing end to end, and only steps in when Zamp asks.\n\nZamp briefs an AI employee once and it is live in four days, so the close depends less on overtime.\n\nIs this a priority for {company} this quarter?"
     },
     {
       "id": "brief-once",
       "label": "Briefed once, owns the job",
-      "subject": "a finance hire that starts day one",
-      "body": "Hi {first_name},\n\nHiring for accounts payable takes months, and the first few months are spent training. A routine queue can wait while that happens.\n\nZamp's AI employees are briefed once and then own the job end to end, with your team reviewing the exceptions.\n\nOpen to comparing notes?"
+      "subject": "{company} AP hiring: a finance hire live in four days",
+      "body": "Hi {first_name},\n\nHiring for accounts payable takes months, and the first few months go on training. The routine queue waits while that happens.\n\nA digital bank in the UAE uses Zamp to automate complex operations with full compliance, so its teams can focus on the work that needs judgement.\n\nZamp's AI employees are briefed once, live in four days, and own the job end to end while your team reviews the exceptions.\n\nOpen to comparing notes?"
     }
   ]
 }

@@ -22,8 +22,9 @@ Hero (wordmark, machine-voice note, trial CTA), sources strip, "About me" tabbed
 
 Stats strip (runs, drafts to review, share that produced a draft, median run) above a four-field form. Under the form, "Try a case" in two groups:
 
-- Happy paths: Basecamp (passes every check), Stripe (one claim flagged).
-- Cases to look at: Ripik AI (abstains), Intel (no job board, flagged premise), and the two planned edge cases (same-name company, prospect changed jobs), shown dashed as "Planned".
+- Happy paths: Stripe (recorded: 14 finance roles, passes every check), Notion (live: five finance roles on its Ashby board).
+- Cases to look at: Ripik AI (abstains), Intel (recorded: only mentioned in the news, so no email), and the two planned edge cases (same-name company, prospect changed jobs), shown dashed as "Planned".
+- Older recordings made before the one-call pipeline are kept in `fixtures/replays-archive/` and are not shown.
 
 Each case can be watched as a recorded replay ("Watch it run") or used to fill the form for a live run ("Use these details"). The recipient email is left for the rep; sample contacts are placeholders.
 

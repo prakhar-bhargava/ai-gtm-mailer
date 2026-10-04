@@ -1,10 +1,9 @@
-import { generateJson } from "@/lib/llm";
 import { scoreHooks } from "@/lib/pipeline/score-hooks";
-import { hookSystemPrompt, hookUserPrompt } from "@/lib/pipeline/prompts";
+import { candidateHooks, categoryLabel } from "@/lib/pipeline/hook-candidates";
 import type { StageSpec } from "@/lib/pipeline/stage";
-import { hookAnswerSchema } from "@/lib/types";
 
-// The model proposes 3 to 5 hooks from the signals; code scores and ranks them.
+// Ranks the possible reasons to get in touch. No model call: angles come from the signals and the
+// lexicon in config/hook-lexicon.json, and the rubric scores them (docs/06).
 export const hooks: StageSpec = {
   id: "hooks",
   required: true,
@@ -13,19 +12,11 @@ export const hooks: StageSpec = {
     if (ctx.signals.length === 0) {
       return { summary: "No public signals to build a hook from", hooks: [] };
     }
-
-    const ids = ctx.signals.map((signal) => signal.id) as [string, ...string[]];
-    const answer = await generateJson({
-      system: hookSystemPrompt(),
-      prompt: hookUserPrompt(ctx.prospect, ctx.signals),
-      schema: hookAnswerSchema(ids),
-    });
-
-    const ranked = scoreHooks(answer.hooks, ctx.signals, ctx.prospect.role);
+    const ranked = scoreHooks(candidateHooks(ctx.signals, ctx.prospect.company), ctx.signals, ctx.prospect.role);
     const best = ranked.find((hook) => !hook.blockedReason);
     const summary = best
-      ? `Ranked ${ranked.length} possible hooks. The best scores ${best.scores.total} of 100`
-      : `Ranked ${ranked.length} possible hooks, and none passed the sensitivity check`;
+      ? `Ranked ${ranked.length} possible angle${ranked.length === 1 ? "" : "s"}. The best (${categoryLabel(best.category ?? "").toLowerCase()}) scores ${best.scores.total} of 100`
+      : `Ranked ${ranked.length} possible angles, and none passed the sensitivity check`;
     return { summary, hooks: ranked };
   },
 };

@@ -111,8 +111,9 @@ export function DitherField({
 
     const draw = () => {
       const rect = canvas.getBoundingClientRect();
-      const cols = Math.max(1, Math.floor(rect.width / pixel));
-      const rows = Math.max(1, Math.floor(rect.height / pixel));
+      if (rect.width < pixel || rect.height < pixel) return; // not laid out yet
+      const cols = Math.floor(rect.width / pixel);
+      const rows = Math.floor(rect.height / pixel);
       canvas.width = cols;
       canvas.height = rows;
       const ctx = canvas.getContext("2d");
@@ -164,8 +165,13 @@ export function DotWordmark({ text, className = "" }: { text: string; className?
     const draw = () => {
       const rect = canvas.getBoundingClientRect();
       const ratio = window.devicePixelRatio || 1;
-      canvas.width = Math.floor(rect.width * ratio);
-      canvas.height = Math.floor(rect.height * ratio);
+      const width = Math.floor(rect.width * ratio);
+      const height = Math.floor(rect.height * ratio);
+      // Before layout, or while hidden, the canvas has no size; reading image data would throw.
+      // The resize observer calls draw again once it has one.
+      if (width < 2 || height < 2) return;
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
@@ -178,8 +184,8 @@ export function DotWordmark({ text, className = "" }: { text: string; className?
       const family = getComputedStyle(document.body).fontFamily;
       let size = canvas.height * 0.95;
       offCtx.font = `600 ${size}px ${family}`;
-      const width = offCtx.measureText(text).width;
-      if (width > canvas.width * 0.98) size *= (canvas.width * 0.98) / width;
+      const textWidth = offCtx.measureText(text).width;
+      if (textWidth > canvas.width * 0.98) size *= (canvas.width * 0.98) / textWidth;
       offCtx.font = `600 ${size}px ${family}`;
       offCtx.textBaseline = "middle";
       offCtx.fillStyle = "#fff";

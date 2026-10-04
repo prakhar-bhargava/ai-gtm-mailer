@@ -14,6 +14,23 @@ Source: link or file, if any.
 
 ## Decisions
 
+### 2026-10-04: One Gemini call per run
+What: The run used 4 model calls (same-company news check, rank hooks, write, verify): about 3,200 tokens in and 430 out, plus thinking tokens, and up to 8 calls with format retries. All non-writing calls moved to code: a same-company check on headlines (lib/pipeline/same-company.ts), angle ranking from a lexicon built on the seller brief (config/hook-lexicon.json), and a claim check by numbers and word overlap (lib/pipeline/claim-check.ts). The one remaining call gets the top 3 angles and writes. Thinking is off. The 4-a-minute limiter now applies to the model only, and every run records its usage (lib/usage.ts), shown on the run page and the dashboard.
+Why it matters: 75% fewer calls, a run is no longer stuck behind its own rate limiter, the ranking is the same every time, and the model can't overrate a weak signal (it had scored a revenue estimate 30 of 35 for relevance against its own instructions).
+Interview line: "Everything I can check with a rule is a rule; the model does the one thing rules can't, which is write."
+Source: docs/06-hook-rubric-and-writing-rules.md, docs/11-system-constraints.md
+
+### 2026-10-04: Actionable subjects, a customer story in every mail, sourced figures only
+What: At the user's request, subjects now name the company, the fact and the outcome (5 to 14 words), and the body runs greeting, premise, customer story, how Zamp helps, one question, 70 to 130 words and never under 50. Customer stories and figures come only from `proof` in the seller brief, each with a public source. Zamp publishes no effort or hours-saved percentage (checked zamp.ai on 2026-10-04: only "99%+ accuracy" and "live in four days", plus the Mindbody and Wio Bank quotes), so the app won't invent "Z% less effort"; a sourced figure can be added under `proof.impact`.
+Why it matters: A longer, more concrete mail without a single made-up number.
+Interview line: "If Zamp gives me a real hours-saved number, it goes in one config line; until then the mail only says what Zamp itself publishes."
+Source: docs/09-mail-guardrails.md, https://zamp.ai
+
+### 2026-10-04: A signature the rep owns, with the logo
+What: Default signature Prakhar, +91 9899326396, Zamp, zamp.ai, with the Zamp logo; editable under any draft and stored in a `settings` table. Copy formatted carries the logo; the Gmail link can't.
+Why it matters: Each rep sends as themselves without editing config files.
+Interview line: "Set it once, and every draft and Outbox mail carries it."
+
 ### 2026-10-04: Landing page and a Zamp-inspired visual language
 What: A landing page at / with the trial CTA, features, a comparison table, the research synthesis, and the Beta and rolling-out list from config/features.json. The app moved to /app. Grey canvas, black ink, black pill buttons with monospace labels, electric blue, generated pixel-dither art. No Zamp logo, wordmark or customer logos, and the footer says it is not affiliated.
 Why it matters: The interviewers see their own design language applied with judgment, not copied.
@@ -98,6 +115,38 @@ Interview line: "The retries have a budget, so a busy model slows a run down but
 Source: docs/04-architecture.md (reliability rules)
 
 ## Things I learned
+
+### 2026-10-04: First live runs of the one-call pipeline
+What: Stripe (CFO) and Notion (VP Finance) each drafted in one Gemini call, about 1,250 to 1,520 tokens in and 240 to 260 out, no thinking tokens, every claim and guardrail passing. The old four-call run used about 3,200 in and 430 out plus thinking. Basecamp now abstains: 34 headlines carried the name, none about the company.
+Why it matters: Roughly half the tokens and a quarter of the calls per draft, with the same checks.
+Interview line: "A draft costs one model call of about 1,800 tokens; the research around it is free."
+
+### 2026-10-04: A headline that names the company isn't always about it
+What: "India's Ultraviolette taps Intel CEO as adviser, raises $85 million" became "Intel recently raised 85 million", and the word-overlap claim check passed it. Now a news headline must have the company as its subject (it opens the headline, or a verb follows the name closely; a role word like "CEO" right after it means a person). Mentions, questions ("Can Intel's ... benefit the stock?") and predictions are ranked as eventless: they can support an email but are capped below the 50 bar, and the claim check rejects them as sources for what the company did.
+Why it matters: The worst failure for this product is a confident, wrong fact about the prospect. Intel is now the "only mentioned in the news" case.
+Interview line: "Matching the name is easy; checking the company is the subject of the sentence is what stops a wrong email."
+
+### 2026-10-04: robots.txt wildcards read as "Disallow everything"
+What: The crawler cut each rule at its first "*", so Notion's "Disallow: /*/invite/" became "Disallow: /" and Ramp and Notion looked closed to crawlers. The parser now handles groups of User-agent lines, Allow and Disallow, "*" and "$", and the longest matching rule wins (Allow on a tie), as Google reads robots.txt.
+Why it matters: Big sites were silently stopping at the first step.
+Source: lib/sources/crawler.ts (parseRobots, allowedByRobots)
+
+### 2026-10-04: gemini-flash-lite-latest refuses thinkingBudget 0
+What: Flash-lite answers a plain 400 INVALID_ARGUMENT to thinkingBudget 0, without naming the setting; gemini-flash-latest accepts it (167 thinking tokens saved on a tiny prompt). On a 400 the call is repeated once without the budget and that model is remembered. Model errors now carry a short reason instead of "the model service returned an error".
+Why it matters: A busy flash-latest falls back to flash-lite, and that fallback was failing every time.
+
+### 2026-10-04: Same-name companies are the norm, not the edge case
+What: A live news search for "Basecamp" returned Basecamp Research (a biotech that raised $140M), a $10M "Basecamp" development in Peoria and the Ford Bronco Basecamp, and almost nothing about Basecamp the software company. "Ramp" returned Rivian's "Production Ramp". Three rules catch them without a model: the name must be capitalised, a capitalised word next to it that isn't ordinary headline English or on the company's own site makes it a different name, and a headline sharing a figure ("$140M") with one of those is the same story.
+Why it matters: This is edge case 1 happening on a famous company, and the run shows each dropped headline with its reason.
+Interview line: "Google News matches words, not companies, so I check the words around the name."
+
+### 2026-10-04: Every job signal had the same id
+What: runStage numbered new signals with the context length before any were added, so all five jobs in a step became s2. Hooks citing "s2" cited all of them. Fixed by adding the index.
+Why it matters: Citations pointed at the wrong source on runs with several signals from one step.
+
+### 2026-10-04: Gemini reports tokens per call
+What: response.usageMetadata has promptTokenCount, candidatesTokenCount and thoughtsTokenCount. Flash models think by default, and thinking tokens are billed as output; thinkingConfig.thinkingBudget 0 switches it off.
+Why it matters: The usage meter shows real numbers, and a writing task with the facts already chosen doesn't need thinking.
 
 ### 2026-10-04: page.evaluate and bundled functions
 What: Passing a TypeScript function to Playwright's page.evaluate failed with "__name is not defined": the bundler wraps functions in a helper that doesn't exist inside the page. Passing the extraction as plain script text fixed it.

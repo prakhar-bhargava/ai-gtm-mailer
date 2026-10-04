@@ -4,6 +4,7 @@ import { useState } from "react";
 import { DraftEditor } from "@/components/send-panel";
 import { Section } from "@/components/section";
 import templates from "@/config/templates.json";
+import type { Sender } from "@/lib/sender";
 import type { Draft, ProspectInput } from "@/lib/types";
 
 // Fills the placeholders and returns a draft the editor can use. Templates have no claims, so no source notes appear.
@@ -16,11 +17,13 @@ function fill(text: string, prospect: ProspectInput): string {
 export function TemplateChooser({
   runId,
   prospect,
-  signature,
+  sender,
+  approved,
 }: {
   runId: string;
   prospect: ProspectInput;
-  signature: string[];
+  sender: Sender;
+  approved: string[];
 }) {
   const [chosen, setChosen] = useState<string | null>(null);
   const template = templates.templates.find((item) => item.id === chosen);
@@ -40,7 +43,7 @@ export function TemplateChooser({
             Choose another
           </button>
         </div>
-        <DraftEditor key={template.id} runId={runId} prospect={prospect} draft={draft} signature={signature} />
+        <DraftEditor key={template.id} runId={runId} prospect={prospect} draft={draft} sender={sender} approved={approved} />
       </div>
     );
   }

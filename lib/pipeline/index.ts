@@ -9,13 +9,20 @@ import { hooks } from "@/lib/pipeline/stages/hooks";
 import { draft } from "@/lib/pipeline/stages/draft";
 import { verify } from "@/lib/pipeline/stages/verify";
 import type { Outcome, ProspectInput, StageEvent } from "@/lib/types";
+import { emptyUsage, snapshotUsage, withUsage } from "@/lib/usage";
 
 // Runs every stage in order and returns the outcome.
 // Identity, hooks and draft can stop the run; the three signal sources and verify fail soft.
-export async function runPipeline(prospect: ProspectInput, emit: Emit): Promise<Outcome> {
+// Only the draft step calls the model; everything else is the crawler, free sources and code.
+// The end-of-run event carries what the run used (lib/usage.ts).
+export function runPipeline(prospect: ProspectInput, emit: Emit): Promise<Outcome> {
+  return withUsage(emptyUsage(), () => run(prospect, emit));
+}
+
+async function run(prospect: ProspectInput, emit: Emit): Promise<Outcome> {
   const ctx = newContext(prospect);
   const finish = (status: StageEvent["status"], message: string, outcome: Outcome) => {
-    emit({ stage: "run", status, message, payload: { outcome }, at: new Date().toISOString() });
+    emit({ stage: "run", status, message, payload: { outcome, usage: snapshotUsage() }, at: new Date().toISOString() });
     return outcome;
   };
 

@@ -1,6 +1,6 @@
 import rules from "@/config/mail-rules.json";
 
-// Checks a mail against docs/09-mail-guardrails.md. Pure functions, so the same check runs on the
+// Checks a mail body (without the signature) against docs/09-mail-guardrails.md. Pure functions, so the same check runs on the
 // server (verify step, Send API) and in the browser (live checks while the rep edits).
 
 export type MailCheck = {
@@ -18,18 +18,31 @@ function paragraphs(body: string): string[] {
     .filter(Boolean);
 }
 
-export function checkMail(subject: string, body: string): MailCheck {
+// company: the prospect's company, which the subject must name. approved: the seller's sourced figures
+// (lib/proof.ts), the only numbers about the seller allowed in a mail.
+export type MailContext = { company?: string; approved?: string[] };
+
+export function checkMail(subject: string, body: string, context: MailContext = {}): MailCheck {
   const hard: string[] = [];
   const soft: string[] = [];
   const text = body.trim();
   const lower = `${subject}\n${text}`.toLowerCase();
+  const company = context.company?.trim() ?? "";
 
-  // Subject
+  // Subject: actionable. It names the company and the fact, then the outcome.
   const subjectWords = words(subject);
   if (subjectWords < rules.subject.minWords || subjectWords > rules.subject.maxWords) {
     hard.push(`Subject is ${subjectWords} words; it should be ${rules.subject.minWords} to ${rules.subject.maxWords}`);
   }
-  if (/!/.test(subject) || /\b[A-Z]{4,}\b/.test(subject)) {
+  if (rules.subject.mustNameCompany && company && !subject.toLowerCase().includes(company.toLowerCase())) {
+    hard.push(`Subject should name ${company} and what you saw there`);
+  }
+  const subjectLower = subject.toLowerCase();
+  if (!rules.subject.outcomeWords.some((word) => subjectLower.includes(word))) {
+    soft.push("Subject doesn't say what changes for them (for example \"live in four days\" or \"without adding headcount\")");
+  }
+  const shouting = (subject.match(/\b[A-Z]{4,}\b/g) ?? []).filter((word) => !company.toUpperCase().includes(word));
+  if (/!/.test(subject) || shouting.length) {
     hard.push("Subject shouts: no capitals in words, no exclamation mark");
   }
 
@@ -84,15 +97,18 @@ export function checkMail(subject: string, body: string): MailCheck {
       break;
     }
   }
-  if (new RegExp(rules.roiPattern, "i").test(text)) {
+  // Approved, sourced figures are allowed; any other number about results is not.
+  let unapproved = text;
+  for (const phrase of context.approved ?? []) unapproved = unapproved.split(phrase).join(" ");
+  if (new RegExp(rules.roiPattern, "i").test(unapproved)) {
     hard.push("Contains an ROI figure, which is not allowed");
   }
   const flattery = rules.flatteryWords.find((word) => new RegExp(`\\b${word}\\b`, "i").test(text));
   if (flattery) soft.push(`Flattering word "${flattery}"; state the fact and drop the praise`);
 
-  // Greeting
+  // Greeting: first, on its own line
   if (!new RegExp(rules.greeting).test(text)) {
-    soft.push("Start with a greeting such as \"Hi Name,\"");
+    hard.push("Start with a greeting on its own line, such as \"Hi Name,\"");
   }
 
   return { hard, soft };

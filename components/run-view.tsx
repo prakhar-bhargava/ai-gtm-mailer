@@ -2,7 +2,7 @@
 
 import { CheckCircle2, ChevronDown, Circle, Loader2, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { LiveFeed } from "@/components/run/live-feed";
+import { LiveFeed, latestLines } from "@/components/run/live-feed";
 import { StepGraph } from "@/components/run/step-graph";
 import { STEPS, deriveSteps, type StepState, type StepStatus } from "@/components/run/steps";
 import { WritingPreview } from "@/components/run/writing-preview";
@@ -10,7 +10,8 @@ import { DraftEditor } from "@/components/send-panel";
 import { StatusPill } from "@/components/status-pill";
 import { TemplateChooser } from "@/components/template-chooser";
 import { formatDate, hostOf } from "@/lib/format";
-import { StageEvent, type CrawlPage, type Draft, type Hook, type ProspectInput, type Signal } from "@/lib/types";
+import type { Sender } from "@/lib/sender";
+import { StageEvent, type CrawlPage, type Draft, type Hook, type ProspectInput, type Signal, type Usage } from "@/lib/types";
 
 // Everything the stages found, in the order it arrived. Signals are de-duplicated by source URL.
 function collect(events: StageEvent[]) {
@@ -30,14 +31,16 @@ function collect(events: StageEvent[]) {
 export function RunView({
   runId,
   prospect,
-  signature,
+  sender,
+  approved,
   streamUrl,
   initialEvents,
   replay = false,
 }: {
   runId: string;
   prospect: ProspectInput;
-  signature: string[];
+  sender: Sender;
+  approved: string[];
   streamUrl: string | null; // set for a run that hasn't started; saved runs pass null and show their events
   initialEvents: StageEvent[];
   replay?: boolean;
@@ -110,7 +113,7 @@ export function RunView({
         </p>
       )}
 
-      <StepGraph steps={steps} finished={finished} />
+      <StepGraph steps={steps} finished={finished} latest={finished ? [] : latestLines(events)} />
 
       {!showResult ? (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] [&>*]:min-w-0">
@@ -126,11 +129,11 @@ export function RunView({
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px] [&>*]:min-w-0">
           <div className="grid gap-4">
             {wrote && draft ? (
-              <DraftEditor runId={runId} prospect={prospect} draft={draft} signature={signature} />
+              <DraftEditor runId={runId} prospect={prospect} draft={draft} sender={sender} approved={approved} />
             ) : outcome === "abstained" ? (
               <>
                 <AbstainPanel hooks={hooks} signalCount={signals.length} />
-                <TemplateChooser runId={runId} prospect={prospect} signature={signature} />
+                <TemplateChooser runId={runId} prospect={prospect} sender={sender} approved={approved} />
               </>
             ) : (
               <StoppedPanel message={runEnd?.message ?? ""} steps={steps} />
@@ -140,7 +143,8 @@ export function RunView({
             </Disclosure>
           </div>
           <aside className="grid gap-4" aria-label="How this draft was made">
-            {hooks.length > 0 && <WhyThisHook hooks={hooks} outcome={outcome} />}
+            {hooks.length > 0 && <WhyThisHook hooks={hooks} outcome={outcome} reason={draft?.reason} />}
+            {runEnd?.payload?.usage && <UsagePanel usage={runEnd.payload.usage} />}
             <SourcesPanel signals={signals} />
             {pages.length > 0 && <PagesPanel pages={pages} />}
             <StepsSummary steps={steps} stopped={!wrote && outcome !== "abstained"} />
@@ -174,7 +178,41 @@ function PagesPanel({ pages }: { pages: CrawlPage[] }) {
   );
 }
 
-function WhyThisHook({ hooks, outcome }: { hooks: Hook[]; outcome?: string }) {
+// What the run used. Only the model call costs quota; pages, news and job boards are free.
+function UsagePanel({ usage }: { usage: Usage }) {
+  const tokens = usage.inputTokens + usage.outputTokens + usage.thinkingTokens;
+  const pages = usage.pagesRead + usage.pagesFromCache;
+  const free = usage.freeRequests + usage.freeRequestsFromCache;
+  const rows: [string, string, string][] = [
+    [
+      "Gemini calls",
+      String(usage.modelCalls),
+      usage.modelCallsSaved ? `${usage.modelCallsSaved} answer reused from an earlier run` : "writing the email",
+    ],
+    [
+      "Tokens",
+      tokens.toLocaleString("en-GB"),
+      `${usage.inputTokens.toLocaleString("en-GB")} in, ${usage.outputTokens.toLocaleString("en-GB")} out${usage.thinkingTokens ? `, ${usage.thinkingTokens.toLocaleString("en-GB")} thinking` : ""}`,
+    ],
+    ["Pages read", String(pages), usage.pagesFromCache ? `${usage.pagesFromCache} from the local copy` : "headless browser, free"],
+    ["Free requests", String(free), Object.keys(usage.hosts).length ? Object.keys(usage.hosts).join(", ") : "all from the local copy"],
+  ];
+  return (
+    <Panel title="What this run used">
+      <dl className="grid gap-2.5">
+        {rows.map(([label, value, note]) => (
+          <div key={label} className="grid grid-cols-[1fr_auto] items-baseline gap-x-3">
+            <dt className="text-[13px] text-muted-foreground">{label}</dt>
+            <dd className="text-right text-[18px] tabular-nums tracking-tight">{value}</dd>
+            <dd className="col-span-2 font-mono text-[10.5px] text-foreground/50">{note}</dd>
+          </div>
+        ))}
+      </dl>
+    </Panel>
+  );
+}
+
+function WhyThisHook({ hooks, outcome, reason }: { hooks: Hook[]; outcome?: string; reason?: string }) {
   const used = outcome === "draft" || outcome === "flagged";
   const usable = hooks.filter((hook) => !hook.blockedReason);
   const winner = usable[0];
@@ -194,6 +232,12 @@ function WhyThisHook({ hooks, outcome }: { hooks: Hook[]; outcome?: string }) {
               <dt className="text-muted-foreground">Why now</dt>
               <dd>{winner.whyNow}</dd>
             </div>
+            {used && reason && (
+              <div>
+                <dt className="text-muted-foreground">Why the writer chose it</dt>
+                <dd>{reason}</dd>
+              </div>
+            )}
           </dl>
           <Disclosure label="Score breakdown">
             <ScoreBreakdown hook={winner} />

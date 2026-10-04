@@ -13,10 +13,10 @@ Status: as built on 2026-10-03, with the planned pieces marked. Change anything 
 | Live updates | Server-Sent Events from the stream route; events are saved to the DB first | A reload or a second tab replays the saved run and follows it while it runs. |
 | LLM | Gemini through `@google/genai`, model list in `config/llm.json` | Structured output checked by zod. Busy and rate-limited responses retry and switch model. |
 | Company website | A local headless browser (Playwright, `lib/sources/crawler.ts`), with a plain-HTML fallback when the browser isn't installed | No key and no model tokens. Up to 8 pages per company (home, about, careers, newsroom, blog), robots.txt respected, images and fonts skipped. Each page's title, description, headings, dated posts, structured data and links are read from the DOM and streamed to the run's feed. |
-| News | Google News RSS (keyless) | Matches words, so a model check confirms each headline is about this company. |
+| News | Google News RSS (keyless) | Matches words, so a code check (name capitalised, not inside another name, not a twin story) confirms each headline is about this company. |
 | Hiring | Greenhouse and Ashby public job board APIs (keyless). Board names come from the site's own links first, then guesses. | Finance and ops hiring is a strong signal for Zamp. |
 | Social and LinkedIn | Stored as references only, never fetched | The project rule. LinkedIn is never fetched or scraped. |
-| Rate limit | One limiter for every outside request: 4 per minute (`config/pipeline.json`) | Keeps the model and the sources within free-tier limits. |
+| Rate limit | 4 model calls per minute (`config/pipeline.json`) | One Gemini call per run, so this rarely bites. Free sources have their own timeout and 429 retry, not this limiter. |
 
 Not used: LinkedIn scraping of any kind, Proxycurl (shut down July 2025), paid search tiers, Supabase (see Decisions).
 
@@ -77,11 +77,13 @@ Order, from `lib/pipeline/index.ts`:
 1. **identity** (required). Checks the company's website answers. A typed website is trusted; a guessed one is labelled as a guess. Also saves the company to the accounts list.
 2. **company_site** (optional). Reads the about page, falling back to the homepage. Its first sentence is the company description, used to tell same-name companies apart. Cookie text is skipped.
 3. **discover** (optional). Reads the company's own HTML, then follows its useful pages (about, news, press, blog, careers, team) up to 2 levels deep and 4 pages in total. Records social profiles (not fetched), job-board links (used by the jobs step), and the company's LinkedIn page as a reference.
-4. **news** and **jobs** (optional, run in parallel). News: headlines that name the company and read like business news, then a model check that each one is about this company. Jobs: open finance and ops roles on Greenhouse or Ashby.
-5. **hooks** (required). The model proposes 3 to 5 hooks citing signal IDs. Code scores them with the rubric (recency, verifiability, authorship and seniority are scored in code; relevance and specificity come from the model). Sensitive topics block a hook; blocked hooks stay on screen.
-6. **Decision.** If no unblocked hook scores at least 50, the run ends as **abstained**: no draft, and two options are shown.
-7. **draft** (required). Writes subject and body from the best hook, citing only its signals. The seller's approved value line is used as written.
-8. **verify** (optional). Checks each claim against its signal, asks whether the body states any uncited fact about the prospect, and lints the style. A failed check or a score under 70 makes the draft **flagged**; otherwise it is **draft**.
+4. **news** and **jobs** (optional, run in parallel). News: headlines that name the company and read like business news, then the same-company check in code (`lib/pipeline/same-company.ts`): the name must be capitalised, not part of another name ("Basecamp Research", "Ford Bronco Basecamp"), and not the same story as a headline that is. Dropped headlines go to the feed with their reason. Jobs: open roles on Greenhouse or Ashby, real finance roles (AP, accounting, controller) ahead of sales roles that only mention a finance word.
+5. **hooks** (required, no model). `lib/pipeline/hook-candidates.ts` turns signals into angles: one per news item or dated post, one per group of job roles, one for the company description. `config/hook-lexicon.json` gives each angle a category, its relevance score and the seller pain. Code scores the rest of the rubric. Sensitive topics block an angle; blocked angles stay on screen.
+6. **Decision.** If no unblocked angle scores at least 50, the run ends as **abstained**: no draft, and templates are offered.
+7. **draft** (required, the one model call). The top 3 angles (score 50+), their signals, one customer story per angle, the approved figures and a few lines from the company's own site go to Gemini. It picks an angle, says why, and writes the subject and body with cited claims. Thinking is off.
+8. **verify** (optional, no model). `lib/pipeline/claim-check.ts`: a claim is supported when its numbers are in the cited source and at least 60% of its content words are; sentences about the company that aren't claims, and numbers from nowhere, are listed. Then the mail guardrails (`lib/mail-check.ts`). Any finding or a score under 70 makes the draft **flagged**; otherwise it is **draft**.
+
+Each run is wrapped in `withUsage` (`lib/usage.ts`): model calls and tokens (from Gemini's `usageMetadata`), pages read and free requests are counted and sent on the end-of-run event.
 
 Outcomes: `draft`, `flagged`, `abstained`, `stopped` (a required step failed).
 
@@ -114,7 +116,7 @@ Old saved data stays readable: defaults are used for fields added later, and an 
 
 ## Reliability
 
-- Every outside call goes through `takeSlot()` (4 per minute) and has an 8 s timeout. Source calls retry once after 429. Model calls retry on 429 and 503 with delays 2, 5 and 10 s, switching to the second model in the list.
+- Model calls go through `takeSlot()` (4 per minute). Every source call has an 8 s timeout. Source calls retry once after 429. Model calls retry on 429 and 503 with delays 2, 5 and 10 s, switching to the second model in the list.
 - Every answer is cached by its exact prompt for 24 h, so a repeat search costs no model calls.
 - Each model answer is checked against its schema; a bad answer is retried once with the problem described.
 - A run that crashes still ends as `stopped`. A live connection gives up after 2 minutes without new events.

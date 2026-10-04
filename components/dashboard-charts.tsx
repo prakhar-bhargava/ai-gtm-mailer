@@ -70,7 +70,7 @@ export function DashboardCharts({ analytics, charts }: { analytics: Analytics; c
 
   return (
     <div className="grid gap-4">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Tile label="Runs" value={String(analytics.total)} note="last 14 days">
           <Sparkline values={analytics.perDay.map((day) => day.count)} />
         </Tile>
@@ -79,6 +79,16 @@ export function DashboardCharts({ analytics, charts }: { analytics: Analytics; c
         <Tile label="Claims backed" value={claimTotal ? percent(charts.claims.backed / claimTotal) : "No data"} note={`${charts.claims.backed} of ${claimTotal} checked`} />
         <Tile label="Median run" value={analytics.medianSeconds === null ? "No data" : `${Math.round(analytics.medianSeconds)} s`} note="start to finish" />
         <Tile label="Pages crawled" value={String(charts.pages.total)} note={`${charts.pages.browser} in a browser, 0 tokens`} />
+        <Tile
+          label="Gemini calls per run"
+          value={charts.usage.runs ? (charts.usage.modelCalls / charts.usage.runs).toFixed(1) : "No data"}
+          note={charts.usage.runs ? `over ${charts.usage.runs} measured runs` : "measured from the next run"}
+        />
+        <Tile
+          label="Tokens per run"
+          value={charts.usage.runs ? Math.round(charts.usage.tokens / charts.usage.runs).toLocaleString("en-GB") : "No data"}
+          note={charts.usage.runs ? `free requests per run: ${Math.round(charts.usage.freeRequests / charts.usage.runs)}` : "in, out and thinking"}
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">

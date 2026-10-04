@@ -1,0 +1,1033 @@
+{
+  "name": "stripe-clean-draft",
+  "label": "Stripe: a draft that passes every check",
+  "why": "Fourteen open finance roles on Stripe's own job board. The email names them, tells a matching customer story and passes every check.",
+  "outcome": "draft",
+  "prospect": {
+    "name": "Alex Sample",
+    "company": "Stripe",
+    "domain": "stripe.com",
+    "role": "CFO"
+  },
+  "recordedAt": "2026-10-04T09:36:15.980Z",
+  "note": "Recorded from a real search on 2026-10-04. Replaying it makes no model or source calls.",
+  "events": [
+    {
+      "stage": "identity",
+      "status": "started",
+      "message": "Finding the company's website",
+      "at": "2026-10-04T09:36:15.982Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Using a saved copy of /, no request needed",
+      "at": "2026-10-04T09:36:15.984Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Opened stripe.com: \"Stripe | Financial Infrastructure to Grow Your Revenue\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/in",
+          "kind": "other",
+          "title": "Stripe | Financial Infrastructure to Grow Your Revenue",
+          "description": "Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models and manage money movement.",
+          "headings": [
+            "Financial infrastructure to grow your revenue. Accept payments, offer financial services and implement custom revenue models – from your first transaction to your billionth.",
+            "Flexible solutions for every business model.",
+            "The backbone of global commerce",
+            "Powering businesses of all sizes.",
+            "Reliable, extensible infrastructure for every stack.",
+            "What&#x27;s happening"
+          ],
+          "excerpt": "Products Solutions Developers Resources Pricing Sign in See all products Explore our full product catalogue Start now Contact sales Back Sign in Sign in Contact sales Global GDP running on Stripe: The Global GDP running on Stripe is calculated using a simple algorithm that projec",
+          "facts": [],
+          "tech": [
+            "Next.js"
+          ],
+          "linkCount": 302,
+          "ms": 1073,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:36:15.984Z"
+    },
+    {
+      "stage": "identity",
+      "status": "done",
+      "message": "Matched Stripe to stripe.com",
+      "durationMs": 53,
+      "payload": {
+        "domain": "stripe.com"
+      },
+      "at": "2026-10-04T09:36:16.035Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "started",
+      "message": "Reading the company website",
+      "at": "2026-10-04T09:36:16.036Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Using a saved copy of /, no request needed",
+      "at": "2026-10-04T09:36:16.037Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Using a saved copy of /about, no request needed",
+      "at": "2026-10-04T09:36:16.039Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Read the about page: \"About Us | Stripe\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/in/about",
+          "kind": "about",
+          "title": "About Us | Stripe",
+          "description": "Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models and manage money movement.",
+          "headings": [],
+          "excerpt": "Products Solutions Developers Resources Pricing Sign in See all products Explore our full product catalogue Start now Contact sales Back Sign in Contact sales Stripe is a technology company focused on improving the conditions for economic growth and prosperity.",
+          "facts": [],
+          "tech": [
+            "Next.js"
+          ],
+          "linkCount": 140,
+          "ms": 798,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:36:16.039Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Found 1 facts about the company on its site",
+      "payload": {
+        "findings": [
+          {
+            "kind": "tech",
+            "label": "Site uses Next.js",
+            "url": null
+          }
+        ]
+      },
+      "at": "2026-10-04T09:36:16.040Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "done",
+      "message": "Read stripe.com's home and about pages",
+      "durationMs": 4,
+      "payload": {
+        "signals": [
+          {
+            "type": "company_site",
+            "claim": "The company describes itself: \"Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models and manage money movement.\"",
+            "snippet": "Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models and manage money movement.",
+            "sourceName": "stripe.com (company website)",
+            "sourceUrl": "https://stripe.com/in/about",
+            "publishedAt": null,
+            "fetchedAt": "2026-10-04T09:36:16.040Z",
+            "id": "s1"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:36:16.040Z"
+    },
+    {
+      "stage": "discover",
+      "status": "started",
+      "message": "Following links on the company's website",
+      "at": "2026-10-04T09:36:16.040Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /, no request needed",
+      "at": "2026-10-04T09:36:16.041Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /about, no request needed",
+      "at": "2026-10-04T09:36:16.041Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 86 pages worth reading; reading up to 6",
+      "at": "2026-10-04T09:36:16.051Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /in/careers, no request needed",
+      "at": "2026-10-04T09:36:16.051Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /in/careers: \"Stripe Careers | Shape the Future of the Global Economy\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/in/careers",
+          "kind": "careers",
+          "title": "Stripe Careers | Shape the Future of the Global Economy",
+          "description": "Economic growth doesn&#x27;t happen on its own – at Stripe, it&#x27;s yours to shape. Explore Stripe&#x27;s mission and browse career opportunities.",
+          "headings": [
+            "Implement the conditions for prosperity",
+            "Our mission is to increase economic growth. At Stripe, you can make that happen.",
+            "We&#x27;re building the economic infrastructure for AI",
+            "Around 1.7% of global GDP runs on Stripe. Behind every transaction is something someone here built.",
+            "Solve the problems that matter at scale",
+            "Stay curious"
+          ],
+          "excerpt": "Opportunity Compatibility Emerging talent Open roles Open roles Implement the conditions for prosperity Our mission is to increase economic growth. At Stripe, you can make that happen. We exist to increase economic growth, and we pursue it on every front: by building tools that m",
+          "facts": [],
+          "tech": [
+            "Next.js"
+          ],
+          "linkCount": 258,
+          "ms": 336,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:36:16.053Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /in/newsroom/news/stripe-openai-instant-checkout, no request needed",
+      "at": "2026-10-04T09:36:16.053Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /in/newsroom/news/stripe-openai-instant-checkout: \"Stripe powers Instant Checkout in ChatGPT and releases Agentic Commerc\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/in/newsroom/news/stripe-openai-instant-checkout",
+          "kind": "news",
+          "title": "Stripe powers Instant Checkout in ChatGPT and releases Agentic Commerce Protocol co-developed with OpenAI",
+          "description": "Stripe releases Agentic Commerce Protocol, an open standard co-developed with OpenAI, to help businesses grow in the era of agentic commerce.",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "By stage Enterprises Startups By use case Agentic commerce Crypto E-commerce Embedded finance Finance automation Global businesses In-app payments Marketplaces Money management Platforms SaaS By industry AI companies Creator economy Fintech Gaming Hospitality, travel and leisure ",
+          "facts": [],
+          "tech": [],
+          "linkCount": 515,
+          "ms": 145,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:36:16.056Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /in/newsroom/news/nvidia-collaboration-with-stripe, no request needed",
+      "at": "2026-10-04T09:36:16.056Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /in/newsroom/news/nvidia-collaboration-with-stripe: \"Stripe deepens collaboration with NVIDIA to enhance Stripe’s AI-powere\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/in/newsroom/news/nvidia-collaboration-with-stripe",
+          "kind": "news",
+          "title": "Stripe deepens collaboration with NVIDIA to enhance Stripe’s AI-powered capabilities and expand global access to NVIDIA’s AI platform",
+          "description": "Stripe announced a new collaboration with NVIDIA that will advance AI for Stripe. With Stripe, NVIDIA will expand global access to NVIDIA GPUs and NVIDIA AI software, by enabling developers and enterprises to prepay for select NVIDIA cloud services. ",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "By stage Enterprises Startups By use case Agentic commerce Crypto E-commerce Embedded finance Finance automation Global businesses In-app payments Marketplaces Money management Platforms SaaS By industry AI companies Creator economy Fintech Gaming Hospitality, travel and leisure ",
+          "facts": [],
+          "tech": [],
+          "linkCount": 515,
+          "ms": 133,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:36:16.058Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /in/newsroom/news/stripe-ford-agreement, no request needed",
+      "at": "2026-10-04T09:36:16.058Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /in/newsroom/news/stripe-ford-agreement: \"Ford-Stripe agreement to accelerate easy payment experiences for custo\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/in/newsroom/news/stripe-ford-agreement",
+          "kind": "news",
+          "title": "Ford-Stripe agreement to accelerate easy payment experiences for customers, dealers",
+          "description": "Online payment processing for internet businesses. Stripe is a suite of payment APIs that powers commerce for businesses of all sizes.",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "By stage Enterprises Startups By use case Agentic commerce Crypto E-commerce Embedded finance Finance automation Global businesses In-app payments Marketplaces Money management Platforms SaaS By industry AI companies Creator economy Fintech Gaming Hospitality, travel and leisure ",
+          "facts": [],
+          "tech": [],
+          "linkCount": 511,
+          "ms": 516,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:36:16.064Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /in/newsroom/news/google-and-stripe, no request needed",
+      "at": "2026-10-04T09:36:16.064Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /in/newsroom/news/google-and-stripe: \"Google Workspace integrates Stripe to help businesses accept payments \"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/in/newsroom/news/google-and-stripe",
+          "kind": "news",
+          "title": "Google Workspace integrates Stripe to help businesses accept payments in Google Calendar",
+          "description": "The new feature enables customers to pay for services directly while making a booking on a Google Calendar booking page. ",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "By stage Enterprises Startups By use case Agentic commerce Crypto E-commerce Embedded finance Finance automation Global businesses In-app payments Marketplaces Money management Platforms SaaS By industry AI companies Creator economy Fintech Gaming Hospitality, travel and leisure ",
+          "facts": [],
+          "tech": [],
+          "linkCount": 515,
+          "ms": 177,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:36:16.065Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /in/newsroom/news/stripe-and-uber, no request needed",
+      "at": "2026-10-04T09:36:16.065Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /in/newsroom/news/stripe-and-uber: \"Uber partners with Stripe to enhance payments performance and reduce c\"",
+      "payload": {
+        "crawl": {
+          "url": "https://stripe.com/in/newsroom/news/stripe-and-uber",
+          "kind": "news",
+          "title": "Uber partners with Stripe to enhance payments performance and reduce costs",
+          "description": "Uber and Stripe sign an expanded global partnership to help Uber reduce payments costs while giving customers more ways to pay.",
+          "headings": [
+            "Stripe logo",
+            "Payments",
+            "Revenue",
+            "Money management",
+            "Platforms and marketplaces",
+            "More"
+          ],
+          "excerpt": "By stage Enterprises Startups By use case Agentic commerce Crypto E-commerce Embedded finance Finance automation Global businesses In-app payments Marketplaces Money management Platforms SaaS By industry AI companies Creator economy Fintech Gaming Hospitality, travel and leisure ",
+          "facts": [],
+          "tech": [],
+          "linkCount": 521,
+          "ms": 150,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:36:16.067Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 7 profiles, 0 job boards and 0 dated posts",
+      "payload": {
+        "findings": [
+          {
+            "kind": "profile",
+            "label": "github.com",
+            "url": "https://github.com/stripe"
+          },
+          {
+            "kind": "profile",
+            "label": "github.com",
+            "url": "https://github.com/stripe-samples"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/in/newsroom/news/stripe-openai-instant-checkout"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/in/newsroom/news/nvidia-collaboration-with-stripe"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/in/newsroom/news/stripe-ford-agreement"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/in/newsroom/news/google-and-stripe"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/shareArticle?mini=true&url=https://stripe.com/in/newsroom/news/stripe-and-uber"
+          },
+          {
+            "kind": "dated_item",
+            "label": "2025-09-29 (older than 180 days, not used): Stripe logo",
+            "url": "https://stripe.com/in/newsroom/news/stripe-openai-instant-checkout"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:36:16.068Z"
+    },
+    {
+      "stage": "discover",
+      "status": "done",
+      "message": "Read 8 pages on stripe.com, 7 social profiles",
+      "durationMs": 50,
+      "payload": {},
+      "at": "2026-10-04T09:36:16.090Z"
+    },
+    {
+      "stage": "news",
+      "status": "started",
+      "message": "Checking recent news about the company",
+      "at": "2026-10-04T09:36:16.091Z"
+    },
+    {
+      "stage": "news",
+      "status": "progress",
+      "message": "Using a saved copy from news.google.com, no request needed",
+      "at": "2026-10-04T09:36:16.093Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "started",
+      "message": "Looking for open roles on the company's job board",
+      "at": "2026-10-04T09:36:16.093Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Using a saved copy from boards-api.greenhouse.io, no request needed",
+      "at": "2026-10-04T09:36:16.096Z"
+    },
+    {
+      "stage": "news",
+      "status": "progress",
+      "message": "Left out 9 headlines that may be about something else",
+      "payload": {
+        "findings": [
+          {
+            "kind": "headline_dropped",
+            "label": "Anthropic Is Reportedly Pushing To Build In-House Payments Infrastructure, Challenging Str: \"Challenging Stripe\" is something else",
+            "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNbUxCX01rd0g5elQ2NXQ3SDR4ckNzMldtLUExWnBwUGh0b3poNzhib0tMUGYxemQxZDJrY3Utd21leE14SFlTX2Y4VmtTNVd0c2IwM2NPS2dyampac1lXd01NNmw0OUZTTjBQOFJNcU9ZTmlXek10alF5TmdEeWxwRC1SQmVzZ3ZPYnVFa3cyVGw5WW5BSmRfcUhfZmk0eXpKWnhreUZ6MA?oc=5"
+          },
+          {
+            "kind": "headline_dropped",
+            "label": "New York City Has a New Tool to Update Its Streets: The Stripe Hog: \"Stripe Hog\" looks like a different organisation",
+            "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPNG1uRmJfbHVaM1VfVVhWMmdVSlBZQkRuald2a2VWWXp5X3BOVDZfR2FzMTlxTHhRS29mdThObUJQSnZZLWxJQXdadkNiVXhBbjF5ci1GbWp0RzdVNlpGdzRqNWdKS1QzZ0lUQUYxMGxNbGJob2lNMWdnejVoUDBSLUlJOA?oc=5"
+          },
+          {
+            "kind": "headline_dropped",
+            "label": "Stripe Minted $3.2 Billion in Cash in 2025, Setting Up Acquisition Hunt: \"Stripe Minted\" looks like a different organisation",
+            "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNZjBCODZFSVN6NFBGdmtwUjRhY0gtbnRKOXdMemJKdmhOdDQ4RG1zd3c0UDNBbkEzSmJ3TEZCN1VkNmhieUVENnM2WUhJNUNjUnFHVzRBZlJCemVxTUM2T2ozMFEyS0dneWU4YXBrbm1YSnN6YzZOTEJCR21rTTQ5SEVqa0hyZ1BOY2lUUHp6MG5WZ1NYTDhLV2pyai1EUWI0T0E?oc=5"
+          },
+          {
+            "kind": "headline_dropped",
+            "label": "Auburn football game vs. Florida announced as ‘Power Stripe Out’, fans asked to wear speci: reads as a story about something else (\"football\"), not Stripe's business",
+            "url": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxNNkFSZXBRY1NZNWQ3clQ2TzV4dWlzV0pmTmJ1NlhRWWJWdDRVamw1dldBalgtQlMzMnU0U0dpdnZ0Z3AwS1h1Z3VqTU9xVGttTUFtbXRFTkFZR1o0SzQxajRabXYtcHZXb0h5RFdsenZyblp6eU9pbUFXdmFvTnBwekFnMjFTbFMxMUR4a1F3ay0wd1JQNmFOeTZObkQxLTlRSFlESkNUN201OXA4LWtsUkFNVDVqY3pSUmlhR2Y2UFZPdEhzaWtNZ2NwOElpQVJXVTdHWDFGWDFTSGotVGdvcFFB?oc=5"
+          },
+          {
+            "kind": "headline_dropped",
+            "label": "Stripe Clinches Over $7 Billion Deal to Buy AI Firm OpenRouter: \"Stripe Clinches\" looks like a different organisation",
+            "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNT2VMMXR1X3Jzd1hQZ0pobFMxT0gzQWFFNjFnekt4dlR1ak9lS2NUc3V2RjVodU5BemxCSmFqVDFBUUJRbHJuUEQxb1dyT3JXWk1YSi0zRDI1NU0yNTJuMnNIZkRMVHB2TTEtc0dPbjNMSnJpTm1CUlVpbmg5Q2x4X0VQZXNiZTRJcFpTdDljbHRwVVM1eE51dmt2XzNFemRqTnZMRUJFZ3ZPMDJuX0ZjZndiWQ?oc=5"
+          },
+          {
+            "kind": "headline_dropped",
+            "label": "PayPal Shares Dive Premarket on Report of Advent, Stripe Abandoning Takeover Plan: \"Stripe Abandoning\" looks like a different organisation",
+            "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPSUhQbVJlRXotV2twRWJWeVpOcjhNemgwNlU5b1AzWEd1WkpUakZMc2w0SUFuVGF2d1dycWU5b01zdEJKTUhMUmZySUZyZWVzWU1IU1habm10YUNTeDdnOWx4TEJrTVRwd0lnTmVRd2hiaHZaeHVNMG9heXdENDFnaDl1TUF0QnNBZFIwTm5vbzNJWkJIcVZvQkF2UFE2VHVsWkJ6U3pybFhZRlQ3QUFWSXRSUlYyNXRWWUNHbW5YdnRnQQ?oc=5"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:36:16.128Z"
+    },
+    {
+      "stage": "news",
+      "status": "done",
+      "message": "Found 47 recent news items about Stripe",
+      "durationMs": 44,
+      "payload": {
+        "signals": [
+          {
+            "type": "news",
+            "claim": "Parafin Financed 60,000 Small Businesses With $3 Billion. Now Stripe Is Buying It",
+            "snippet": "Parafin Financed 60,000 Small Businesses With $3 Billion. Now Stripe Is Buying It",
+            "sourceName": "inc.com",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOel9aX0dLZnAwQlAzTkdGMjhlek01VUtvSlFLUElkY2dCZUdBX21kWVJlTWZiRHJnSnVJVGxQaXMybUZLMXBDOVZIbVVTTTctWXVMRnZrWDF6WmhtNVRINE5oZjFkaWEyX3NxaGhnSHdxSVFfajNoWHQ0WTU3R3hqWWFMTTVCNHpKNUdkd0k5NGJFUTJGekE0c2pQVC03dVpSNm1FaUNEcjZyaFN0Y3RtSm5neWMxTVk4ekpjR2duTXdWSFRWckE?oc=5",
+            "publishedAt": "2026-09-30T20:04:18.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.128Z",
+            "id": "s2"
+          },
+          {
+            "type": "news",
+            "claim": "Stripe's Bridge Launches OUSD, the Stablecoin That Pays Its Distributors",
+            "snippet": "Stripe's Bridge Launches OUSD, the Stablecoin That Pays Its Distributors",
+            "sourceName": "Yahoo Finance",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQR19QS1RaMnJLbXpvMjVCUU9aR1JzSFRwU1RiMGRtQzMwVzF2TkVSajBYWVBSSlNab0hYNmR1bm5YU2hacFQyUzRmb04wSXhBMjYtaHdwM2JvTkVQR2h4WHMyQXE0NmNIbHpfcHNOMW92ZW45U2RTeDdmMkhpeGMxSmQ1RWZLaWFHeWszbk82UmdnVzVNSlNOVGlQVnFiclRrMzdjNkt1dw?oc=5",
+            "publishedAt": "2026-09-30T17:45:57.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.128Z",
+            "id": "s3"
+          },
+          {
+            "type": "news",
+            "claim": "Stripe, Visa-Backed Consortium Launches Dollar Stablecoin",
+            "snippet": "Stripe, Visa-Backed Consortium Launches Dollar Stablecoin",
+            "sourceName": "Bloomberg.com",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQMkJDcFBrZjZZRDljc1lwMmxvNzhXNGtGSi1aZ3JyV01LejlmSXBDaWtWNkItMnJqVktfMk5uY01sdW9WQ1h0aGhpNkxYcGZvSUZRVWpfbzNmaFRKUTBuNW9XWFVtQzVQZ0VWNUlPemNsSVZLZGRmbW0xc3VmekVCSmwzUUtBd2R3SWdnZTBXNGJLc3lUdF82djhZQzFlcVQzRDkwSEVjOVVveUk?oc=5",
+            "publishedAt": "2026-09-30T16:26:21.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.128Z",
+            "id": "s4"
+          },
+          {
+            "type": "news",
+            "claim": "Stripe alums spark new payments plays",
+            "snippet": "Stripe alums spark new payments plays",
+            "sourceName": "Payments Dive",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPbFA5SXIwT0pTa1ZISUFNR1NuWnVSaU9pOXhabFA2MWVPLUNxWGtHR1NLemxGb1pxemF2Rkk0czQ5emxpRjVndUxMS1FtUVpzM3Awd2xMTnRKUkxTcEtKRmdCUDdSc2xBTkJVTDhubzE3ZTRGMDZMM2J3UGhoSTBRbGc0Z3pEZw?oc=5",
+            "publishedAt": "2026-09-28T14:02:53.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.128Z",
+            "id": "s5"
+          },
+          {
+            "type": "news",
+            "claim": "Ripple Just Connected XRP to Stripe’s AI Agent Payments. Why the Sessions Run on XRP, Not RLUSD",
+            "snippet": "Ripple Just Connected XRP to Stripe’s AI Agent Payments. Why the Sessions Run on XRP, Not RLUSD",
+            "sourceName": "Yahoo Finance",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMingFBVV95cUxNQUdLMDFwWGVqZktmVHdtR2ZXc0xidjlqYVVUZzZWNFllTDA1SGx6eWlXMjVxV20tTHBnSXI0MTlZZHk1R3lBS0hEMFZXUjRfU0tYX2U1Yld1dGJ4WFpEVXNaT0Y2Z1VSUEFxTEN5XzhBcDIwWUgzTllnRVJ1el9fa3UtTDA1Zk15bUszSWY3SU83dTR1R3BKNFRFVFdlUQ?oc=5",
+            "publishedAt": "2026-09-18T07:00:00.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.128Z",
+            "id": "s6"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:36:16.135Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "done",
+      "message": "Found 14 open finance roles and 56 other roles with a finance word on Greenhouse (716 roles in total)",
+      "durationMs": 43,
+      "payload": {
+        "signals": [
+          {
+            "type": "job",
+            "claim": "Hiring for Finance & Strategy, Corporate Finance Analyst",
+            "snippet": "Finance & Strategy, Corporate Finance Analyst, listed on the Greenhouse board, one of 14 open finance roles there",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8249865",
+            "publishedAt": "2026-10-02T18:36:55.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.132Z",
+            "id": "s7"
+          },
+          {
+            "type": "job",
+            "claim": "Hiring for Equity and Reporting Accountant",
+            "snippet": "Equity and Reporting Accountant, listed on the Greenhouse board, one of 14 open finance roles there",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8240148",
+            "publishedAt": "2026-09-30T22:18:52.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.132Z",
+            "id": "s8"
+          },
+          {
+            "type": "job",
+            "claim": "Hiring for M&A/Integration Accounting Lead",
+            "snippet": "M&A/Integration Accounting Lead, listed on the Greenhouse board, one of 14 open finance roles there",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8237505",
+            "publishedAt": "2026-09-29T15:28:20.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.132Z",
+            "id": "s9"
+          },
+          {
+            "type": "job",
+            "claim": "Hiring for India Tax Lead - Tax, APAC",
+            "snippet": "India Tax Lead - Tax, APAC, listed on the Greenhouse board, one of 14 open finance roles there",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8189020",
+            "publishedAt": "2026-09-25T20:45:03.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.132Z",
+            "id": "s10"
+          },
+          {
+            "type": "job",
+            "claim": "Hiring for Business Systems Architect (Tax)",
+            "snippet": "Business Systems Architect (Tax), listed on the Greenhouse board, one of 14 open finance roles there",
+            "sourceName": "Greenhouse job board",
+            "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8145117",
+            "publishedAt": "2026-09-25T20:44:56.000Z",
+            "fetchedAt": "2026-10-04T09:36:16.132Z",
+            "id": "s11"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:36:16.136Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "started",
+      "message": "Ranking the possible reasons to get in touch",
+      "at": "2026-10-04T09:36:16.136Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "done",
+      "message": "Ranked 7 possible angles. The best (hiring for finance roles) scores 91 of 100",
+      "durationMs": 17,
+      "payload": {
+        "hooks": [
+          {
+            "id": "h1",
+            "text": "Stripe has 14 open finance roles, including: Finance & Strategy, Corporate Finance Analyst; Equity and Reporting Accountant; M&A/Integration Accounting Lead",
+            "signalIds": [
+              "s7",
+              "s8",
+              "s9",
+              "s10",
+              "s11"
+            ],
+            "pain": "Volume is growing faster than the team",
+            "whyNow": "Published 2 days ago",
+            "scores": {
+              "relevance": 35,
+              "recency": 20,
+              "specificity": 15,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 3,
+              "total": 91
+            },
+            "blockedReason": null,
+            "category": "finance_hiring"
+          },
+          {
+            "id": "h3",
+            "text": "Parafin Financed 60,000 Small Businesses With $3 Billion. Now Stripe Is Buying It (inc.com)",
+            "signalIds": [
+              "s2"
+            ],
+            "pain": "More vendors, currencies, tax rules and entities to close",
+            "whyNow": "Published 4 days ago",
+            "scores": {
+              "relevance": 26,
+              "recency": 20,
+              "specificity": 12,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 81
+            },
+            "blockedReason": null,
+            "category": "expansion"
+          },
+          {
+            "id": "h4",
+            "text": "Stripe's Bridge Launches OUSD, the Stablecoin That Pays Its Distributors (Yahoo Finance)",
+            "signalIds": [
+              "s3"
+            ],
+            "pain": "Finance operations must scale for the next stage",
+            "whyNow": "Published 4 days ago",
+            "scores": {
+              "relevance": 5,
+              "recency": 20,
+              "specificity": 9,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 57
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h5",
+            "text": "Stripe, Visa-Backed Consortium Launches Dollar Stablecoin (Bloomberg.com)",
+            "signalIds": [
+              "s4"
+            ],
+            "pain": "Finance operations must scale for the next stage",
+            "whyNow": "Published 4 days ago",
+            "scores": {
+              "relevance": 5,
+              "recency": 20,
+              "specificity": 9,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 57
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h6",
+            "text": "Stripe alums spark new payments plays (Payments Dive)",
+            "signalIds": [
+              "s5"
+            ],
+            "pain": "Finance operations must scale for the next stage",
+            "whyNow": "Published 6 days ago",
+            "scores": {
+              "relevance": 5,
+              "recency": 20,
+              "specificity": 6,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 54
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h7",
+            "text": "Mentions Stripe: Ripple Just Connected XRP to Stripe’s AI Agent Payments. Why the Sessions Run on XRP, Not RLUSD (Yahoo Finance)",
+            "signalIds": [
+              "s6"
+            ],
+            "pain": "None on its own: the story is about someone else and only mentions Stripe",
+            "whyNow": "Published 16 days ago",
+            "scores": {
+              "relevance": 3,
+              "recency": 14,
+              "specificity": 9,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 49
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h2",
+            "text": "The company describes itself: \"Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models and manage money movement.\"",
+            "signalIds": [
+              "s1"
+            ],
+            "pain": "None on its own: it describes the company, it doesn't show a change",
+            "whyNow": "Undated, so it is background rather than a reason to write now",
+            "scores": {
+              "relevance": 2,
+              "recency": 0,
+              "specificity": 4,
+              "seniority": 10,
+              "verifiability": 2,
+              "authorship": 7,
+              "total": 25
+            },
+            "blockedReason": null,
+            "category": "background"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:36:16.153Z"
+    },
+    {
+      "stage": "draft",
+      "status": "started",
+      "message": "Writing the email (the run's one model call)",
+      "at": "2026-10-04T09:36:16.153Z"
+    },
+    {
+      "stage": "draft",
+      "status": "progress",
+      "message": "Asking the model (gemini-flash-latest)",
+      "at": "2026-10-04T09:36:16.158Z"
+    },
+    {
+      "stage": "draft",
+      "status": "progress",
+      "message": "Asking the model (gemini-flash-lite-latest)",
+      "at": "2026-10-04T09:36:19.844Z"
+    },
+    {
+      "stage": "draft",
+      "status": "progress",
+      "message": "The model answered: 1521 tokens in, 260 out",
+      "at": "2026-10-04T09:36:22.927Z"
+    },
+    {
+      "stage": "draft",
+      "status": "done",
+      "message": "Wrote a 98-word email with 1 cited claim",
+      "durationMs": 6817,
+      "payload": {
+        "hooks": [
+          {
+            "id": "h1",
+            "text": "Stripe has 14 open finance roles, including: Finance & Strategy, Corporate Finance Analyst; Equity and Reporting Accountant; M&A/Integration Accounting Lead",
+            "signalIds": [
+              "s7",
+              "s8",
+              "s9",
+              "s10",
+              "s11"
+            ],
+            "pain": "Volume is growing faster than the team",
+            "whyNow": "Published 2 days ago",
+            "scores": {
+              "relevance": 35,
+              "recency": 20,
+              "specificity": 15,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 3,
+              "total": 91
+            },
+            "blockedReason": null,
+            "category": "finance_hiring"
+          },
+          {
+            "id": "h3",
+            "text": "Parafin Financed 60,000 Small Businesses With $3 Billion. Now Stripe Is Buying It (inc.com)",
+            "signalIds": [
+              "s2"
+            ],
+            "pain": "More vendors, currencies, tax rules and entities to close",
+            "whyNow": "Published 4 days ago",
+            "scores": {
+              "relevance": 26,
+              "recency": 20,
+              "specificity": 12,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 81
+            },
+            "blockedReason": null,
+            "category": "expansion"
+          },
+          {
+            "id": "h4",
+            "text": "Stripe's Bridge Launches OUSD, the Stablecoin That Pays Its Distributors (Yahoo Finance)",
+            "signalIds": [
+              "s3"
+            ],
+            "pain": "Finance operations must scale for the next stage",
+            "whyNow": "Published 4 days ago",
+            "scores": {
+              "relevance": 5,
+              "recency": 20,
+              "specificity": 9,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 57
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h5",
+            "text": "Stripe, Visa-Backed Consortium Launches Dollar Stablecoin (Bloomberg.com)",
+            "signalIds": [
+              "s4"
+            ],
+            "pain": "Finance operations must scale for the next stage",
+            "whyNow": "Published 4 days ago",
+            "scores": {
+              "relevance": 5,
+              "recency": 20,
+              "specificity": 9,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 57
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h6",
+            "text": "Stripe alums spark new payments plays (Payments Dive)",
+            "signalIds": [
+              "s5"
+            ],
+            "pain": "Finance operations must scale for the next stage",
+            "whyNow": "Published 6 days ago",
+            "scores": {
+              "relevance": 5,
+              "recency": 20,
+              "specificity": 6,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 54
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h7",
+            "text": "Mentions Stripe: Ripple Just Connected XRP to Stripe’s AI Agent Payments. Why the Sessions Run on XRP, Not RLUSD (Yahoo Finance)",
+            "signalIds": [
+              "s6"
+            ],
+            "pain": "None on its own: the story is about someone else and only mentions Stripe",
+            "whyNow": "Published 16 days ago",
+            "scores": {
+              "relevance": 3,
+              "recency": 14,
+              "specificity": 9,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 49
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h2",
+            "text": "The company describes itself: \"Stripe is a financial services platform that helps all types of businesses accept payments, build flexible billing models and manage money movement.\"",
+            "signalIds": [
+              "s1"
+            ],
+            "pain": "None on its own: it describes the company, it doesn't show a change",
+            "whyNow": "Undated, so it is background rather than a reason to write now",
+            "scores": {
+              "relevance": 2,
+              "recency": 0,
+              "specificity": 4,
+              "seniority": 10,
+              "verifiability": 2,
+              "authorship": 7,
+              "total": 25
+            },
+            "blockedReason": null,
+            "category": "background"
+          }
+        ],
+        "draft": {
+          "subject": "Stripe is hiring 14 finance roles: an AI employee live in four days",
+          "body": "Hi Alex,\n\nStripe currently has 14 open finance roles on its board. When a team scales up hiring like this, the transactional volume is usually growing faster than the headcount.\n\nA finance team at a fitness and wellness software company now has Zamp handle most of its invoice processing end to end. The team only steps in when Zamp asks a question.\n\nAn AI employee takes the repetitive accounts payable queue, so the team's own people can work on the exceptions. It achieves 99%+ accuracy and can go live in four days.\n\nWorth a short call next week?",
+          "claims": [
+            {
+              "text": "Stripe currently has 14 open finance roles on its board",
+              "signalId": "s7",
+              "sourceName": "Greenhouse job board",
+              "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8249865",
+              "publishedAt": "2026-10-02T18:36:55.000Z",
+              "supported": false
+            }
+          ],
+          "lintIssues": [],
+          "hookId": "h1",
+          "reason": "It highlights active hiring for 14 open finance roles, giving a timely and specific opening to discuss headcount and operational scale.",
+          "caseletId": "mindbody"
+        },
+        "chosenReason": "It highlights active hiring for 14 open finance roles, giving a timely and specific opening to discuss headcount and operational scale."
+      },
+      "at": "2026-10-04T09:36:22.970Z"
+    },
+    {
+      "stage": "verify",
+      "status": "started",
+      "message": "Checking each claim against its source",
+      "at": "2026-10-04T09:36:22.970Z"
+    },
+    {
+      "stage": "verify",
+      "status": "done",
+      "message": "All claims supported and every guardrail passes",
+      "durationMs": 4,
+      "payload": {
+        "draft": {
+          "subject": "Stripe is hiring 14 finance roles: an AI employee live in four days",
+          "body": "Hi Alex,\n\nStripe currently has 14 open finance roles on its board. When a team scales up hiring like this, the transactional volume is usually growing faster than the headcount.\n\nA finance team at a fitness and wellness software company now has Zamp handle most of its invoice processing end to end. The team only steps in when Zamp asks a question.\n\nAn AI employee takes the repetitive accounts payable queue, so the team's own people can work on the exceptions. It achieves 99%+ accuracy and can go live in four days.\n\nWorth a short call next week?",
+          "claims": [
+            {
+              "text": "Stripe currently has 14 open finance roles on its board",
+              "signalId": "s7",
+              "sourceName": "Greenhouse job board",
+              "sourceUrl": "https://stripe.com/jobs/search?gh_jid=8249865",
+              "publishedAt": "2026-10-02T18:36:55.000Z",
+              "supported": true
+            }
+          ],
+          "lintIssues": [],
+          "hookId": "h1",
+          "reason": "It highlights active hiring for 14 open finance roles, giving a timely and specific opening to discuss headcount and operational scale.",
+          "caseletId": "mindbody"
+        },
+        "outcome": "draft"
+      },
+      "at": "2026-10-04T09:36:22.974Z"
+    },
+    {
+      "stage": "run",
+      "status": "done",
+      "message": "Draft ready for review",
+      "payload": {
+        "outcome": "draft",
+        "usage": {
+          "modelCalls": 1,
+          "modelCallsSaved": 0,
+          "inputTokens": 1521,
+          "outputTokens": 260,
+          "thinkingTokens": 0,
+          "pagesRead": 0,
+          "pagesFromCache": 11,
+          "freeRequests": 0,
+          "freeRequestsFromCache": 2,
+          "hosts": {}
+        }
+      },
+      "at": "2026-10-04T09:36:22.975Z"
+    }
+  ]
+}

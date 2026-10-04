@@ -34,6 +34,27 @@ export function feedItems(events: StageEvent[]): Item[] {
   return items.reverse();
 }
 
+// One-line summaries of the newest findings, for the "Latest" strip at the top of the run page.
+export function latestLines(events: StageEvent[], count = 3): { key: string; at: string; text: string }[] {
+  const lines: { key: string; at: string; text: string }[] = [];
+  for (const item of feedItems(events)) {
+    if (item.kind === "note") continue;
+    const text =
+      item.kind === "page"
+        ? `Read ${new URL(item.page.url).pathname === "/" ? new URL(item.page.url).host : new URL(item.page.url).pathname}: ${item.page.title}`
+        : item.kind === "signal"
+          ? `${item.signal.type === "news" ? "News" : item.signal.type === "job" ? "Open role" : "Website"}: ${item.signal.claim}`
+          : item.kind === "hooks"
+            ? `Scored ${item.hooks.length} angles; best ${Math.max(...item.hooks.filter((hook) => !hook.blockedReason).map((hook) => hook.scores.total), 0)} of 100`
+            : item.kind === "findings"
+              ? `${item.findings[0]?.kind === "headline_dropped" ? "Left out" : "Found"} ${item.findings.map((finding) => finding.label).slice(0, 3).join(", ")}${item.findings.length > 3 ? ` and ${item.findings.length - 3} more` : ""}`
+              : `${STEP_LABEL[item.stage] ?? item.stage} could not finish`;
+    lines.push({ key: item.key, at: item.at, text });
+    if (lines.length >= count) break;
+  }
+  return lines;
+}
+
 const time = (iso: string) => new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
 export function LiveFeed({ events, compact = false }: { events: StageEvent[]; compact?: boolean }) {
@@ -122,9 +143,11 @@ function FeedItem({ item }: { item: Item }) {
       );
     }
     case "findings": {
-      const icon = item.findings[0]?.kind === "page_skipped" ? <TriangleAlert className="size-3.5" /> : <Link2 className="size-3.5" />;
+      const quiet = item.findings[0]?.kind === "page_skipped" || item.findings[0]?.kind === "headline_dropped";
+      const icon = quiet ? <TriangleAlert className="size-3.5" /> : <Link2 className="size-3.5" />;
+      const meta = item.findings[0]?.kind === "headline_dropped" ? "Headlines left out" : "Found on the site";
       return (
-        <Card icon={icon} at={item.at} meta={`Found on the site (${item.findings.length})`} tone={item.findings[0]?.kind === "page_skipped" ? "quiet" : "default"}>
+        <Card icon={icon} at={item.at} meta={`${meta} (${item.findings.length})`} tone={quiet ? "quiet" : "default"}>
           <ul className="flex flex-wrap gap-1">
             {item.findings.slice(0, 12).map((finding, index) => (
               <li key={`${index}-${finding.kind}-${finding.label}`} className="max-w-full">
@@ -206,6 +229,8 @@ function chip(finding: Finding) {
       return "bg-page text-foreground/70";
     case "page_skipped":
       return "bg-caution-soft text-caution";
+    case "headline_dropped":
+      return "bg-page text-foreground/55";
     default:
       return "bg-page text-foreground/80";
   }

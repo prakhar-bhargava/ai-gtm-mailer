@@ -1,7 +1,7 @@
 import pipeline from "@/config/pipeline.json";
 import { trail } from "@/lib/trail";
 
-// One limiter for every outside request, source sites and the model alike.
+// The limiter for model calls (the only paid, quota-bound requests). Free sources don't use it.
 // At most maxRequestsPerMinute in any 60-second window. Cache hits never reach this.
 const WINDOW_MS = 60_000;
 

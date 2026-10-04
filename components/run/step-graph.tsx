@@ -6,7 +6,15 @@ import { STEPS, type StepState } from "@/components/run/steps";
 
 // The pipeline as a row of nodes. Done steps are black with a tick, the running step pulses blue,
 // a step that couldn't finish turns amber. The running step's latest note sits underneath.
-export function StepGraph({ steps, finished }: { steps: Record<string, StepState>; finished: boolean }) {
+export function StepGraph({
+  steps,
+  finished,
+  latest = [],
+}: {
+  steps: Record<string, StepState>;
+  finished: boolean;
+  latest?: { key: string; at: string; text: string }[];
+}) {
   const [now, setNow] = useState(0);
   useEffect(() => {
     if (finished) return;
@@ -23,7 +31,7 @@ export function StepGraph({ steps, finished }: { steps: Record<string, StepState
   const total = STEPS.reduce((sum, step) => sum + (steps[step.id]?.durationMs ?? 0), 0);
 
   return (
-    <section aria-label="Progress" className="grid gap-4 rounded-2xl border border-line bg-card px-4 py-5 sm:px-6">
+    <section aria-label="Progress" className="grid gap-3 rounded-2xl border border-line bg-card px-4 py-4 sm:px-6">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-[14px] font-medium">{finished ? "Research complete" : "Researching"}</h2>
         <span className="font-mono text-[11px] text-foreground/60 tabular-nums">
@@ -34,10 +42,10 @@ export function StepGraph({ steps, finished }: { steps: Record<string, StepState
       <div className="-mx-1 overflow-x-auto px-1">
       <ol className="relative grid min-w-[560px] grid-cols-8 gap-1" aria-live="polite">
         {/* The line behind the nodes, filled up to the last finished step. */}
-        <span aria-hidden className="absolute top-[15px] right-[6.25%] left-[6.25%] h-px bg-line" />
+        <span aria-hidden className="absolute top-[13px] right-[6.25%] left-[6.25%] h-px bg-line" />
         <span
           aria-hidden
-          className="absolute top-[15px] left-[6.25%] h-px bg-foreground transition-[width] duration-700"
+          className="absolute top-[13px] left-[6.25%] h-px bg-foreground transition-[width] duration-700"
           style={{ width: `${(Math.max(0, done - 1) / (STEPS.length - 1)) * 87.5}%` }}
         />
         {STEPS.map((step, index) => {
@@ -45,7 +53,7 @@ export function StepGraph({ steps, finished }: { steps: Record<string, StepState
           return (
             <li key={step.id} className="relative grid min-w-[64px] justify-items-center gap-2 text-center">
               <span
-                className={`grid size-[30px] place-items-center rounded-full border font-mono text-[11px] transition-colors ${
+                className={`grid size-[26px] place-items-center rounded-full border font-mono text-[10.5px] transition-colors ${
                   state.status === "done"
                     ? "border-foreground bg-foreground text-background"
                     : state.status === "running"
@@ -77,14 +85,26 @@ export function StepGraph({ steps, finished }: { steps: Record<string, StepState
       </ol>
       </div>
 
-      {!finished && running.length > 0 && (
-        <div className="grid gap-1 border-t border-line pt-3">
+      {!finished && (running.length > 0 || latest.length > 0) && (
+        <div className="grid gap-1.5 border-t border-line pt-3" aria-live="polite">
           {running.map((step) => (
             <p key={step.id} className="flex gap-2 font-mono text-[12px] text-foreground/75">
-              <span className="text-electric">{step.short}</span>
+              <span className="shrink-0 text-electric">{step.short}</span>
               <span className="truncate">{steps[step.id]?.latest}</span>
             </p>
           ))}
+          {latest.length > 0 && (
+            <ol className="grid gap-1">
+              {latest.map((line, index) => (
+                <li key={line.key} className={`feed-in flex gap-2 text-[13px] ${index === 0 ? "text-foreground" : "text-foreground/55"}`}>
+                  <span className="shrink-0 font-mono text-[11px] text-foreground/45 tabular-nums">
+                    {index === 0 ? "Latest" : new Date(line.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                  </span>
+                  <span className="truncate">{line.text}</span>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
       )}
     </section>

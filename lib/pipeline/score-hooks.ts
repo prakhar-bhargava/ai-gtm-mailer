@@ -10,6 +10,9 @@ export type RawHook = {
   relevance: number;
   specificity: number;
   sensitiveReason: string | null;
+  // Background, a mere mention or a speculative headline: no event at the company. Such an angle can
+  // support an email but never justify writing one, so its total stays below the flagged threshold.
+  eventless?: boolean;
 };
 
 const SENIOR_ROLE = /\b(chief|cfo|cro|coo|vp|vice president|head|director|president|controller)\b/i;
@@ -34,9 +37,9 @@ function authorshipPoints(signal: Signal): number {
 
 const clamp = (value: number, max: number) => Math.min(Math.max(Math.round(value), 0), max);
 
-// Scores each hook with the rubric in docs/06. The model gives relevance and specificity;
-// code gives recency, verifiability, authorship and seniority, so those can't be talked up.
-export function scoreHooks(raw: RawHook[], signals: Signal[], role: string | undefined, now = Date.now()): Hook[] {
+// Scores each hook with the rubric in docs/06. Relevance and specificity come from the angle lexicon
+// (hook-candidates.ts); recency, verifiability, authorship and seniority from the signals themselves.
+export function scoreHooks<T extends RawHook>(raw: T[], signals: Signal[], role: string | undefined, now = Date.now()): Hook[] {
   const senior = Boolean(role && SENIOR_ROLE.test(role));
   const hooks = raw.map((item, index): Hook => {
     const cited = signals.filter((signal) => item.signalIds.includes(signal.id));
@@ -55,6 +58,7 @@ export function scoreHooks(raw: RawHook[], signals: Signal[], role: string | und
       total: 0,
     };
     scores.total = scores.relevance + scores.recency + scores.specificity + scores.seniority + scores.verifiability + scores.authorship;
+    if (item.eventless) scores.total = Math.min(scores.total, rubric.thresholds.flagged - 1);
 
     const textToCheck = [item.text, item.pain, item.whyNow, ...cited.map((signal) => signal.claim)].join(" ");
     const blockedReason = item.sensitiveReason ?? (sensitiveTopicIn(textToCheck) ? `mentions a sensitive topic (${sensitiveTopicIn(textToCheck)})` : null);
@@ -67,6 +71,7 @@ export function scoreHooks(raw: RawHook[], signals: Signal[], role: string | und
       whyNow: item.whyNow,
       scores,
       blockedReason,
+      category: (item as RawHook & { category?: string }).category,
     };
   });
 

@@ -1,0 +1,629 @@
+{
+  "name": "intel-mentions-only",
+  "label": "Intel: only mentioned in the news",
+  "why": "Plenty of headlines name Intel, but in each one Intel is only mentioned or the headline is a prediction. No event at Intel itself, so no email is written.",
+  "outcome": "abstained",
+  "prospect": {
+    "name": "Alex Sample",
+    "company": "Intel",
+    "domain": "intel.com",
+    "role": "CFO"
+  },
+  "recordedAt": "2026-10-04T09:33:42.069Z",
+  "note": "Recorded from a real search on 2026-10-04. Replaying it makes no model or source calls.",
+  "events": [
+    {
+      "stage": "identity",
+      "status": "started",
+      "message": "Finding the company's website",
+      "at": "2026-10-04T09:33:42.071Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Using a saved copy of /, no request needed",
+      "at": "2026-10-04T09:33:42.074Z"
+    },
+    {
+      "stage": "identity",
+      "status": "progress",
+      "message": "Opened intel.com: \"Intel | Data Center Solutions, IoT, and PC Innovation\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.intel.com/",
+          "kind": "home",
+          "title": "Intel | Data Center Solutions, IoT, and PC Innovation",
+          "description": null,
+          "headings": [],
+          "excerpt": null,
+          "facts": [],
+          "tech": [],
+          "linkCount": 1,
+          "ms": 292,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:33:42.076Z"
+    },
+    {
+      "stage": "identity",
+      "status": "done",
+      "message": "Matched Intel to intel.com",
+      "durationMs": 25,
+      "payload": {
+        "domain": "intel.com"
+      },
+      "at": "2026-10-04T09:33:42.096Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "started",
+      "message": "Reading the company website",
+      "at": "2026-10-04T09:33:42.098Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Using a saved copy of /, no request needed",
+      "at": "2026-10-04T09:33:42.098Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Using a saved copy of /about, no request needed",
+      "at": "2026-10-04T09:33:42.099Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "progress",
+      "message": "Read the about page: \"Innovation starts here\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.intel.com/content/www/us/en/company-overview/company-overview.html",
+          "kind": "about",
+          "title": "Innovation starts here",
+          "description": "​Intel underpins everyday life. We design and manufacture technology that helps us all connect, create, and achieve great things—together.",
+          "headings": [
+            "We build technology that makes world-changing ideas a reality.",
+            "From the first microprocessor to AI chips that shape what's next",
+            "Our mission",
+            "See the values that drive us",
+            "Engineering for the Intelligence Era",
+            "Manufacturing what the world runs on"
+          ],
+          "excerpt": "To create world-changing technology that improves the life of every person on the planet.",
+          "facts": [],
+          "tech": [],
+          "linkCount": 183,
+          "ms": 1625,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:33:42.100Z"
+    },
+    {
+      "stage": "company_site",
+      "status": "done",
+      "message": "Read intel.com's home and about pages",
+      "durationMs": 2,
+      "payload": {
+        "signals": [
+          {
+            "type": "company_site",
+            "claim": "The company describes itself: \"We design and manufacture technology that helps us all connect, create, and achieve great things—together.\"",
+            "snippet": "We design and manufacture technology that helps us all connect, create, and achieve great things—together.",
+            "sourceName": "intel.com (company website)",
+            "sourceUrl": "https://www.intel.com/content/www/us/en/company-overview/company-overview.html",
+            "publishedAt": null,
+            "fetchedAt": "2026-10-04T09:33:42.100Z",
+            "id": "s1"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:33:42.100Z"
+    },
+    {
+      "stage": "discover",
+      "status": "started",
+      "message": "Following links on the company's website",
+      "at": "2026-10-04T09:33:42.101Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /, no request needed",
+      "at": "2026-10-04T09:33:42.101Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /about, no request needed",
+      "at": "2026-10-04T09:33:42.102Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 4 pages worth reading; reading up to 6",
+      "at": "2026-10-04T09:33:42.105Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /content/www/us/en/jobs/life-at-intel.html, no request needed",
+      "at": "2026-10-04T09:33:42.105Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /content/www/us/en/jobs/life-at-intel.html: \"Work and Life at Intel\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.intel.com/content/www/us/en/jobs/life-at-intel.html",
+          "kind": "careers",
+          "title": "Work and Life at Intel",
+          "description": "Here, your life-life is just as important as your work-life. A career at Intel comes with benefits and programs that support your physical, mental, and financial well-being.",
+          "headings": [
+            "Discover your place in our world-changing work.",
+            "This is where people come to do the best work of their careers. To experiment, collaborate, and build technology that makes an impact. People like you.",
+            "Grow with a culture of support",
+            "Build technology that leaves the world better",
+            "Get support that goes beyond work",
+            "Find your place here"
+          ],
+          "excerpt": "Great ideas happen when people feel supported, respected, and empowered to contribute.",
+          "facts": [],
+          "tech": [],
+          "linkCount": 165,
+          "ms": 725,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:33:42.106Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /content/www/us/en/newsroom/subscribe.html, no request needed",
+      "at": "2026-10-04T09:33:42.106Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /content/www/us/en/newsroom/subscribe.html: \"Intel Newsroom | Subscribe for the Latest Updates\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.intel.com/content/www/us/en/newsroom/subscribe.html",
+          "kind": "news",
+          "title": "Intel Newsroom | Subscribe for the Latest Updates",
+          "description": "Intel Newsroom delivers the latest news, announcements, and updates. Subscribe to stay informed on Intel innovations.",
+          "headings": [
+            "Get the latest directly in your inbox",
+            "Thanks for subscribing. You’re officially on the list."
+          ],
+          "excerpt": "Support & Resources Support & Resources Download Center Support Contact Us © Intel Corporation",
+          "facts": [],
+          "tech": [
+            "Marketo"
+          ],
+          "linkCount": 164,
+          "ms": 593,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:33:42.108Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /content/www/us/en/newsroom/home.html, no request needed",
+      "at": "2026-10-04T09:33:42.108Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /content/www/us/en/newsroom/home.html: \"Intel Newsroom | News and Information\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.intel.com/content/www/us/en/newsroom/home.html",
+          "kind": "news",
+          "title": "Intel Newsroom | News and Information",
+          "description": "Intel Newsroom delivers the latest news, announcements, and updates. Stay informed on Intel innovations.",
+          "headings": [
+            "Newsroom",
+            "Latest",
+            "Intel vPro® Certified Program Expands with New Partners",
+            "Intel on-the-ground at the AI Infra Summit",
+            "Googlebook Launches with Intel Core Ultra Series 3 Processors",
+            "Intel Software Optimizations Boost AI Inference in MLPerf v6.1"
+          ],
+          "excerpt": "Get the latest news and analysis direct to your inbox or follow us on social media for real-time alerts.",
+          "facts": [],
+          "tech": [],
+          "linkCount": 368,
+          "ms": 396,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:33:42.111Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Using a saved copy of /content/www/us/en/newsroom/press-hub.html, no request needed",
+      "at": "2026-10-04T09:33:42.112Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Read /content/www/us/en/newsroom/press-hub.html: \"Press hub\"",
+      "payload": {
+        "crawl": {
+          "url": "https://www.intel.com/content/www/us/en/newsroom/press-hub.html",
+          "kind": "news",
+          "title": "Press hub",
+          "description": "Access Intel press kits, logos, images, videos, leadership information, corporate resources and media contacts for journalists and industry analysts.",
+          "headings": [
+            "Press hub",
+            "Press Kit: Intel at Computex 2025",
+            "Press Kit: Intel at Auto Shanghai 2025",
+            "Press Kit: Intel Foundry Direct Connect 2025",
+            "Press Kit: Intel Vision 2025",
+            "Press Kit: Intel Technology Tour 2025"
+          ],
+          "excerpt": "To report a problem or ask a question related to the Intel Newsroom, email Newsroom managers at pressroompublishing@intel.com . Use the form below to contact Intel Public Relations.",
+          "facts": [],
+          "tech": [],
+          "linkCount": 225,
+          "ms": 797,
+          "via": "html"
+        }
+      },
+      "at": "2026-10-04T09:33:42.114Z"
+    },
+    {
+      "stage": "discover",
+      "status": "progress",
+      "message": "Found 8 profiles, 0 job boards and 0 dated posts",
+      "payload": {
+        "findings": [
+          {
+            "kind": "profile",
+            "label": "facebook.com",
+            "url": "https://www.facebook.com/Intel"
+          },
+          {
+            "kind": "profile",
+            "label": "twitter.com",
+            "url": "https://twitter.com/intel"
+          },
+          {
+            "kind": "profile",
+            "label": "linkedin.com",
+            "url": "https://www.linkedin.com/company/intel-corporation"
+          },
+          {
+            "kind": "profile",
+            "label": "instagram.com",
+            "url": "https://www.instagram.com/intel/"
+          },
+          {
+            "kind": "profile",
+            "label": "youtube.com",
+            "url": "https://www.youtube.com/user/channelintel?sub_confirmation=1"
+          },
+          {
+            "kind": "profile",
+            "label": "x.com",
+            "url": "https://x.com/Intel"
+          },
+          {
+            "kind": "profile",
+            "label": "youtube.com",
+            "url": "https://www.youtube.com/user/intelnewsroom"
+          },
+          {
+            "kind": "profile",
+            "label": "youtube.com",
+            "url": "https://www.youtube.com/channel/UCHJnltjgj0Y6xCxPzziHhHA"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:33:42.114Z"
+    },
+    {
+      "stage": "discover",
+      "status": "done",
+      "message": "Read 6 pages on intel.com, 8 social profiles",
+      "durationMs": 36,
+      "payload": {},
+      "at": "2026-10-04T09:33:42.137Z"
+    },
+    {
+      "stage": "news",
+      "status": "started",
+      "message": "Checking recent news about the company",
+      "at": "2026-10-04T09:33:42.138Z"
+    },
+    {
+      "stage": "news",
+      "status": "progress",
+      "message": "Using a saved copy from news.google.com, no request needed",
+      "at": "2026-10-04T09:33:42.139Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "started",
+      "message": "Looking for open roles on the company's job board",
+      "at": "2026-10-04T09:33:42.140Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Asking boards-api.greenhouse.io",
+      "at": "2026-10-04T09:33:42.140Z"
+    },
+    {
+      "stage": "news",
+      "status": "progress",
+      "message": "Left out 1 headline that may be about something else",
+      "payload": {
+        "findings": [
+          {
+            "kind": "headline_dropped",
+            "label": "Intel and Google Cloud Announce Collaboration to Accelerate Intel’s AI-Enabled Enterprise : \"Accelerate Intel\" is something else",
+            "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPQ1JfdnBGTERXSFk0R1UzTHZXS2paeUJ4STRsbVJLV3JOeHUwQV8tOWpOLVNUSUtDdjJhby1YZVI1elpFcFd5dXdaanBKY2U3N3pSRERnV3R0YUt2RTZFX05RVnlIakdtQUZCaU9FenJXYk9OWWVZS2NVT2R0Z1JaZWNkeVFzYmVwcWRJMl9yT3owa2RVM3puUW5fX3hTQm1vckczS3JjWmFLUTZZbjRZTmRNYVpwVW04VUZMaGFTbHBacGpCNndKQ3hlaDRhU1Y5R0Q1SVBucVFUTldibUhjMHkzTVFwV3o0?oc=5"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:33:42.226Z"
+    },
+    {
+      "stage": "news",
+      "status": "done",
+      "message": "Found 47 recent news items about Intel",
+      "durationMs": 89,
+      "payload": {
+        "signals": [
+          {
+            "type": "news",
+            "claim": "Intel CEO says he uses AI agents every day to cut hours of research to minutes",
+            "snippet": "Intel CEO says he uses AI agents every day to cut hours of research to minutes",
+            "sourceName": "calcalistech.com",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBfNHQ5aWJteUFnczlfeDFlSkRFc2NSQjZkTlpJQUhjMDgzS0Q3VDBpaG1PbHc0ZldVRHo4YlJvU1ppU3VVN0ZUbGh2eTFrWnZ4cGphN1BMMzZrcWgtb0ZpNFotM2Z5X2c?oc=5",
+            "publishedAt": "2026-09-28T08:01:00.000Z",
+            "fetchedAt": "2026-10-04T09:33:42.226Z",
+            "id": "s2"
+          },
+          {
+            "type": "news",
+            "claim": "India's Ultraviolette taps Intel CEO as adviser, raises $85 million",
+            "snippet": "India's Ultraviolette taps Intel CEO as adviser, raises $85 million",
+            "sourceName": "Reuters",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQcWZaSUtrWFVyZ3J5YXFhQlVyaGtaU1BSeDlBdnhXLTlVRVVXbnpLLWt0d0NyTmkxNlZQUXJGN1ozRXNYUzFFRERsNXBWSWZ0SVdxcnZHZlNuZFJOQldxQVVENkVRWmNCRU94R0UxSDEzMTJjSFFid0xPdFVWTzJxeGJDS0RpeWtDdHc0SENZZGNBbk9nOEFrenotZ0U5ZWROSlZRSUVjUkg1YWpTVFE?oc=5",
+            "publishedAt": "2026-09-23T07:00:00.000Z",
+            "fetchedAt": "2026-10-04T09:33:42.226Z",
+            "id": "s3"
+          },
+          {
+            "type": "news",
+            "claim": "Prediction: Intel Names a Major Outside Customer for Its Next Factory Process Before 2027",
+            "snippet": "Prediction: Intel Names a Major Outside Customer for Its Next Factory Process Before 2027",
+            "sourceName": "fool.com",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMiywFBVV95cUxNR2I5bUhGV3VxcUZKbEZvVWhnbmJ1UGJOaTUyYUZadXNXQlNkWENQaDdyZ09kX2hyTHZFWUk0NW5YanhQQmZWNEtUZjU2RzI3V2hzeDVhV3JxaVY4dDBVc1ZONDd6QTBsTHJ4N0ZFaTVhZktQQlU2WWFpd0kzVkMxZy1lSDE0TUpDYVgtSTJ6T3pENXBfOU1Mal9zNFB6aHFyZEhaVzhUVzluMlJoWDhkSThWamxWRkJ5N0FncVFGQmJKaG9PQUNsMGRkcw?oc=5",
+            "publishedAt": "2026-09-23T07:00:00.000Z",
+            "fetchedAt": "2026-10-04T09:33:42.226Z",
+            "id": "s4"
+          },
+          {
+            "type": "news",
+            "claim": "Can Intel's Core Ultra Expansion With Googlebook Benefit the Stock?",
+            "snippet": "Can Intel's Core Ultra Expansion With Googlebook Benefit the Stock?",
+            "sourceName": "finance.yahoo.com",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQTGdNZG9MM0luRVhUd3dSWWJOd3cxMGFxZjVmZHg0UjdmOWFJZE11U2l0Wm9peDVwYldsRHJ3aUxDSlcxSWZ0bUZxNC0ya05PdjlaUTFZa2VSS2RjV2RwUmxLWW1xZTdqei1LOFBkTWJ1MnVleFVNUnFqTkFHR25GcVpmcWtIazRQMmwtakQzQmRUWjFocHR3Q3dweENFQU5oUjlDQ2x3?oc=5",
+            "publishedAt": "2026-09-22T07:00:00.000Z",
+            "fetchedAt": "2026-10-04T09:33:42.226Z",
+            "id": "s5"
+          },
+          {
+            "type": "news",
+            "claim": "Googlebook Launches with Intel Core Ultra Series 3 Processors",
+            "snippet": "Googlebook Launches with Intel Core Ultra Series 3 Processors",
+            "sourceName": "Intel",
+            "sourceUrl": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxPRC1Edk83QjdDemRmenpkRzcwdWxmU0VoM1lDbXNqXzFvbG9IaFpNZ3pqRERzaFVtM3pXaElGSzlhM3dJcnUxeHlzQ1FRbVZBWlFhTFJ3RXo5WnljUzJhN2ZqeHkzQ2JIOUVmQUh0aXNoOFNGZlozRTFlNm02OEV1T2VJYUNwa3lmeldGU2ZQSUFrczBvOXBMYXNNVmsyekc1VVpDRnVMRVF2Q0hMMXZ5WDVERGtkWWtxZU0tdWR1Z2dWRnNLNFBRVWNHQktsVTRKMWww?oc=5",
+            "publishedAt": "2026-09-21T07:00:00.000Z",
+            "fetchedAt": "2026-10-04T09:33:42.226Z",
+            "id": "s6"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:33:42.226Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "boards-api.greenhouse.io answered 404",
+      "at": "2026-10-04T09:33:42.562Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "Asking api.ashbyhq.com",
+      "at": "2026-10-04T09:33:42.562Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "progress",
+      "message": "api.ashbyhq.com answered 404",
+      "at": "2026-10-04T09:33:42.676Z"
+    },
+    {
+      "stage": "jobs",
+      "status": "done",
+      "message": "No public job board found for Intel (checked Greenhouse and Ashby)",
+      "durationMs": 536,
+      "payload": {},
+      "at": "2026-10-04T09:33:42.676Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "started",
+      "message": "Ranking the possible reasons to get in touch",
+      "at": "2026-10-04T09:33:42.677Z"
+    },
+    {
+      "stage": "hooks",
+      "status": "done",
+      "message": "Ranked 6 possible angles. The best (company news) scores 49 of 100",
+      "durationMs": 9,
+      "payload": {
+        "hooks": [
+          {
+            "id": "h2",
+            "text": "Mentions Intel: Intel CEO says he uses AI agents every day to cut hours of research to minutes (calcalistech.com)",
+            "signalIds": [
+              "s2"
+            ],
+            "pain": "None on its own: the story is about someone else and only mentions Intel",
+            "whyNow": "Published 6 days ago",
+            "scores": {
+              "relevance": 3,
+              "recency": 20,
+              "specificity": 9,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 49
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h3",
+            "text": "Mentions Intel: India's Ultraviolette taps Intel CEO as adviser, raises $85 million (Reuters)",
+            "signalIds": [
+              "s3"
+            ],
+            "pain": "None on its own: the story is about someone else and only mentions Intel",
+            "whyNow": "Published 11 days ago",
+            "scores": {
+              "relevance": 3,
+              "recency": 20,
+              "specificity": 12,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 49
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h4",
+            "text": "Prediction: Intel Names a Major Outside Customer for Its Next Factory Process Before 2027 (fool.com)",
+            "signalIds": [
+              "s4"
+            ],
+            "pain": "None on its own: the headline asks a question or predicts, it doesn't report an event",
+            "whyNow": "Published 11 days ago",
+            "scores": {
+              "relevance": 3,
+              "recency": 20,
+              "specificity": 12,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 49
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h5",
+            "text": "Can Intel's Core Ultra Expansion With Googlebook Benefit the Stock? (finance.yahoo.com)",
+            "signalIds": [
+              "s5"
+            ],
+            "pain": "None on its own: the headline asks a question or predicts, it doesn't report an event",
+            "whyNow": "Published 12 days ago",
+            "scores": {
+              "relevance": 3,
+              "recency": 20,
+              "specificity": 9,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 49
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h6",
+            "text": "Mentions Intel: Googlebook Launches with Intel Core Ultra Series 3 Processors (Intel)",
+            "signalIds": [
+              "s6"
+            ],
+            "pain": "None on its own: the story is about someone else and only mentions Intel",
+            "whyNow": "Published 13 days ago",
+            "scores": {
+              "relevance": 3,
+              "recency": 20,
+              "specificity": 12,
+              "seniority": 10,
+              "verifiability": 8,
+              "authorship": 5,
+              "total": 49
+            },
+            "blockedReason": null,
+            "category": "other"
+          },
+          {
+            "id": "h1",
+            "text": "The company describes itself: \"We design and manufacture technology that helps us all connect, create, and achieve great things—together.\"",
+            "signalIds": [
+              "s1"
+            ],
+            "pain": "None on its own: it describes the company, it doesn't show a change",
+            "whyNow": "Undated, so it is background rather than a reason to write now",
+            "scores": {
+              "relevance": 2,
+              "recency": 0,
+              "specificity": 4,
+              "seniority": 10,
+              "verifiability": 2,
+              "authorship": 7,
+              "total": 25
+            },
+            "blockedReason": null,
+            "category": "background"
+          }
+        ]
+      },
+      "at": "2026-10-04T09:33:42.686Z"
+    },
+    {
+      "stage": "run",
+      "status": "done",
+      "message": "Nothing specific or recent enough to write about. Choose a value-led generic draft, or deprioritise this prospect",
+      "payload": {
+        "outcome": "abstained",
+        "usage": {
+          "modelCalls": 0,
+          "modelCallsSaved": 0,
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "thinkingTokens": 0,
+          "pagesRead": 0,
+          "pagesFromCache": 9,
+          "freeRequests": 2,
+          "freeRequestsFromCache": 1,
+          "hosts": {
+            "boards-api.greenhouse.io": 1,
+            "api.ashbyhq.com": 1
+          }
+        }
+      },
+      "at": "2026-10-04T09:33:42.687Z"
+    }
+  ]
+}

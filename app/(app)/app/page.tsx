@@ -28,19 +28,19 @@ function buildCases(): CaseCard[] {
     return { id: name, group, company: replay.prospect.company, title, why: replay.why, expected: replay.outcome, replay: name, input: inputFor(fixture) };
   };
   const cases: (CaseCard | null)[] = [
-    fromReplay("basecamp-clean-draft", "happy", "basecamp-thin", "A draft that passes every check"),
-    fromReplay("stripe-flagged", "happy", "stripe-happy", "Strong signals, one claim to check"),
-    fromReplay("ripik-abstain", "look", "abstain-candidate", "Thin footprint: no email written"),
+    fromReplay("stripe-clean-draft", "happy", "stripe-happy", "A draft that passes every check"),
     {
-      id: "intel",
-      group: "look",
-      company: "Intel",
-      title: "Leadership news, no job board",
-      why: "No public job board to read. The premise rests on one headline and gets flagged.",
-      expected: "flagged",
+      id: "notion",
+      group: "happy",
+      company: "Notion",
+      title: "Five finance roles on its job board",
+      why: "The job board is linked from Notion's own site. Run it live: one model call, and the email cites the roles.",
+      expected: "draft",
       replay: null,
-      input: inputFor("intel-leadership"),
+      input: inputFor("notion-hiring"),
     },
+    fromReplay("ripik-abstain", "look", "abstain-candidate", "Thin footprint: no email written"),
+    fromReplay("intel-mentions-only", "look", "intel-leadership", "Only mentioned in the news: no email"),
     {
       id: "same-name",
       group: "look",

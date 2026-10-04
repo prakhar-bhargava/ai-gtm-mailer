@@ -1,20 +1,32 @@
 {
   "_note": "Guardrails for every outreach email. Hard rules block Send. Soft rules are shown as warnings. Explained in docs/09-mail-guardrails.md; change both together.",
   "subject": {
-    "minWords": 2,
-    "maxWords": 4
+    "minWords": 5,
+    "maxWords": 14,
+    "mustNameCompany": true,
+    "outcomeWords": [
+      "fewer",
+      "less",
+      "faster",
+      "hours",
+      "days",
+      "without",
+      "accuracy",
+      "live in",
+      "%"
+    ]
   },
   "body": {
-    "hardMinWords": 40,
-    "hardMaxWords": 130,
-    "targetMinWords": 50,
-    "targetMaxWords": 100,
-    "minParagraphs": 2,
-    "maxParagraphs": 4,
-    "maxSentenceWords": 30,
+    "hardMinWords": 50,
+    "hardMaxWords": 170,
+    "targetMinWords": 70,
+    "targetMaxWords": 130,
+    "minParagraphs": 4,
+    "maxParagraphs": 6,
+    "maxSentenceWords": 32,
     "maxQuestions": 1
   },
-  "greeting": "^(Hi|Hello) \\S+,",
+  "greeting": "^(Hi|Hello|Dear) [^\\n,]+,\\s*\\n",
   "bannedPhrases": [
     "i noticed you recently",
     "i came across your profile",
@@ -26,8 +38,24 @@
     "just checking in",
     "touch base"
   ],
-  "howFoundPatterns": ["linkedin", "\\bi saw\\b", "\\bi noticed\\b", "\\bi came across\\b", "\\byour profile\\b", "\\byour post\\b"],
-  "flatteryWords": ["amazing", "incredible", "love", "excited", "thrilled", "fantastic", "awesome", "impressive"],
+  "howFoundPatterns": [
+    "linkedin",
+    "\\bi saw\\b",
+    "\\bi noticed\\b",
+    "\\bi came across\\b",
+    "\\byour profile\\b",
+    "\\byour post\\b"
+  ],
+  "flatteryWords": [
+    "amazing",
+    "incredible",
+    "love",
+    "excited",
+    "thrilled",
+    "fantastic",
+    "awesome",
+    "impressive"
+  ],
   "roiPattern": "(\\d+(\\.\\d+)?\\s*(x|times|%|percent))|(\\d+\\s*(faster|cheaper|more|less)\\b)",
   "markdownPattern": "(\\*\\*|__|^#{1,6}\\s|^\\s*[-*]\\s|`|\\]\\(|^>\\s)",
   "urlPattern": "https?://|www\\."

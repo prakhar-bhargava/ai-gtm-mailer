@@ -1,9 +1,11 @@
 import pipeline from "@/config/pipeline.json";
 import { cacheGet, cacheSet } from "@/lib/cache";
-import { takeSlot } from "@/lib/rate-limit";
 import { hostOf, trail } from "@/lib/trail";
+import { recordFreeRequest } from "@/lib/usage";
 
-// Every outside call goes through here: a timeout, one retry on 429, and the local cache.
+// Every outside call to a free source goes through here: a timeout, one retry on 429, and the local cache.
+// Free sources are not rate-limited by this app (only model calls are); each one is counted for the usage meter.
+// These are free, keyless sources, so they don't wait for the model's rate limiter.
 // Errors carry the HTTP status so callers can tell "not found" from "broken".
 export class SourceError extends Error {
   constructor(
@@ -21,13 +23,14 @@ export async function fetchText(url: string, options: { cacheKey?: string; accep
   if (options.cacheKey) {
     const cached = cacheGet(options.cacheKey);
     if (cached !== null) {
+      recordFreeRequest(host, true);
       trail(`Using a saved copy from ${host}, no request needed`);
       return cached;
     }
   }
 
   for (let attempt = 0; ; attempt++) {
-    await takeSlot();
+    recordFreeRequest(host, false);
     trail(attempt === 0 ? `Asking ${host}` : `Asking ${host} again after a rate limit`);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), pipeline.sourceTimeoutMs);

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { CopyButton } from "@/components/copy-button";
 import { GmailButton } from "@/components/gmail-button";
 import { getOutboxItem } from "@/lib/outbox";
-import { senderCompany, senderName } from "@/lib/signature";
+import { getSender } from "@/lib/signature";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +13,7 @@ export default async function OutboxItemPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const item = getOutboxItem(id);
   if (!item) notFound();
+  const sender = getSender();
 
   return (
     <main className="mx-auto grid max-w-3xl gap-6">
@@ -34,7 +35,8 @@ export default async function OutboxItemPage({ params }: { params: Promise<{ id:
         <dl className="grid grid-cols-[4.5rem_1fr] gap-y-1.5 border-b border-line px-6 py-5 text-sm sm:px-10">
           <dt className="text-muted-foreground">From</dt>
           <dd>
-            {senderName}, {senderCompany}
+            {sender.name}
+            {sender.company ? `, ${sender.company}` : ""}
           </dd>
           <dt className="text-muted-foreground">To</dt>
           <dd>
@@ -44,7 +46,7 @@ export default async function OutboxItemPage({ params }: { params: Promise<{ id:
           <dt className="text-muted-foreground">Subject</dt>
           <dd className="font-medium">{item.subject}</dd>
         </dl>
-        <div className="max-w-[62ch] px-6 py-8 font-serif text-[16.5px] leading-[1.75] whitespace-pre-wrap sm:px-10">{item.body}</div>
+        <div className="max-w-[64ch] px-6 py-8 font-serif text-[19px] leading-[1.7] whitespace-pre-wrap sm:px-10 sm:text-[20px]">{item.body}</div>
       </article>
 
       <p className="text-sm text-muted-foreground">

@@ -1,0 +1,281 @@
+{
+  "_note": "Ranks angles without a model call. A signal's text is matched against each category's patterns (case-insensitive regular expressions); the highest-relevance match wins. Relevance is the 0 to 35 rubric score from docs/06; pain is an index into the seller brief's pains. Tune here, not in code.",
+  "categories": [
+    {
+      "id": "finance_hiring",
+      "label": "Hiring for finance roles",
+      "relevance": 32,
+      "pain": 0,
+      "types": [
+        "job"
+      ],
+      "patterns": [
+        "accounts? payable",
+        "\\bAP\\b",
+        "accounts? receivable",
+        "\\bAR\\b",
+        "accountant",
+        "accounting",
+        "bookkeep",
+        "controller",
+        "payables",
+        "receivables",
+        "billing (specialist|analyst|operations|ops)",
+        "procure",
+        "treasury (analyst|manager|operations)",
+        "\\btax\\b",
+        "fp&a",
+        "finance (operations|ops|manager|analyst|associate|director|lead)",
+        "financial (analyst|controller|operations)",
+        "payroll",
+        "revenue accountant",
+        "close manager"
+      ]
+    },
+    {
+      "id": "erp",
+      "label": "Finance system change",
+      "relevance": 30,
+      "pain": 1,
+      "types": [
+        "news",
+        "company_site",
+        "job"
+      ],
+      "patterns": [
+        "\\berp\\b",
+        "\\bsap\\b",
+        "s/4hana",
+        "oracle (fusion|netsuite|cloud)",
+        "netsuite",
+        "coupa",
+        "ariba",
+        "workday financ",
+        "dynamics 365",
+        "finance (system|transformation|stack)",
+        "migrat"
+      ]
+    },
+    {
+      "id": "expansion",
+      "label": "Expansion",
+      "relevance": 26,
+      "pain": 2,
+      "types": [
+        "news",
+        "company_site"
+      ],
+      "patterns": [
+        "expan(d|ds|ded|ding|sion)s? (in|into|to|across)\\b",
+        "new (market|office|region|countr|entit|hub)",
+        "enters?\\b",
+        "launch(es|ed)? in",
+        "opens? (in|an? )",
+        "international",
+        "global rollout",
+        "acqui",
+        "merger",
+        "merges?",
+        "\\bbuy(s|ing)?\\b",
+        "to acquire",
+        "takeover"
+      ]
+    },
+    {
+      "id": "funding",
+      "label": "Funding or IPO",
+      "relevance": 24,
+      "pain": 3,
+      "types": [
+        "news",
+        "company_site"
+      ],
+      "patterns": [
+        "rais(es|ed|ing)",
+        "funding",
+        "series [a-h]\\b",
+        "\\bipo\\b",
+        "valuation",
+        "invest(s|ed|ment) (in|from)",
+        "unicorn"
+      ]
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance and audit",
+      "relevance": 20,
+      "pain": 4,
+      "types": [
+        "news",
+        "company_site"
+      ],
+      "patterns": [
+        "complian",
+        "regulat(ory|ion)",
+        "\\baudit",
+        "\\bsox\\b",
+        "\\baml\\b",
+        "\\bkyc\\b",
+        "licen[cs]e"
+      ]
+    },
+    {
+      "id": "growth",
+      "label": "Growth figures",
+      "relevance": 16,
+      "pain": 3,
+      "types": [
+        "news",
+        "company_site"
+      ],
+      "patterns": [
+        "revenue",
+        "\\barr\\b",
+        "growth",
+        "grows?",
+        "record (year|quarter)",
+        "customers",
+        "milestone",
+        "profitab",
+        "\\$\\d"
+      ]
+    },
+    {
+      "id": "partnership",
+      "label": "Partnership",
+      "relevance": 8,
+      "pain": 3,
+      "types": [
+        "news",
+        "company_site"
+      ],
+      "patterns": [
+        "partner",
+        "teams up",
+        "collaborat",
+        "alliance",
+        "integrat"
+      ]
+    },
+    {
+      "id": "other_hiring",
+      "label": "Hiring outside finance",
+      "relevance": 6,
+      "pain": 3,
+      "types": [
+        "job"
+      ],
+      "patterns": [
+        ".*"
+      ]
+    },
+    {
+      "id": "other",
+      "label": "Company news",
+      "relevance": 5,
+      "pain": 3,
+      "types": [
+        "news",
+        "company_site"
+      ],
+      "patterns": [
+        ".*"
+      ]
+    }
+  ],
+  "notFinanceRoles": [
+    "account executive",
+    "account manager",
+    "sales",
+    "business development",
+    "solutions? (engineer|architect|consultant)",
+    "marketing",
+    "engineer",
+    "developer",
+    "designer",
+    "product manager",
+    "customer success",
+    "recruit",
+    "representative",
+    "partner development",
+    "product (manager|marketing|designer|lead)",
+    "\\bsdr\\b",
+    "\\bbdr\\b"
+  ],
+  "differentEntityWords": [
+    "coffee",
+    "cafe",
+    "restaurant",
+    "bar",
+    "brewery",
+    "hotel",
+    "church",
+    "school",
+    "college",
+    "university",
+    "academy",
+    "fc",
+    "club",
+    "county",
+    "city",
+    "band",
+    "film",
+    "movie",
+    "festival",
+    "camp",
+    "realty",
+    "homes",
+    "motors",
+    "mining",
+    "energy",
+    "pharma",
+    "holdings",
+    "foundation",
+    "boutique",
+    "salon",
+    "clinic",
+    "hospital",
+    "farm",
+    "records",
+    "studio",
+    "theatre",
+    "theater"
+  ],
+  "offTopicWords": [
+    "clinical",
+    "trial",
+    "trials",
+    "patients",
+    "patient",
+    "fda",
+    "drug",
+    "therapy",
+    "therapeutics",
+    "dose",
+    "dosing",
+    "enrollment",
+    "oncology",
+    "disease",
+    "mount",
+    "everest",
+    "summit",
+    "hiking",
+    "climbers",
+    "expedition",
+    "troops",
+    "army",
+    "soldiers",
+    "military",
+    "recipe",
+    "football",
+    "soccer",
+    "cricket",
+    "match",
+    "tournament",
+    "league",
+    "election",
+    "wildfire",
+    "police"
+  ],
+  "_offTopicNote": "A headline is dropped when it uses one of offTopicWords and the company's own website never does: the story is about something else that shares the name (a clinical trial called Basecamp, a mountain base camp)."
+}

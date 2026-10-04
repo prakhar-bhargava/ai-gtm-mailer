@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Fragment, useMemo, useState, type ReactNode } from "react";
 import { pillClass } from "@/components/brand";
 import { formatDate, hostOf } from "@/lib/format";
+import { SignatureBlock } from "@/components/signature-block";
 import { copyFormatted, openGmailDraft } from "@/lib/gmail";
 import { checkMail } from "@/lib/mail-check";
+import { signatureLines, type Sender } from "@/lib/sender";
 import type { Claim, Draft, ProspectInput } from "@/lib/types";
 
 // The draft shown as the email it will become. Each sourced sentence is underlined and numbered;
@@ -16,13 +18,17 @@ export function DraftEditor({
   runId,
   prospect,
   draft,
-  signature,
+  sender: initialSender,
+  approved = [],
 }: {
   runId: string;
   prospect: ProspectInput;
   draft: Draft;
-  signature: string[];
+  sender: Sender;
+  approved?: string[]; // the seller's sourced figures, allowed in a mail
 }) {
+  const [sender, setSender] = useState(initialSender);
+  const signature = signatureLines(sender);
   const [subject, setSubject] = useState(draft.subject);
   const [body, setBody] = useState(draft.body);
   const [toEmail, setToEmail] = useState(prospect.email ?? "");
@@ -30,11 +36,12 @@ export function DraftEditor({
   const [state, setState] = useState<"idle" | "saving" | "sent">("idle");
   const [via, setVia] = useState<"gmail" | "outbox">("outbox");
   const [copied, setCopied] = useState(false);
+  const [logoCopied, setLogoCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fullBody = `${body.trimEnd()}\n\n${signature.join("\n")}`;
   // Same rules the server enforces on Send (docs/09-mail-guardrails.md).
-  const checks = checkMail(subject, fullBody);
+  const checks = checkMail(subject, body, { company: prospect.company, approved });
   const unsupported = draft.claims.filter((claim) => !claim.supported);
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail.trim());
   const blocked = checks.hard.length > 0 || !subject.trim() || !body.trim() || !emailValid;
@@ -48,7 +55,7 @@ export function DraftEditor({
       const response = await fetch(`/api/runs/${runId}/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, body: fullBody, toEmail: toEmail.trim() }),
+        body: JSON.stringify({ subject, body, signature, toEmail: toEmail.trim() }),
       });
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "Could not save to the Outbox. Try again.");
@@ -61,14 +68,20 @@ export function DraftEditor({
   }
 
   // Open the tab first, inside the click, so the browser doesn't block it; then record it in the Outbox.
+  // Gmail's link carries plain text only, so the formatted version (with the logo) also goes on the clipboard,
+  // ready to paste over the plain body.
   function openInGmail() {
     openGmailDraft({ to: toEmail, subject, body: fullBody });
+    copyFormatted(subject, body, sender).then(
+      () => setLogoCopied(true),
+      () => setLogoCopied(false),
+    );
     void save("gmail");
   }
 
   async function copy() {
     try {
-      await copyFormatted(subject, body, signature);
+      await copyFormatted(subject, body, sender);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -85,7 +98,9 @@ export function DraftEditor({
         </p>
         <p className="text-[14px] text-muted-foreground">
           {via === "gmail"
-            ? "Check the new Gmail tab: the recipient, subject and paragraphs are filled in. Nothing is sent until you press Send there."
+            ? logoCopied
+              ? "Check the new Gmail tab: the recipient, subject and paragraphs are filled in. The formatted version with your logo is on your clipboard: click into the message, press Ctrl+A (Cmd+A on a Mac) and paste to swap it in. Nothing is sent until you press Send there."
+              : "Check the new Gmail tab: the recipient, subject and paragraphs are filled in. Nothing is sent until you press Send there."
             : "The email is stored in this app. It has not been delivered."}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -131,7 +146,7 @@ export function DraftEditor({
                 onChange={(event) => setToEmail(event.target.value)}
                 placeholder="name@company.com"
                 aria-invalid={toEmail.length > 0 && !emailValid}
-                className="h-10 rounded-xl border border-line bg-white px-3 text-[14px] outline-none focus-visible:border-electric"
+                className="h-11 rounded-xl border border-line bg-white px-3.5 text-[16px] outline-none focus-visible:border-electric"
               />
             </EditField>
             <EditField id="subject" label="Subject">
@@ -139,22 +154,22 @@ export function DraftEditor({
                 id="subject"
                 value={subject}
                 onChange={(event) => setSubject(event.target.value)}
-                className="h-10 rounded-xl border border-line bg-white px-3 text-[14px] outline-none focus-visible:border-electric"
+                className="h-11 rounded-xl border border-line bg-white px-3.5 text-[16px] outline-none focus-visible:border-electric"
               />
             </EditField>
             <EditField id="body" label="Message">
               <textarea
                 id="body"
-                rows={10}
+                rows={11}
                 value={body}
                 onChange={(event) => setBody(event.target.value)}
-                className="rounded-xl border border-line bg-white px-3 py-2.5 font-serif text-[16px] leading-7 outline-none focus-visible:border-electric"
+                className="rounded-xl border border-line bg-white px-4 py-3 font-serif text-[18px] leading-8 outline-none focus-visible:border-electric"
               />
             </EditField>
           </div>
         ) : (
-          <article className="grid max-w-[62ch] gap-5 font-serif text-[16.5px] leading-[1.75]">
-            <p className="font-sans text-[15px]">
+          <article className="grid max-w-[64ch] gap-6 font-serif text-[19px] leading-[1.7] sm:text-[20px]">
+            <p className="font-sans text-[17px]">
               <span className="text-muted-foreground">Subject </span>
               <span className="font-medium">{subject}</span>
             </p>
@@ -164,14 +179,10 @@ export function DraftEditor({
           </article>
         )}
 
-        <div className="grid gap-0.5 font-serif text-[15px] leading-6 text-muted-foreground">
-          {signature.map((line) => (
-            <span key={line}>{line}</span>
-          ))}
-        </div>
+        <SignatureBlock sender={sender} onSaved={setSender} />
 
         {draft.claims.length > 0 && (
-          <ol className="grid gap-2 border-t border-line pt-5 text-[13px]">
+          <ol className="grid gap-2 border-t border-line pt-5 text-[14px]">
             {draft.claims.map((claim, index) => (
               <SourceNote key={`${index}-${claim.text}`} claim={claim} n={index + 1} />
             ))}
@@ -218,7 +229,7 @@ export function DraftEditor({
           )}
         </div>
         <p className="text-[12px] text-muted-foreground">
-          Gmail opens a new message with the recipient, subject, paragraphs and signature filled in. Nothing is sent until you press Send in Gmail.
+          Gmail opens a new message with the recipient, subject, paragraphs and signature filled in. Gmail&apos;s link carries plain text only, so the formatted version with your logo is copied to your clipboard at the same time: paste it over the plain body in Gmail. Nothing is sent until you press Send in Gmail.
         </p>
         {error && (
           <p role="alert" className="text-[13px] text-destructive">
@@ -319,7 +330,7 @@ function Annotated({ body, claims }: { body: string; claims: Claim[] }) {
           }`}
         >
           {body.slice(range.start, range.end)}
-          <sup className={`ml-0.5 font-sans text-[11px] font-medium no-underline ${range.supported ? "text-verified" : "text-caution"}`}>
+          <sup className={`ml-0.5 font-sans text-[12px] font-medium no-underline ${range.supported ? "text-verified" : "text-caution"}`}>
             {range.n}
           </sup>
         </span>,

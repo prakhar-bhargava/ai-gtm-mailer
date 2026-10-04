@@ -1,44 +1,76 @@
+import mailRules from "@/config/mail-rules.json";
+import rubric from "@/config/rubric.json";
 import { generateJson } from "@/lib/llm";
-import { draftSystemPrompt, draftUserPrompt } from "@/lib/pipeline/prompts";
+import { writerSystemPrompt, writerUserPrompt } from "@/lib/pipeline/prompts";
 import type { StageSpec } from "@/lib/pipeline/stage";
-import { draftAnswerSchema, type Claim, type Draft } from "@/lib/types";
+import { allCaselets } from "@/lib/proof";
+import { writerAnswerSchema, type Claim, type Draft } from "@/lib/types";
 
-// Writes the email from the best hook and only the signals that hook cites.
+const MAX_ANGLES = 3;
+const MAX_BACKGROUND = 8;
+
+// The run's one model call. It gets the top angles that cleared the threshold, their signals, the matching
+// customer stories and a little of the company's own website, then picks an angle and writes the email.
 export const draft: StageSpec = {
   id: "draft",
   required: true,
-  startMessage: "Writing the draft email",
+  startMessage: "Writing the email (the run's one model call)",
   run: async (ctx) => {
-    const hook = ctx.hooks.find((item) => !item.blockedReason);
-    if (!hook) throw new Error("no hook is usable for a draft");
+    const usable = ctx.hooks.filter((hook) => !hook.blockedReason);
+    const angles = usable.filter((hook, index) => index === 0 || hook.scores.total >= rubric.thresholds.flagged).slice(0, MAX_ANGLES);
+    if (!angles.length) throw new Error("no hook is usable for a draft");
 
-    const cited = ctx.signals.filter((signal) => hook.signalIds.includes(signal.id));
-    const ids = cited.map((signal) => signal.id) as [string, ...string[]];
+    const signalIds = [...new Set(angles.flatMap((hook) => hook.signalIds))];
+    const signals = ctx.signals.filter((signal) => signalIds.includes(signal.id));
+    const background = [ctx.companyDescription ?? "", ...ctx.siteText]
+      .map((line) => line.replace(/\s+/g, " ").trim())
+      .filter((line, index, all) => line.length >= 25 && line.length <= 220 && all.indexOf(line) === index)
+      .slice(0, MAX_BACKGROUND);
+
     const answer = await generateJson({
-      system: draftSystemPrompt(),
-      prompt: draftUserPrompt(ctx.prospect, hook, cited),
-      schema: draftAnswerSchema(ids),
+      system: writerSystemPrompt(),
+      prompt: writerUserPrompt(ctx.prospect, angles, signals, background),
+      schema: writerAnswerSchema({
+        hookIds: angles.map((hook) => hook.id) as [string, ...string[]],
+        signalIds: signalIds as [string, ...string[]],
+        caseletIds: allCaselets().map((item) => item.id) as [string, ...string[]],
+        company: ctx.prospect.company,
+        subjectWords: [mailRules.subject.minWords, mailRules.subject.maxWords],
+        bodyWords: [mailRules.body.hardMinWords, mailRules.body.hardMaxWords],
+      }),
     });
 
     const claims: Claim[] = answer.claims.map((claim) => {
-      const signal = cited.find((item) => item.id === claim.signalId);
-      if (!signal) throw new Error("the draft cited a signal that does not exist");
+      const signal = signals.find((item) => item.id === claim.signalId)!;
       return {
         text: claim.text,
         signalId: signal.id,
         sourceName: signal.sourceName,
         sourceUrl: signal.sourceUrl,
         publishedAt: signal.publishedAt,
-        supported: false, // set by the verify step
+        supported: false, // set by the check step
       };
     });
 
+    // The chosen angle goes first, so "why this angle" and the check step use it.
+    const chosen = ctx.hooks.find((hook) => hook.id === answer.chosenHookId)!;
+    const reordered = [chosen, ...ctx.hooks.filter((hook) => hook.id !== chosen.id)];
+
     const finished: Draft = {
-      subject: answer.subject,
-      body: answer.body.replace(/\[s:[^\]]+\]/g, "").trim(),
+      subject: answer.subject.trim(),
+      body: answer.body.replace(/\[s:[^\]]+\]/g, "").replace(/\n{3,}/g, "\n\n").trim(),
       claims,
       lintIssues: [],
+      hookId: chosen.id,
+      reason: answer.reason,
+      caseletId: answer.caseletId,
     };
-    return { summary: `Wrote a draft with ${claims.length} cited claim${claims.length === 1 ? "" : "s"}`, draft: finished };
+    const switched = chosen.id !== angles[0].id ? `, choosing angle ${chosen.id} over the top-ranked one` : "";
+    return {
+      summary: `Wrote a ${finished.body.split(/\s+/).filter(Boolean).length}-word email with ${claims.length} cited claim${claims.length === 1 ? "" : "s"}${switched}`,
+      draft: finished,
+      hooks: reordered,
+      chosenReason: answer.reason,
+    };
   },
 };
