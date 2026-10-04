@@ -9,14 +9,16 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Plays a recorded search's events at a steady, watchable pace (about half a minute in all), whatever the
 // original timing was: recorded runs often came from cache and finished in a second. Each event gets a fresh
 // timestamp, and each step's duration is the time it took in this replay.
-const PACE_MS = { started: 650, progress: 420, done: 750, failed: 750 } as const;
+// REPLAY_PACE slows every step by that factor (for screen recordings with a voiceover); 1 by default.
+const PACE = Math.max(0.2, Number(process.env.REPLAY_PACE ?? 1) || 1);
+const PACE_MS = { started: 650 * PACE, progress: 420 * PACE, done: 750 * PACE, failed: 750 * PACE } as const;
 
 export async function playReplay(name: string, emit: (event: ReplayFile["events"][number]) => void) {
   const replay = getReplay(name);
   if (!replay) throw new Error("No recorded search with that name");
   const startedAt = new Map<string, number>();
   for (const event of replay.events) {
-    await sleep(event.stage === "run" ? 600 : PACE_MS[event.status]);
+    await sleep(event.stage === "run" ? 600 * PACE : PACE_MS[event.status]);
     const now = Date.now();
     if (event.status === "started") startedAt.set(event.stage, now);
     const durationMs =

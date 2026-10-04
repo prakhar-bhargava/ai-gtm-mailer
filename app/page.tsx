@@ -261,10 +261,10 @@ function SampleLetter() {
 }
 
 const RULES = [
-  ["Subject of 2 to 4 words", "Blocks sending"],
-  ["Body of 40 to 130 words, aiming for 50 to 100", "Blocks sending"],
+  ["Subject of 5 to 14 words that names the company and the outcome", "Blocks sending"],
+  ["Body of 50 to 170 words, aiming for 70 to 130", "Blocks sending"],
   ["One question at most, no links, no exclamation marks", "Blocks sending"],
-  ["No stock openers, ROI figures or 'I saw on LinkedIn'", "Blocks sending"],
+  ["No figure without a source, no stock openers, no 'I saw on LinkedIn'", "Blocks sending"],
   ["A valid recipient email", "Blocks sending"],
   ["Greeting, paragraph length, flattering words", "Warns"],
 ];

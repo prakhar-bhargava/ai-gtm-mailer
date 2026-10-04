@@ -17,7 +17,7 @@ const STEPS = [
   ["Follow the links", "Job boards, social profiles and dated posts found on the site itself. LinkedIn is recorded as a link, never opened."],
   ["Check news and open roles", "Recent headlines that are about this company, not one with the same name, and open finance and ops roles."],
   ["Pick the best reason to write", "Three to five possible angles, each scored out of 100 on fit, recency, specificity, seniority and source."],
-  ["Write the email", "Premise, value, one question. 50 to 100 words. Every fact is tagged with the source it came from."],
+  ["Write the email", "Greeting, the fact, a customer story, how Zamp helps, one question. 70 to 130 words. Every fact is tagged with the source it came from."],
   ["Check every claim", "Each sourced sentence is checked against its source. Anything unsupported is highlighted for you."],
   ["Hand it to you", "You review, edit and open it in Gmail. Nothing is sent without you."],
 ];
