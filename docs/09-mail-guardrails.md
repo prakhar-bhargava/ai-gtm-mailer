@@ -21,7 +21,7 @@ Changed on 2026-10-04 at the user's request: subjects are now actionable (compan
 | Says what changes for them (an approved figure or words like "without adding headcount", "live in four days") | Consider | Actionable: the reader knows the outcome before opening. |
 | No exclamation mark, no word in capitals (four or more letters) unless it is part of the company's name | Must fix | Shouting reads as marketing. |
 
-Pattern: `<Company> is <the fact>: <outcome>`. Examples: "Stripe has 14 open finance roles: an AI employee live in four days", "Acme is expanding to Brazil: scale AP without adding headcount".
+Pattern: `<Company> is <the fact>: <outcome>`. Examples: "Northwind has 14 open finance roles: an AI employee live in four days", "Northwind is expanding to Brazil: scale AP without adding headcount". (Northwind is a made-up company used only in examples.)
 
 ## Length and paragraphs
 

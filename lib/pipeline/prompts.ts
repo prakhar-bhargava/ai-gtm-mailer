@@ -23,7 +23,7 @@ export function writerSystemPrompt(): string {
     "Choose the angle that gives the most concrete, recent reason for a finance leader to reply. Prefer the first unless another is clearly more specific. Return its id and a reason under 25 words.",
     "",
     `Subject: ${mailRules.subject.minWords} to ${mailRules.subject.maxWords} words, actionable. Name the company and the fact or problem you saw, then what ${seller.seller} changes, using an approved figure.`,
-    `Pattern: "<Company> is <the fact>: <outcome>". Examples: "Acme is hiring three AP roles: an AI employee live in four days", "Acme is expanding to Brazil: scale AP without adding headcount".`,
+    `Pattern: "<Company> is <the fact>: <outcome>". Examples: "Northwind is hiring three AP roles: an AI employee live in four days", "Northwind is expanding to Brazil: scale AP without adding headcount".`,
     "",
     "Body, in this order, paragraphs separated by one blank line:",
     "1. The greeting on its own line: \"Hi <first name>,\"",

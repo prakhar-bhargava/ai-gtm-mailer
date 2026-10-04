@@ -52,7 +52,7 @@ export function AccountForm() {
     <Section title="Add details" description="Add a website or LinkedIn page to a company, or a person at it. LinkedIn links are saved for reference only.">
       <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
         <Field id="company" label="Company" required />
-        <Field id="domain" label="Website" placeholder="acme.com" />
+        <Field id="domain" label="Website" placeholder="northwind.com" />
         <Field id="companyLinkedinUrl" label="Company LinkedIn" placeholder="linkedin.com/company/..." />
         <Field id="personName" label="Person" placeholder="Priya Shah" />
         <Field id="role" label="Role" placeholder="Head of Finance" />

@@ -20,9 +20,9 @@ export type CaseCard = {
 
 const REQUIRED = [
   { id: "name", label: "Name", placeholder: "Priya Shah", type: "text", autoComplete: "off" },
-  { id: "company", label: "Organisation", placeholder: "Acme Payments", type: "text", autoComplete: "organization" },
-  { id: "domain", label: "Website", placeholder: "acmepayments.com", type: "text", autoComplete: "url" },
-  { id: "email", label: "Recipient email", placeholder: "priya@acmepayments.com", type: "email", autoComplete: "off" },
+  { id: "company", label: "Organisation", placeholder: "Northwind Payments", type: "text", autoComplete: "organization" },
+  { id: "domain", label: "Website", placeholder: "northwindpayments.com", type: "text", autoComplete: "url" },
+  { id: "email", label: "Recipient email", placeholder: "priya@northwindpayments.com", type: "email", autoComplete: "off" },
 ] as const;
 
 export function RunForm({ cases = [] }: { cases?: CaseCard[] }) {
